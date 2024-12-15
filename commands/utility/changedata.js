@@ -52,8 +52,8 @@ module.exports = {
 
     // Create the initial embed message
     const embed = new EmbedBuilder()
-      .setColor(0xFF0000) // Set color to red
-      .setTitle(`${targetUser.username} (${targetUser.nickname || 'No nickname'})`) // Show username and nickname
+      .setColor(0xFFFF00) // Set color to neon yellow
+      .setTitle(targetUser.nickname ? `${targetUser.username} (${targetUser.nickname})` : `${targetUser.username}`) // Show username and nickname if available
       .setDescription('A new data change request has been submitted.')
       .addFields(
         { name: 'Target User', value: `${targetUser.tag}`, inline: true },
