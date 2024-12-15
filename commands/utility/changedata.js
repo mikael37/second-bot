@@ -81,7 +81,7 @@ module.exports = {
     const channel = interaction.client.channels.cache.get('1317870586760007802');
     if (channel) {
       try {
-        await interaction.deferReply({ ephemeral: true }); // Ensure interaction is deferred
+        await interaction.reply({ content: 'Processing your request...', ephemeral: true }); // Direct reply to interaction
         await channel.send({ embeds: [embed], components: [row] });
       } catch (error) {
         console.error('Error sending interaction response:', error);
@@ -94,11 +94,14 @@ module.exports = {
   async buttonInteractionHandler(interaction) {
     if (interaction.isButton()) {
       try {
+        const targetUser = interaction.message.embeds[0].fields[0].value; // Get the target user dynamically
+        const user = await interaction.guild.members.fetch(targetUser);
+
         if (interaction.customId === 'confirm') {
           const updatedEmbed = new EmbedBuilder(interaction.message.embeds[0])
-            .setColor(0x00FF00)
-            .setTitle(`@${targetUser.username} (${targetUser.nickname || 'No nickname'})`)
-            .setDescription('The data change request has been successfully processed.')
+            .setColor(0x00FF00) // Green color for success
+            .setTitle(`${user.user.username} (${user.nickname || 'No nickname'})`)
+            .setDescription('The data change request has been successfully processed.');
 
           await interaction.update({
             embeds: [updatedEmbed],
@@ -106,15 +109,15 @@ module.exports = {
           });
         } else if (interaction.customId === 'cancel') {
           const canceledEmbed = new EmbedBuilder()
-            .setColor(0xFF0000)
-            .setTitle(`${targetUser.username} (${targetUser.nickname || 'No nickname'})`)
+            .setColor(0xFF0000) // Red color (can be changed to another color)
+            .setTitle(`Request Canceled by ${interaction.user.username}`)
             .setDescription('The data change request has been canceled.')
             .setTimestamp()
-            .setFooter({ text: `Deleted by @${interaction.user.tag}` });
+            .setFooter({ text: `Deleted by ${interaction.user.tag}` }); // Footer with the user who pressed cancel
 
           await interaction.update({
             embeds: [canceledEmbed],
-            components: [],
+            components: [], // Remove buttons
           });
         }
       } catch (error) {
