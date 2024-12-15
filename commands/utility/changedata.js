@@ -50,15 +50,10 @@ module.exports = {
     const targetData = interaction.options.getString('target_data');
     const newValue = interaction.options.getString('new_value');
     const additionalDetail = interaction.options.getString('additional_detail') || 'None';
-    
-    // Ensure all required data is present
-    if (!targetUser || !targetData) {
-      return interaction.reply({ content: 'Missing required fields.', ephemeral: true });
-    }
 
-    // Create the embed message
+    // Create the initial embed message
     const embed = new EmbedBuilder()
-      .setColor(0x0099FF) // Blue color
+      .setColor(0x0099FF) // Blue color initially
       .setTitle('Modification Request')
       .setDescription('A new data change request has been submitted.')
       .addFields(
@@ -70,33 +65,59 @@ module.exports = {
       .setTimestamp()
       .setFooter({ text: `Requested by ${interaction.user.tag}` });
 
-    const channel = interaction.client.channels.cache.get('1317870586760007802');
-    
-    // Define buttons
+    // Buttons for confirming the data change
     const confirm = new ButtonBuilder()
       .setCustomId('confirm')
-      .setLabel('Confirm Ban')
-      .setStyle(ButtonStyle.Danger);
+      .setLabel('Mark as Completed')
+      .setStyle(ButtonStyle.Success); // Green color for success
 
     const cancel = new ButtonBuilder()
       .setCustomId('cancel')
       .setLabel('Cancel')
-      .setStyle(ButtonStyle.Secondary);
+      .setStyle(ButtonStyle.Danger); // Red color for cancel
 
     const row = new ActionRowBuilder()
-      .addComponents(cancel, confirm);
+      .addComponents(confirm, cancel);
 
+    // Send the embed and buttons to a channel
+    const channel = interaction.client.channels.cache.get('1317870586760007802');
     if (channel) {
-      // Send the embed to the channel with buttons
       await channel.send({ embeds: [embed], components: [row] });
 
-      // Reply to the interaction, acknowledging the command
-      await interaction.reply({ 
-        content: 'Request submitted.',
-        ephemeral: true 
-      });
+      // Acknowledge the command with an ephemeral reply
+      await interaction.reply({ content: 'Request submitted.', ephemeral: true });
     } else {
       console.error('Channel not found.');
+    }
+  },
+
+  async buttonInteractionHandler(interaction) {
+    if (!interaction.isButton()) return;
+
+    // Handle the button interaction
+    if (interaction.customId === 'confirm') {
+      // Edit the original message (embed) when "Mark as Completed" is pressed
+      const updatedEmbed = new EmbedBuilder(interaction.message.embeds[0])
+        .setColor(0x00FF00) // Green color to indicate success
+        .setTitle('Request Completed') // Updated title
+        .setDescription('The data change request has been successfully processed.')
+        .addFields(
+          { name: 'Status', value: 'Completed', inline: true }
+        );
+
+      // Update the message with new embed and disable buttons
+      await interaction.update({
+        embeds: [updatedEmbed],
+        components: [],
+      });
+    }
+
+    if (interaction.customId === 'cancel') {
+      // If "Cancel" is pressed, just acknowledge the cancelation
+      await interaction.update({
+        content: 'The data change request has been canceled.',
+        components: [],
+      });
     }
   },
 };
