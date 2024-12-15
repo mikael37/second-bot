@@ -6,17 +6,18 @@ module.exports = {
     .setDescription('Submit a request to change data')
 	.addStringOption(option =>
 		option.setName('Target User')
-		.setDescription('The individual to be affected by the request.')
-		.setRequired(true),
+			.setDescription('The individual to be affected by the request.')
+			.setRequired(true))
 
-		option.setName('Target Data(s)')
-		.setDescription('The revised value for the data.')
-		.setRequired(true),
+		.addStringOption(option =>
+			option.setName('Target Data(s)')
+			.setDescription('The revised value for the data.')
+			.setRequired(true))
 
+		.addStringOption(option =>
 		option.setName('Additional Detail(s)')
-		.setDescription('Any extra context/information that may be necessary.')
-		.setRequired(false)
-	),
+			.setDescription('Any extra context/information that may be necessary.')
+			.setRequired(false)),
 	
 
   async execute(interaction) {
