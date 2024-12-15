@@ -82,7 +82,9 @@ module.exports = {
     if (channel) {
       try {
         await interaction.reply({ content: 'Processing your request...', ephemeral: true }); // Direct reply to interaction
-        await channel.send({ embeds: [embed], components: [row] });
+        const message = await channel.send({ embeds: [embed], components: [row] });
+        // Store necessary information in the message for future reference
+        message.targetUser = targetUser; // Attach targetUser to message
       } catch (error) {
         console.error('Error sending interaction response:', error);
       }
@@ -94,13 +96,13 @@ module.exports = {
   async buttonInteractionHandler(interaction) {
     if (interaction.isButton()) {
       try {
-        const targetUser = interaction.message.embeds[0].fields[0].value; // Get the target user dynamically
-        const user = await interaction.guild.members.fetch(targetUser);
+        // Retrieve the targetUser stored on the message
+        const targetUser = interaction.message.targetUser;
 
         if (interaction.customId === 'confirm') {
           const updatedEmbed = new EmbedBuilder(interaction.message.embeds[0])
             .setColor(0x00FF00) // Green color for success
-            .setTitle(`${user.user.username} (${user.nickname || 'No nickname'})`)
+            .setTitle(`${targetUser.username} (${targetUser.nickname || 'No nickname'})`)
             .setDescription('The data change request has been successfully processed.');
 
           await interaction.update({
