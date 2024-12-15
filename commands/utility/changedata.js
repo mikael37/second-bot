@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, MessageFlags  } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -45,15 +45,13 @@ module.exports = {
     ),
 
   async execute(interaction) {
-    // Retrieve options
     const targetUser = interaction.options.getUser('target');
     const targetData = interaction.options.getString('target_data');
     const newValue = interaction.options.getString('new_value');
     const additionalDetail = interaction.options.getString('additional_detail') || 'None';
 
-    // Create the initial embed message
     const embed = new EmbedBuilder()
-      .setColor(0x0099FF) // Blue color initially
+      .setColor(0x0099FF)
       .setTitle('Modification Request')
       .setDescription('A new data change request has been submitted.')
       .addFields(
@@ -65,59 +63,50 @@ module.exports = {
       .setTimestamp()
       .setFooter({ text: `Requested by ${interaction.user.tag}` });
 
-    // Buttons for confirming the data change
     const confirm = new ButtonBuilder()
       .setCustomId('confirm')
       .setLabel('Mark as Completed')
-      .setStyle(ButtonStyle.Success); // Green color for success
+      .setStyle(ButtonStyle.Success);
 
     const cancel = new ButtonBuilder()
       .setCustomId('cancel')
       .setLabel('Cancel')
-      .setStyle(ButtonStyle.Danger); // Red color for cancel
+      .setStyle(ButtonStyle.Danger);
 
-    const row = new ActionRowBuilder()
-      .addComponents(confirm, cancel);
+    const row = new ActionRowBuilder().addComponents(confirm, cancel);
 
-    // Send the embed and buttons to a channel
     const channel = interaction.client.channels.cache.get('1317870586760007802');
     if (channel) {
+      await interaction.deferReply({ ephemeral: true });
       await channel.send({ embeds: [embed], components: [row] });
-
-      // Acknowledge the command with an ephemeral reply
-      await interaction.reply({ content: 'Request submitted.', ephemeral: true });
     } else {
       console.error('Channel not found.');
     }
   },
 
   async buttonInteractionHandler(interaction) {
-	if (interaction.isButton()) {
-		try {
-		  if (interaction.customId === 'confirm') {
-			// Edit the original message when the button is clicked
-			const updatedEmbed = new EmbedBuilder(interaction.message.embeds[0])
-			  .setColor(0x00FF00) // Green color to indicate success
-			  .setTitle('Request Completed') // Updated title
-			  .setDescription('The data change request has been successfully processed.')
-			  .addFields(
-				{ name: 'Status', value: 'Completed', inline: true }
-			  );
-	  
-			await interaction.update({
-			  embeds: [updatedEmbed],
-			  components: [],
-			});
-		  } else if (interaction.customId === 'cancel') {
-			// Handle cancel button press
-			await interaction.update({
-			  content: 'The data change request has been canceled.',
-			  components: [],
-			});
-		  }
-		} catch (error) {
-		  console.error('Error handling button interaction:', error);
-		}
-	  }	  
+    if (interaction.isButton()) {
+      try {
+        if (interaction.customId === 'confirm') {
+          const updatedEmbed = new EmbedBuilder(interaction.message.embeds[0])
+            .setColor(0x00FF00)
+            .setTitle('Request Completed')
+            .setDescription('The data change request has been successfully processed.')
+            .addFields({ name: 'Status', value: 'Completed', inline: true });
+
+          await interaction.update({
+            embeds: [updatedEmbed],
+            components: [],
+          });
+        } else if (interaction.customId === 'cancel') {
+          await interaction.update({
+            content: 'The data change request has been canceled.',
+            components: [],
+          });
+        }
+      } catch (error) {
+        console.error('Error handling button interaction:', error);
+      }
+    }
   },
 };
