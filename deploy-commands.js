@@ -1,10 +1,9 @@
-import { REST, Routes } from 'discord.js';
-import dotenv from 'dotenv';
-dotenv.config();
-import fs from 'fs';
-import path from 'path';  // Correctly import path first
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+const { REST, Routes } = require('discord.js');
+const dotenv = require('dotenv');
+const fs = require('fs');
+const path = require('path');
+const { fileURLToPath } = require ('url');
+const { dirname } = require('path');
 
 // Define __dirname using ES Module syntax
 const __filename = fileURLToPath(import.meta.url);

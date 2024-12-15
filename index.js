@@ -1,9 +1,9 @@
-import { Client, Collection, Events, GatewayIntentBits, REST, Routes } from 'discord.js';
-import dotenv from 'dotenv';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+const { Client, Collection, Events, GatewayIntentBits, REST, Routes } = require('discord.js');
+require('dotenv').config();
+const fs = require('fs');
+const path = require('path');
+const { fileURLToPath } = require('url');
+const { dirname } = require('path');
 
 // Load environment variables
 dotenv.config();
