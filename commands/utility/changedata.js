@@ -112,16 +112,10 @@ module.exports = {
 		} else if (subcommand === 'remove') {
 		  const targetUser = interaction.options.getUser('target');
 	  
-		  // Fetch the target user as a guild member to get their server nickname
 		  const targetMember = await interaction.guild.members.fetch(targetUser.id);
-	  
-		  // Use targetMember.nickname if it exists, otherwise fallback to username
+	
 		  const nickname = targetMember.nickname || targetUser.username;
 	  
-		  // Simulate database removal logic (replace with actual logic)
-		  // For example: deleteUserData(targetUser.id); (Placeholder for actual database removal)
-	  
-		  // Create an embed for removal confirmation
 		  const embed = new EmbedBuilder()
 			.setColor(0x0D47A1)
 			.setTitle(`Data Removal: ${targetUser.username} (${nickname})`)
@@ -129,12 +123,25 @@ module.exports = {
 			.setTimestamp()
 			.setFooter({ text: `Requested by ${interaction.user.tag}` });
 	  
+
+			const confirm = new ButtonBuilder()
+			.setCustomId('confirm')
+			.setLabel('Mark as Completed')
+			.setStyle(ButtonStyle.Success);
+	  
+		  const cancel = new ButtonBuilder()
+			.setCustomId('cancel')
+			.setLabel('Cancel')
+			.setStyle(ButtonStyle.Danger);
+	  
+		  const row = new ActionRowBuilder().addComponents(confirm, cancel);
+
 		  // Send the removal confirmation embed to a channel
 		  const channel = interaction.client.channels.cache.get('1317870586760007802');
 		  if (channel) {
 			try {
 			  await interaction.reply({ content: 'Processing the removal request...', ephemeral: true });
-			  await channel.send({ embeds: [embed] });
+			  await channel.send({ embeds: [embed], components: [row] });
 			} catch (error) {
 			  console.error('Error sending interaction response:', error);
 			}
