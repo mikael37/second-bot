@@ -96,10 +96,9 @@ module.exports = {
       try {
         if (interaction.customId === 'confirm') {
           const updatedEmbed = new EmbedBuilder(interaction.message.embeds[0])
-            .setColor(0x00FF00) // Green color for success
-            .setTitle('Request Completed')
+            .setColor(0x00FF00)
+            .setTitle(`@${targetUser.username} (${targetUser.nickname || 'No nickname'})`)
             .setDescription('The data change request has been successfully processed.')
-            .addFields({ name: 'Status', value: 'Completed', inline: true });
 
           await interaction.update({
             embeds: [updatedEmbed],
@@ -107,15 +106,15 @@ module.exports = {
           });
         } else if (interaction.customId === 'cancel') {
           const canceledEmbed = new EmbedBuilder()
-            .setColor(0xFF0000) // Red color (can be changed to another color)
-            .setTitle('Request Canceled') // Title change
+            .setColor(0xFF0000)
+            .setTitle(`${targetUser.username} (${targetUser.nickname || 'No nickname'})`)
             .setDescription('The data change request has been canceled.')
             .setTimestamp()
-            .setFooter({ text: `Deleted by ${interaction.user.tag}` }); // Footer with the user who pressed cancel
+            .setFooter({ text: `Deleted by @${interaction.user.tag}` });
 
           await interaction.update({
             embeds: [canceledEmbed],
-            components: [], // Remove buttons
+            components: [],
           });
         }
       } catch (error) {
