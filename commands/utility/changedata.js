@@ -51,12 +51,6 @@ module.exports = {
     const newValue = interaction.options.getString('new_value');
     const additionalDetail = interaction.options.getString('additional_detail') || 'None';
     
-    // Retrieve numerical values and append "UTC" for timezones
-    const timezone = interaction.options.getString('timezone') || 'Not Provided';
-    const formattedTimezone = timezone ? `${timezone} UTC` : 'Not Provided';
-    const boosterAccount = interaction.options.getString('booster_account') || 'No';
-    const farmAccount = interaction.options.getString('farm_account') || 'No';
-
     // Ensure all required data is present
     if (!targetUser || !targetData) {
       return interaction.reply({ content: 'Missing required fields.', ephemeral: true });
@@ -71,9 +65,6 @@ module.exports = {
         { name: 'Target User', value: `${targetUser.tag}`, inline: true },
         { name: 'Target Data', value: targetData, inline: true },
         { name: 'New Value', value: newValue, inline: true },
-        { name: 'Timezone', value: formattedTimezone, inline: true },
-        { name: 'Booster Account', value: boosterAccount, inline: true },
-        { name: 'Farm Account', value: farmAccount, inline: true },
         { name: 'Additional Detail', value: additionalDetail, inline: false }
       )
       .setTimestamp()
@@ -81,28 +72,29 @@ module.exports = {
 
     const channel = interaction.client.channels.cache.get('1317870586760007802');
     
-	const confirm = new ButtonBuilder()
-		.setCustomId('confirm')
-		.setLabel('Confirm Ban')
-		.setStyle(ButtonStyle.Danger);
+    // Define buttons
+    const confirm = new ButtonBuilder()
+      .setCustomId('confirm')
+      .setLabel('Confirm Ban')
+      .setStyle(ButtonStyle.Danger);
 
-	const cancel = new ButtonBuilder()
-		.setCustomId('cancel')
-		.setLabel('Cancel')
-		.setStyle(ButtonStyle.Secondary);
+    const cancel = new ButtonBuilder()
+      .setCustomId('cancel')
+      .setLabel('Cancel')
+      .setStyle(ButtonStyle.Secondary);
 
-	const row = new ActionRowBuilder()
-		.addComponents(cancel, confirm);
+    const row = new ActionRowBuilder()
+      .addComponents(cancel, confirm);
 
     if (channel) {
-      // Send the embed to the channel
-      await channel.send({ embeds: [embed] });
-      // Acknowledge the command with an ephemeral reply
+      // Send the embed to the channel with buttons
+      await channel.send({ embeds: [embed], components: [row] });
+
+      // Reply to the interaction, acknowledging the command
       await interaction.reply({ 
-		content: 'Request submitted.',
-		components: [row],
-		ephemeral: true 
-	});
+        content: 'Request submitted.',
+        ephemeral: true 
+      });
     } else {
       console.error('Channel not found.');
     }
