@@ -1,5 +1,5 @@
 require('dotenv').config();
-import { Client, Collection, Events, GatewayIntentBits } from 'discord.js';
+const  { Client, Collection, Events, GatewayIntentBits } = 'discord.js';
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
