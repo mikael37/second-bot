@@ -2,7 +2,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
-const { buttonInteractionHandler } = require('./commands/utility/request');
+const { buttonInteractionHandler } = require('./commands/utility/request.js');
 
 const { DISCORD_TOKEN: token, CLIENT_ID: clientId, GUILD_ID: guildId } = process.env;
 const client = new Client({
