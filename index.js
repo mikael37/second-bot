@@ -1,13 +1,13 @@
-const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
-const dotenv = require('dotenv');
-const fs = require('fs');
-const path = require('path');
 const foldersPath = path.join(__dirname, 'commands');
 const commandFolders = fs.readdirSync(foldersPath);
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
-const { token, clientId, guildId } = require('./config.json');
 
-dotenv.config();
+const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
+const { DISCORD_TOKEN: token, CLIENT_ID: clientId, GUILD_ID: guildId } = process.env;
+
+const dotenv = require('dotenv'); dotenv.config();
+const fs = require('fs');
+const path = require('path');
 
 client.on(Events.ClientReady, readyClient => {
   console.log(`Logged in as ${readyClient.user.tag}!`);
