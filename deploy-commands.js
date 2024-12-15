@@ -2,7 +2,7 @@ import { REST, Routes } from 'discord.js';
 import dotenv from 'dotenv';
 dotenv.config();
 import fs from 'fs';
-import path from 'path';
+import path from 'path';  // Correctly import path first
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 
@@ -15,7 +15,7 @@ const { DISCORD_TOKEN: token, CLIENT_ID: clientId, GUILD_ID: guildId } = process
 const commands = [];
 
 // Grab all the command folders from the 'commands' directory
-const foldersPath = path.join(__dirname, 'commands');
+const foldersPath = path.join(__dirname, 'commands');  // Now path is imported and can be used
 const commandFolders = fs.readdirSync(foldersPath);
 
 for (const folder of commandFolders) {
