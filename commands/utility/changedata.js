@@ -5,19 +5,11 @@ module.exports = {
     .setName('request_data_change')
     .setDescription('Submit a request to change data')
 	.addStringOption(option =>
-		option.setName('Target User')
-			.setDescription('The individual to be affected by the request.')
-			.setRequired(true))
-
-		.addStringOption(option =>
-			option.setName('Target Data(s)')
-			.setDescription('The revised value for the data.')
-			.setRequired(true))
-
-		.addStringOption(option =>
-		option.setName('Additional Detail(s)')
-			.setDescription('Any extra context/information that may be necessary.')
-			.setRequired(false)),
+		option.setName('input')
+			.setDescription('The input to echo back'))
+	.addBooleanOption(option =>
+		option.setName('ephemeral')
+			.setDescription('Whether or not the echo should be ephemeral')),
 	
 
   async execute(interaction) {
