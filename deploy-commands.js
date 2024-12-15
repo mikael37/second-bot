@@ -4,6 +4,12 @@ const { REST, Routes } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
 
+// Ensure that clientId and token are loaded
+if (!clientId || !token) {
+  console.error('Missing CLIENT_ID or DISCORD_TOKEN in environment variables.');
+  process.exit(1);
+}
+
 const commands = [];
 
 // Function to recursively read all command files in directories
@@ -36,13 +42,17 @@ readCommandsFromDir(commandsDir);
 // Create a new REST instance
 const rest = new REST().setToken(token);
 
-// Delete old commands
+// Delete old commands if `guildId` is provided; otherwise, register globally
 (async () => {
   try {
     console.log('Started deleting old commands...');
 
     // Fetch all global commands
-    const existingCommands = await rest.get(Routes.applicationCommands(clientId));
+    const route = guildId 
+      ? Routes.applicationGuildCommands(clientId, guildId)
+      : Routes.applicationCommands(clientId);
+    
+    const existingCommands = await rest.get(route);
     console.log(`Deleting ${existingCommands.length} commands`);
 
     // Delete each command
@@ -56,10 +66,10 @@ const rest = new REST().setToken(token);
     // Now deploy your new commands
     console.log(`Started refreshing ${commands.length} application (/) commands.`);
 
-    const data = await rest.put(
-      Routes.applicationGuildCommands(clientId, guildId),
-      { body: commands },
-    );
+    // Deploy the new commands to the guild or globally
+    const data = guildId
+      ? await rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commands })
+      : await rest.put(Routes.applicationCommands(clientId), { body: commands });
 
     console.log(`Successfully reloaded ${data.length} application (/) commands.`);
   } catch (error) {
