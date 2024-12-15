@@ -10,6 +10,9 @@ if (!clientId || !token) {
   process.exit(1);
 }
 
+console.log('Client ID:', clientId);  // Debug log
+console.log('Discord Token:', token); // Debug log
+
 const commands = [];
 
 // Function to recursively read all command files in directories
@@ -68,11 +71,4 @@ const rest = new REST().setToken(token);
 
     // Deploy the new commands to the guild or globally
     const data = guildId
-      ? await rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commands })
-      : await rest.put(Routes.applicationCommands(clientId), { body: commands });
-
-    console.log(`Successfully reloaded ${data.length} application (/) commands.`);
-  } catch (error) {
-    console.error('Error during command deletion or deployment:', error);
-  }
-})();
+      ? await rest.put(Routes.applicationGuildCommands(clientId, gu
