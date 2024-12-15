@@ -50,9 +50,10 @@ module.exports = {
     const newValue = interaction.options.getString('new_value');
     const additionalDetail = interaction.options.getString('additional_detail') || 'None';
 
+    // Create the initial embed message
     const embed = new EmbedBuilder()
-      .setColor(0x0099FF)
-      .setTitle('Modification Request')
+      .setColor(0xFF0000) // Set color to red
+      .setTitle(`${targetUser.username} (${targetUser.nickname || 'No nickname'})`) // Show username and nickname
       .setDescription('A new data change request has been submitted.')
       .addFields(
         { name: 'Target User', value: `${targetUser.tag}`, inline: true },
@@ -63,6 +64,7 @@ module.exports = {
       .setTimestamp()
       .setFooter({ text: `Requested by ${interaction.user.tag}` });
 
+    // Buttons for confirming the data change
     const confirm = new ButtonBuilder()
       .setCustomId('confirm')
       .setLabel('Mark as Completed')
@@ -75,6 +77,7 @@ module.exports = {
 
     const row = new ActionRowBuilder().addComponents(confirm, cancel);
 
+    // Send the embed and buttons to a channel
     const channel = interaction.client.channels.cache.get('1317870586760007802');
     if (channel) {
       await interaction.deferReply({ ephemeral: true });
@@ -89,7 +92,7 @@ module.exports = {
       try {
         if (interaction.customId === 'confirm') {
           const updatedEmbed = new EmbedBuilder(interaction.message.embeds[0])
-            .setColor(0x00FF00)
+            .setColor(0x00FF00) // Green color for success
             .setTitle('Request Completed')
             .setDescription('The data change request has been successfully processed.')
             .addFields({ name: 'Status', value: 'Completed', inline: true });
@@ -99,9 +102,17 @@ module.exports = {
             components: [],
           });
         } else if (interaction.customId === 'cancel') {
+          // Create a new embed with no fields, changed footer, and canceled status
+          const canceledEmbed = new EmbedBuilder()
+            .setColor(0xFF0000) // Red color (can be changed to another color)
+            .setTitle('Request Canceled') // Title change
+            .setDescription('The data change request has been canceled.')
+            .setTimestamp()
+            .setFooter({ text: `Deleted by ${interaction.user.tag}` }); // Footer with the user who pressed cancel
+
           await interaction.update({
-            content: 'The data change request has been canceled.',
-            components: [],
+            embeds: [canceledEmbed],
+            components: [], // Remove buttons
           });
         }
       } catch (error) {
