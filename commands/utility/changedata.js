@@ -4,9 +4,7 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName('request_data_change')
     .setDescription('Submit a request to change data'),
-	.addStringOption(option =>
-		
-	)
+
   async execute(interaction) {
     // Reply to the user
     await interaction.reply({ content: "Request submitted.", flags: MessageFlags.Ephemeral });
