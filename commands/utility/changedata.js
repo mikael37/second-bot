@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -35,10 +35,6 @@ module.exports = {
             .setName('new_value')
             .setDescription('The revised value for the data.')
             .setRequired(true)
-            .addChoices(
-              { name: 'New Value Example 1', value: 'value1' },
-              { name: 'New Value Example 2', value: 'value2' }
-            )
         )
         .addStringOption(option =>
           option
@@ -85,11 +81,28 @@ module.exports = {
 
     const channel = interaction.client.channels.cache.get('1317870586760007802');
     
+	const confirm = new ButtonBuilder()
+		.setCustomId('confirm')
+		.setLabel('Confirm Ban')
+		.setStyle(ButtonStyle.Danger);
+
+	const cancel = new ButtonBuilder()
+		.setCustomId('cancel')
+		.setLabel('Cancel')
+		.setStyle(ButtonStyle.Secondary);
+
+	const row = new ActionRowBuilder()
+		.addComponents(cancel, confirm);
+
     if (channel) {
       // Send the embed to the channel
       await channel.send({ embeds: [embed] });
       // Acknowledge the command with an ephemeral reply
-      await interaction.reply({ content: 'Request submitted.', ephemeral: true });
+      await interaction.reply({ 
+		content: 'Request submitted.',
+		components: [row],
+		ephemeral: true 
+	});
     } else {
       console.error('Channel not found.');
     }
