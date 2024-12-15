@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -6,7 +6,7 @@ module.exports = {
     .setDescription('Submit a request to change data'),
   async execute(interaction) {
     // Reply to the user
-    await interaction.reply('Request submitted.');
+    await interaction.reply({ content: "Request submitted.", flags: MessageFlags.Ephemeral });
     
     // Create the embed message
     const embed = new EmbedBuilder()
@@ -17,7 +17,7 @@ module.exports = {
         { name: 'Request Details', value: 'Details of the request go here.' },
       )
       .setTimestamp()
-      .setFooter({ text: `Requested by ${interaction.user.tag}` }); // Footer with the user tag
+      .setFooter({ text: `Requested by <@${interaction.user.id}>` }); // Footer with the user tag
 
     const channel = interaction.client.channels.cache.get('1317870586760007802');
     
