@@ -1,29 +1,37 @@
 require('dotenv').config();
 const { DISCORD_TOKEN: token, CLIENT_ID: clientId, GUILD_ID: guildId } = process.env;
 const { REST, Routes } = require('discord.js');
-const fs = require('node:fs');
-const path = require('node:path');
+const fs = require('fs');
+const path = require('path');
 
 const commands = [];
-// Grab all the command folders from the commands directory you created earlier
-const foldersPath = path.join(__dirname, 'commands');
-const commandFolders = fs.readdirSync(foldersPath);
 
-for (const folder of commandFolders) {
-  // Grab all the command files from the commands directory you created earlier
-  const commandsPath = path.join(foldersPath, folder);
-  const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
-  // Grab the SlashCommandBuilder#toJSON() output of each command's data for deployment
-  for (const file of commandFiles) {
-    const filePath = path.join(commandsPath, file);
-    const command = require(filePath);
-    if ('data' in command && 'execute' in command) {
-      commands.push(command.data.toJSON());
-    } else {
-      console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
+// Function to recursively read all command files in directories
+function readCommandsFromDir(dirPath) {
+  const filesAndFolders = fs.readdirSync(dirPath);
+
+  for (const fileOrFolder of filesAndFolders) {
+    const currentPath = path.join(dirPath, fileOrFolder);
+    const stat = fs.lstatSync(currentPath);
+
+    if (stat.isDirectory()) {
+      // Recursively scan subfolders
+      readCommandsFromDir(currentPath);
+    } else if (fileOrFolder.endsWith('.js')) {
+      // Require the command if it's a JS file
+      const command = require(currentPath);
+      if ('data' in command && 'execute' in command) {
+        commands.push(command.data.toJSON());
+      } else {
+        console.log(`[WARNING] The command at ${currentPath} is missing a required "data" or "execute" property.`);
+      }
     }
   }
 }
+
+// Grab all command files from all subfolders within the "commands" directory
+const commandsDir = path.join(__dirname, 'commands');
+readCommandsFromDir(commandsDir);
 
 // Create a new REST instance
 const rest = new REST().setToken(token);
