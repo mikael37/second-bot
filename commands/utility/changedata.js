@@ -2,22 +2,22 @@ const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName('request-data-change')
+    .setName('request_data_change')
     .setDescription('Submit a request to change data'),
   async execute(interaction) {
     // Reply to the user
-    await interaction.reply('Request submitted successfully!');
+    await interaction.reply('Request submitted.');
     
     // Create the embed message
     const embed = new EmbedBuilder()
       .setColor(0x0099FF) // Blue color
-      .setTitle('Data Change Request')
+      .setTitle('Modification Request')
       .setDescription('A new data change request has been submitted.')
       .addFields(
-        { name: 'Requested by', value: interaction.user.tag },
         { name: 'Request Details', value: 'Details of the request go here.' },
       )
-      .setTimestamp();
+      .setTimestamp()
+      .setFooter({ text: `Requested by ${interaction.user.tag}` }); // Footer with the user tag
 
     const channel = interaction.client.channels.cache.get('1317870586760007802');
     
