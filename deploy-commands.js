@@ -10,7 +10,7 @@ const { DISCORD_TOKEN: token, CLIENT_ID: clientId, GUILD_ID: guildId } = process
 const commands = [];
 
 // Grab all the command folders from the 'commands' directory
-const foldersPath = path.join(__dirname, 'commands');  // Now path is imported and can be used
+const foldersPath = path.join(__dirname, 'commands');  // __dirname is automatically available in CommonJS
 const commandFolders = fs.readdirSync(foldersPath);
 
 for (const folder of commandFolders) {
