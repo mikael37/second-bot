@@ -3,6 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
 
+
 const { DISCORD_TOKEN: token, CLIENT_ID: clientId, GUILD_ID: guildId } = process.env;
 const client = new Client({
     intents: [
@@ -17,6 +18,9 @@ client.commands = new Collection();
 
 const foldersPath = path.join(__dirname, 'commands');
 const commandFolders = fs.readdirSync(foldersPath);
+
+const requestCommand = require('./commands/utility/request.js');
+
 
 for (const folder of commandFolders) {
 	const commandsPath = path.join(foldersPath, folder);
@@ -63,14 +67,15 @@ client.once(Events.ClientReady, readyClient => {
 
 client.on('interactionCreate', async (interaction) => {
     if (interaction.isCommand()) {
-      // Handle commands (e.g., /request)
-      if (interaction.commandName === 'request') {
-        await requestCommand.execute(interaction);
-      }
+        // Handle commands (e.g., /request)
+        if (interaction.commandName === 'request') {
+            await requestCommand.execute(interaction);
+        }
     } else if (interaction.isButton()) {
-      // Handle button interactions
-      await requestCommand.buttonInteractionHandler(interaction);
+        // Handle button interactions
+        await requestCommand.buttonInteractionHandler(interaction);
     }
-  });
+});
+
 
 client.login(token);
