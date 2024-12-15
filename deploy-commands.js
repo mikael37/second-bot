@@ -1,81 +1,47 @@
 require('dotenv').config();
-const { DISCORD_TOKEN: token, CLIENT_ID: clientId, GUILD_ID: guildId } = process.env;
 const { REST, Routes } = require('discord.js');
-const fs = require('fs');
-const path = require('path');
-
-// Ensure that clientId and token are loaded
-if (!clientId || !token) {
-  console.error('Missing CLIENT_ID or DISCORD_TOKEN in environment variables.');
-  process.exit(1);
-}
-
-console.log('Client ID:', clientId);  // Debug log
-console.log('Discord Token:', token); // Debug log
+const { DISCORD_TOKEN: token, CLIENT_ID: clientId, GUILD_ID: guildId } = process.env;
+const fs = require('node:fs');
+const path = require('node:path');
 
 const commands = [];
+// Grab all the command folders from the commands directory you created earlier
+const foldersPath = path.join(__dirname, 'commands');
+const commandFolders = fs.readdirSync(foldersPath);
 
-// Function to recursively read all command files in directories
-function readCommandsFromDir(dirPath) {
-  const filesAndFolders = fs.readdirSync(dirPath);
-
-  for (const fileOrFolder of filesAndFolders) {
-    const currentPath = path.join(dirPath, fileOrFolder);
-    const stat = fs.lstatSync(currentPath);
-
-    if (stat.isDirectory()) {
-      // Recursively scan subfolders
-      readCommandsFromDir(currentPath);
-    } else if (fileOrFolder.endsWith('.js')) {
-      // Require the command if it's a JS file
-      const command = require(currentPath);
-      if ('data' in command && 'execute' in command) {
-        commands.push(command.data.toJSON());
-      } else {
-        console.log(`[WARNING] The command at ${currentPath} is missing a required "data" or "execute" property.`);
-      }
-    }
-  }
+for (const folder of commandFolders) {
+	// Grab all the command files from the commands directory you created earlier
+	const commandsPath = path.join(foldersPath, folder);
+	const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+	// Grab the SlashCommandBuilder#toJSON() output of each command's data for deployment
+	for (const file of commandFiles) {
+		const filePath = path.join(commandsPath, file);
+		const command = require(filePath);
+		if ('data' in command && 'execute' in command) {
+			commands.push(command.data.toJSON());
+		} else {
+			console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
+		}
+	}
 }
 
-// Grab all command files from all subfolders within the "commands" directory
-const commandsDir = path.join(__dirname, 'commands');
-readCommandsFromDir(commandsDir);
-
-// Create a new REST instance
+// Construct and prepare an instance of the REST module
 const rest = new REST().setToken(token);
 
-// Delete old commands if `guildId` is provided; otherwise, register globally
+// and deploy your commands!
 (async () => {
-  try {
-    console.log('Started deleting old commands...');
+	try {
+		console.log(`Started refreshing ${commands.length} application (/) commands.`);
 
-    // Fetch all global commands
-    const route = guildId 
-      ? Routes.applicationGuildCommands(clientId, guildId)
-      : Routes.applicationCommands(clientId);
-    
-    const existingCommands = await rest.get(route);
-    console.log(`Deleting ${existingCommands.length} commands`);
+		// The put method is used to fully refresh all commands in the guild with the current set
+		const data = await rest.put(
+			Routes.applicationGuildCommands(clientId, guildId),
+			{ body: commands },
+		);
 
-    // Delete each command
-    for (const command of existingCommands) {
-      await rest.delete(Routes.applicationCommand(clientId, command.id));
-      console.log(`Deleted command: ${command.name}`);
-    }
-
-    console.log('All old commands deleted successfully!');
-
-    // Now deploy your new commands
-    console.log(`Started refreshing ${commands.length} application (/) commands.`);
-
-    // Deploy the new commands to the guild or globally
-    const data = guildId
-      ? await rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commands })
-      : await rest.put(Routes.applicationCommands(clientId), { body: commands });
-
-    console.log(`Successfully reloaded ${data.length} application (/) commands.`);
-  } catch (error) {
-    console.error('Error during command deletion or deployment:', error);
-  }
+		console.log(`Successfully reloaded ${data.length} application (/) commands.`);
+	} catch (error) {
+		// And of course, make sure you catch and log any errors!
+		console.error(error);
+	}
 })();
