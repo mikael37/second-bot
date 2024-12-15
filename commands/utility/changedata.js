@@ -2,23 +2,29 @@ const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js'
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName('request_data_change')
-    .setDescription('Submit a request to change data')
-    .addStringOption(option =>
-      option.setName('target_user')
-        .setDescription('The Individual to Be Affected by the Request.')
-        .setRequired(true))
+    .setName('request')
+    .setDescription('-')
+	.addSubcommand(subcommand =>
+		subcommand
+		.setName('data-change')
+		.setDescription('Request a data-change order')
 
-    .addStringOption(option =>
-      option.setName('target_data')
-        .setDescription('The Revised Value for the Data.')
-        .setRequired(true))
+		.addUserOption(option => option
+			.setName('target')
+			.setDescription('The individual to be affected by the request.'))
+			.setRequired(true)
 
-    .addStringOption(option =>
-      option.setName('additional_detail')
-        .setDescription('Any Additional Context or Information That May Be Necessary.')
-        .setRequired(false)),
-
+		.addStringOption(option =>option
+			.setName('target_data')
+			.setDescription('The Revised Value for the Data.')
+			.setRequired(true))
+		
+		.addStringOption(option =>option
+				.setName('additional_detail')
+				.setDescription('Any Additional Context or Information That May Be Necessary.')
+				.setRequired(false)),
+	),
+	
   async execute(interaction) {
     // Reply to the user
     try{
