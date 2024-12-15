@@ -42,89 +42,105 @@ module.exports = {
             .setDescription('Any additional context or information that may be necessary.')
             .setRequired(false)
         )
+    )
+    .addSubcommand(subcommand =>
+      subcommand
+        .setName('remove')
+        .setDescription('Request to remove a user\'s data from the database')
+        .addUserOption(option =>
+          option
+            .setName('target')
+            .setDescription('The individual whose data needs to be deleted.')
+            .setRequired(true)
+        )
     ),
 
-  async execute(interaction) {
-    const targetUser = interaction.options.getUser('target');
-    const targetData = interaction.options.getString('target_data');
-    const newValue = interaction.options.getString('new_value');
-    const additionalDetail = interaction.options.getString('additional_detail') || 'None';
-
-    // Create the initial embed message
-    const embed = new EmbedBuilder()
-      .setColor(0xFFFF00) // Set color to neon yellow
-      .setTitle(targetUser.nickname ? `${targetUser.username} (${targetUser.nickname})` : `${targetUser.username}`) // Show username and nickname if available
-      .setDescription('A new data change request has been submitted.')
-      .addFields(
-        { name: 'Target User', value: `${targetUser.tag}`, inline: true },
-        { name: 'Target Data', value: targetData, inline: true },
-        { name: 'New Value', value: newValue, inline: true },
-        { name: 'Additional Detail', value: additionalDetail, inline: false }
-      )
-      .setTimestamp()
-      .setFooter({ text: `Requested by ${interaction.user.tag}` });
-
-    // Buttons for confirming the data change
-    const confirm = new ButtonBuilder()
-      .setCustomId('confirm')
-      .setLabel('Mark as Completed')
-      .setStyle(ButtonStyle.Success);
-
-    const cancel = new ButtonBuilder()
-      .setCustomId('cancel')
-      .setLabel('Cancel')
-      .setStyle(ButtonStyle.Danger);
-
-    const row = new ActionRowBuilder().addComponents(confirm, cancel);
-
-    // Send the embed and buttons to a channel
-    const channel = interaction.client.channels.cache.get('1317870586760007802');
-    if (channel) {
-      try {
-        await interaction.reply({ content: 'Processing your request...', ephemeral: true }); // Direct reply to interaction
-        const message = await channel.send({ embeds: [embed], components: [row] });
-        // Store necessary information in the message for future reference
-        message.targetUser = targetUser; // Attach targetUser to message
-      } catch (error) {
-        console.error('Error sending interaction response:', error);
-      }
-    } else {
-      console.error('Channel not found.');
-    }
-  },
-
-  async buttonInteractionHandler(interaction) {
-    if (interaction.isButton()) {
-      try {
-        // Retrieve the targetUser stored on the message
-        const targetUser = interaction.message.targetUser;
-
-        if (interaction.customId === 'confirm') {
-          const updatedEmbed = new EmbedBuilder(interaction.message.embeds[0])
-            .setColor(0x00FF00) // Green color for success
-            .setTitle(`${targetUser.username} (${targetUser.nickname || 'No nickname'})`)
-            .setDescription('The data change request has been successfully processed.');
-
-          await interaction.update({
-            embeds: [updatedEmbed],
-            components: [],
-          });
-        } else if (interaction.customId === 'cancel') {
-          const canceledEmbed = new EmbedBuilder()
-            .setColor(0xFF0000) // Red color (can be changed to another color)
-            .setTitle(`Request Canceled by ${interaction.user.username}`)
-            .setDescription('The data change request has been canceled.')
-            .setTimestamp()
-            .setFooter({ text: `Deleted by ${interaction.user.tag}` }); // Footer with the user who pressed cancel
-
-          await interaction.update({
-            embeds: [canceledEmbed],
-            components: [], // Remove buttons
-          });
-        }
-      } catch (error) {
-        console.error('Error handling button interaction:', error);
-      }
-    }
-  },
+	async execute(interaction) {
+		const subcommand = interaction.options.getSubcommand();
+	  
+		if (subcommand === 'data-change') {
+		  const targetUser = interaction.options.getUser('target');
+		  const targetData = interaction.options.getString('target_data');
+		  const newValue = interaction.options.getString('new_value');
+		  const additionalDetail = interaction.options.getString('additional_detail') || 'None';
+	  
+		  // Fetch the target user as a guild member to get their server nickname
+		  const targetMember = await interaction.guild.members.fetch(targetUser.id);
+		  
+		  // Use targetMember.nickname if it exists, otherwise fallback to username
+		  const nickname = targetMember.nickname || targetUser.username;
+	  
+		  // Create the initial embed message for data-change request
+		  const embed = new EmbedBuilder()
+			.setColor(0xFFFF00) // Set color to neon yellow
+			.setTitle(`${targetUser.username} (${nickname})`) // Show username and nickname
+			.setDescription('A new data change request has been submitted.')
+			.addFields(
+			  { name: 'Target User', value: `${targetUser.tag}`, inline: true },
+			  { name: 'Target Data', value: targetData, inline: true },
+			  { name: 'New Value', value: newValue, inline: true },
+			  { name: 'Additional Detail', value: additionalDetail, inline: false }
+			)
+			.setTimestamp()
+			.setFooter({ text: `Requested by ${interaction.user.tag}` });
+	  
+		  // Buttons for confirming the data change
+		  const confirm = new ButtonBuilder()
+			.setCustomId('confirm')
+			.setLabel('Mark as Completed')
+			.setStyle(ButtonStyle.Success);
+	  
+		  const cancel = new ButtonBuilder()
+			.setCustomId('cancel')
+			.setLabel('Cancel')
+			.setStyle(ButtonStyle.Danger);
+	  
+		  const row = new ActionRowBuilder().addComponents(confirm, cancel);
+	  
+		  // Send the embed and buttons to a channel
+		  const channel = interaction.client.channels.cache.get('1317870586760007802');
+		  if (channel) {
+			try {
+			  await interaction.reply({ content: 'Processing your request...', ephemeral: true });
+			  await channel.send({ embeds: [embed], components: [row] });
+			} catch (error) {
+			  console.error('Error sending interaction response:', error);
+			}
+		  } else {
+			console.error('Channel not found.');
+		  }
+		} else if (subcommand === 'remove') {
+		  const targetUser = interaction.options.getUser('target');
+	  
+		  // Fetch the target user as a guild member to get their server nickname
+		  const targetMember = await interaction.guild.members.fetch(targetUser.id);
+	  
+		  // Use targetMember.nickname if it exists, otherwise fallback to username
+		  const nickname = targetMember.nickname || targetUser.username;
+	  
+		  // Simulate database removal logic (replace with actual logic)
+		  // For example: deleteUserData(targetUser.id); (Placeholder for actual database removal)
+	  
+		  // Create an embed for removal confirmation
+		  const embed = new EmbedBuilder()
+			.setColor(0xFFFF00) // Set color to neon yellow
+			.setTitle(`Data Removal Request for ${targetUser.username} (${nickname})`) // Show username and nickname
+			.setDescription(`The data for ${targetUser.username} has been successfully removed from the database.`)
+			.setTimestamp()
+			.setFooter({ text: `Requested by ${interaction.user.tag}` });
+	  
+		  // Send the removal confirmation embed to a channel
+		  const channel = interaction.client.channels.cache.get('1317870586760007802');
+		  if (channel) {
+			try {
+			  await interaction.reply({ content: 'Processing the removal request...', ephemeral: true });
+			  await channel.send({ embeds: [embed] });
+			} catch (error) {
+			  console.error('Error sending interaction response:', error);
+			}
+		  } else {
+			console.error('Channel not found.');
+		  }
+		}
+	  },	  
 };
