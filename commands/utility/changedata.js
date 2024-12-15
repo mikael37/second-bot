@@ -1,29 +1,33 @@
 const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js');
 
 module.exports = {
-  data: new SlashCommandBuilder()
-    .setName('request')
-    .setDescription('-')
-	.addSubcommand(subcommand =>
+	data: new SlashCommandBuilder()
+	  .setName('request')
+	  .setDescription('Submit a request')
+	  .addSubcommand(subcommand =>
 		subcommand
-		.setName('data-change')
-		.setDescription('Request a data-change order')
-
-		.addUserOption(option => option
-			.setName('target')
-			.setDescription('The individual to be affected by the request.'))
-			.setRequired(true)
-
-		.addStringOption(option =>option
-			.setName('target_data')
-			.setDescription('The Revised Value for the Data.')
-			.setRequired(true))
-		
-		.addStringOption(option =>option
-				.setName('additional_detail')
-				.setDescription('Any Additional Context or Information That May Be Necessary.')
-				.setRequired(false)),
-	),
+		  .setName('data-change')
+		  .setDescription('Request a data-change order')
+		  .addUserOption(option =>
+			option
+			  .setName('target')
+			  .setDescription('The individual to be affected by the request.')
+			  .setRequired(true) // Ensure this is required
+		  )
+		  .addStringOption(option =>
+			option
+			  .setName('target_data')
+			  .setDescription('The revised value for the data.')
+			  .setRequired(true) // Ensure this is required
+		  )
+		  .addStringOption(option =>
+			option
+			  .setName('additional_detail')
+			  .setDescription('Any additional context or information that may be necessary.')
+			  .setRequired(false) // This can be optional
+		  )
+	  ),
+  
 	
   async execute(interaction) {
     // Reply to the user
