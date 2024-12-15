@@ -92,32 +92,32 @@ module.exports = {
   },
 
   async buttonInteractionHandler(interaction) {
-    if (!interaction.isButton()) return;
-
-    // Handle the button interaction
-    if (interaction.customId === 'confirm') {
-      // Edit the original message (embed) when "Mark as Completed" is pressed
-      const updatedEmbed = new EmbedBuilder(interaction.message.embeds[0])
-        .setColor(0x00FF00) // Green color to indicate success
-        .setTitle('Request Completed') // Updated title
-        .setDescription('The data change request has been successfully processed.')
-        .addFields(
-          { name: 'Status', value: 'Completed', inline: true }
-        );
-
-      // Update the message with new embed and disable buttons
-      await interaction.update({
-        embeds: [updatedEmbed],
-        components: [],
-      });
-    }
-
-    if (interaction.customId === 'cancel') {
-      // If "Cancel" is pressed, just acknowledge the cancelation
-      await interaction.update({
-        content: 'The data change request has been canceled.',
-        components: [],
-      });
-    }
+	if (interaction.isButton()) {
+		try {
+		  if (interaction.customId === 'confirm') {
+			// Edit the original message when the button is clicked
+			const updatedEmbed = new EmbedBuilder(interaction.message.embeds[0])
+			  .setColor(0x00FF00) // Green color to indicate success
+			  .setTitle('Request Completed') // Updated title
+			  .setDescription('The data change request has been successfully processed.')
+			  .addFields(
+				{ name: 'Status', value: 'Completed', inline: true }
+			  );
+	  
+			await interaction.update({
+			  embeds: [updatedEmbed],
+			  components: [],
+			});
+		  } else if (interaction.customId === 'cancel') {
+			// Handle cancel button press
+			await interaction.update({
+			  content: 'The data change request has been canceled.',
+			  components: [],
+			});
+		  }
+		} catch (error) {
+		  console.error('Error handling button interaction:', error);
+		}
+	  }	  
   },
 };
