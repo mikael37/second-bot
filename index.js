@@ -1,5 +1,3 @@
-import { clientId, guildId, token } from './config.json';
-
 const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
 const dotenv = require('dotenv');
 const fs = require('fs');
@@ -7,6 +5,7 @@ const path = require('path');
 const foldersPath = path.join(__dirname, 'commands');
 const commandFolders = fs.readdirSync(foldersPath);
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const { token, clientId, guildId } = require('./.config.json');
 
 dotenv.config();
 
