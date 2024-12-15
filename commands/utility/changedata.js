@@ -80,8 +80,12 @@ module.exports = {
     // Send the embed and buttons to a channel
     const channel = interaction.client.channels.cache.get('1317870586760007802');
     if (channel) {
-      await interaction.deferReply({ ephemeral: true });
-      await channel.send({ embeds: [embed], components: [row] });
+      try {
+        await interaction.deferReply({ ephemeral: true }); // Ensure interaction is deferred
+        await channel.send({ embeds: [embed], components: [row] });
+      } catch (error) {
+        console.error('Error sending interaction response:', error);
+      }
     } else {
       console.error('Channel not found.');
     }
@@ -102,7 +106,6 @@ module.exports = {
             components: [],
           });
         } else if (interaction.customId === 'cancel') {
-          // Create a new embed with no fields, changed footer, and canceled status
           const canceledEmbed = new EmbedBuilder()
             .setColor(0xFF0000) // Red color (can be changed to another color)
             .setTitle('Request Canceled') // Title change
