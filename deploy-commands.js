@@ -1,16 +1,16 @@
 import { REST, Routes } from 'discord.js';
-import { clientId, guildId, token } from './config.json';
-import dotenv from 'dotenv'; dotenv.config();
+import dotenv from 'dotenv';
+dotenv.config();
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 
-const { DISCORD_TOKEN: token, CLIENT_ID: clientId, GUILD_ID: guildId } = process.env;
-
-// Get the current directory path
+// Define __dirname using ES Module syntax
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
+const { DISCORD_TOKEN: token, CLIENT_ID: clientId, GUILD_ID: guildId } = process.env;
 
 const commands = [];
 
