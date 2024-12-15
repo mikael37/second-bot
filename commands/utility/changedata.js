@@ -13,7 +13,7 @@ module.exports = {
       option.setName('target_data')
         .setDescription('The Revised Value for the Data.')
         .setRequired(true))
-		
+
     .addStringOption(option =>
       option.setName('additional_detail')
         .setDescription('Any Additional Context or Information That May Be Necessary.')
@@ -21,7 +21,8 @@ module.exports = {
 
   async execute(interaction) {
     // Reply to the user
-    await interaction.reply({ content: 'Request submitted.', ephemeral: true });
+    try{
+		await interaction.reply({ content: 'Request submitted.', ephemeral: true });
     
     // Create the embed message
     const embed = new EmbedBuilder()
@@ -34,7 +35,7 @@ module.exports = {
         { name: 'Additional Details', value: interaction.options.getString('additional_detail') || 'None provided.' },
       )
       .setTimestamp()
-      .setFooter({ text: `Requested by ${interaction.user.tag}` });
+      .setFooter({ text: `Requested by ${interaction.user.username}` });
 
     const channel = interaction.client.channels.cache.get('1317870586760007802');
     
@@ -44,5 +45,8 @@ module.exports = {
     } else {
       console.error('Channel not found.');
     }
+	} catch (error) {
+		console.error('Error executing the command:', error);
+	}
   },
 };
