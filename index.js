@@ -2,6 +2,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
+const { buttonInteractionHandler } = require('./commands/utility/changedata');
 
 const { DISCORD_TOKEN: token, CLIENT_ID: clientId, GUILD_ID: guildId } = process.env;
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
@@ -48,16 +49,16 @@ client.on(Events.InteractionCreate, async interaction => {
 	}
 });
 
-client.on('interactionCreate', async (interaction) => {
-    if (interaction.isButton()) {
-      await buttonInteractionHandler(interaction);  // Call button interaction handler here
-    }
-  });
-
 
 client.once(Events.ClientReady, readyClient => {
 	console.log(`Ready! Logged in as ${readyClient.user.tag}`);
 });
 
-// Log in to Discord with your client's token
+
+client.on('interactionCreate', async (interaction) => {
+    if (interaction.isButton()) {
+      await buttonInteractionHandler(interaction); 
+    }
+  });
+
 client.login(token);
