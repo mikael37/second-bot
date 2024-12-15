@@ -4,25 +4,24 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName('request_data_change')
     .setDescription('Submit a request to change data')
-	.addStringOption(option =>
-		option.setName('target_user')
-			.setDescription('The individual to be affected by the request.')
-			.setRequired(true))
+    .addStringOption(option =>
+      option.setName('target_user')
+        .setDescription('The Individual to Be Affected by the Request.')
+        .setRequired(true))
 
-	.addStringOption(option =>
-			option.setName('target_data(s)')
-				.setDescription('The revised value for the data.')
-				.setRequired(true))
-
-	.addStringOption(option =>
-			option.setName('additional_detail(s)')
-				.setDescription('Any extra context/information that may be necessary.')
-				.setRequired(false)),
-	
+    .addStringOption(option =>
+      option.setName('target_data')
+        .setDescription('The Revised Value for the Data.')
+        .setRequired(true))
+		
+    .addStringOption(option =>
+      option.setName('additional_detail')
+        .setDescription('Any Additional Context or Information That May Be Necessary.')
+        .setRequired(false)),
 
   async execute(interaction) {
     // Reply to the user
-    await interaction.reply({ content: "Request submitted.", flags: MessageFlags.Ephemeral });
+    await interaction.reply({ content: 'Request submitted.', ephemeral: true });
     
     // Create the embed message
     const embed = new EmbedBuilder()
@@ -30,10 +29,12 @@ module.exports = {
       .setTitle('Modification Request')
       .setDescription('A new data change request has been submitted.')
       .addFields(
-        { name: 'Request Details', value: '-' },
+        { name: 'Target User', value: interaction.options.getString('target_user') },
+        { name: 'Target Data', value: interaction.options.getString('target_data') },
+        { name: 'Additional Details', value: interaction.options.getString('additional_detail') || 'None provided.' },
       )
       .setTimestamp()
-      .setFooter({ text: `Requested by <${interaction.user.username}>` });
+      .setFooter({ text: `Requested by ${interaction.user.tag}` });
 
     const channel = interaction.client.channels.cache.get('1317870586760007802');
     
