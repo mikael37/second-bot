@@ -73,7 +73,7 @@ module.exports = {
 		  // Create the initial embed message for data-change request
 		  const embed = new EmbedBuilder()
 			.setColor(0xFFFF00) // Set color to neon yellow
-			.setTitle(`${targetUser.username} (${nickname})`) // Show username and nickname
+			.setTitle(`${targetUser.username} (${nickname})`) 
 			.setDescription('A new data change request has been submitted.')
 			.addFields(
 			  { name: 'Target User', value: `${targetUser.tag}`, inline: true },
@@ -123,9 +123,9 @@ module.exports = {
 	  
 		  // Create an embed for removal confirmation
 		  const embed = new EmbedBuilder()
-			.setColor(0xFFFF00) // Set color to neon yellow
-			.setTitle(`Data Removal Request for ${targetUser.username} (${nickname})`) // Show username and nickname
-			.setDescription(`The data for ${targetUser.username} has been successfully removed from the database.`)
+			.setColor(0x0D47A1)
+			.setTitle(`Data Removal: ${targetUser.username} (${nickname})`)
+			.setDescription(`A new data removal request has been submitted.`)
 			.setTimestamp()
 			.setFooter({ text: `Requested by ${interaction.user.tag}` });
 	  
