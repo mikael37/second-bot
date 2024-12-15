@@ -103,7 +103,7 @@ module.exports = {
           const updatedEmbed = new EmbedBuilder(interaction.message.embeds[0])
             .setColor(0x00FF00) // Green color for success
 			.setTitle(targetUser.nickname ? `${targetUser.username} (${targetUser.nickname})` : `${targetUser.username}`)
-            .setDescription('The data change request has been successfully processed.');
+            .setDescription('The data change request has been successfully processed. \n');
 
           await interaction.update({
             embeds: [updatedEmbed],
