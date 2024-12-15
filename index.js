@@ -5,7 +5,14 @@ const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
 const { buttonInteractionHandler } = require('./commands/utility/changedata');
 
 const { DISCORD_TOKEN: token, CLIENT_ID: clientId, GUILD_ID: guildId } = process.env;
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const client = new Client({
+    intents: [
+      GatewayIntentBits.Guilds,
+      GatewayIntentBits.GuildMessages,
+      GatewayIntentBits.MessageContent,
+      GatewayIntentBits.GuildMembers
+    ]
+  });
 
 client.commands = new Collection();
 
@@ -56,8 +63,14 @@ client.once(Events.ClientReady, readyClient => {
 
 
 client.on('interactionCreate', async (interaction) => {
-    if (interaction.isButton()) {
-      await buttonInteractionHandler(interaction); 
+    if (interaction.isCommand()) {
+      // Handle commands (e.g., /request)
+      if (interaction.commandName === 'request') {
+        await requestCommand.execute(interaction);
+      }
+    } else if (interaction.isButton()) {
+      // Handle button interactions
+      await requestCommand.buttonInteractionHandler(interaction);
     }
   });
 
