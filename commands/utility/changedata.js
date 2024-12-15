@@ -2,7 +2,7 @@ const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName('Request-Data-Change')
+    .setName('request-data-change')
     .setDescription('Submit a request to change data'),
   async execute(interaction) {
     // Reply to the user
@@ -18,7 +18,7 @@ module.exports = {
         { name: 'Request Details', value: 'Details of the request go here.' },
       )
       .setTimestamp();
-	  
+
     const channel = interaction.client.channels.cache.get('1317870586760007802');
     
     if (channel) {
