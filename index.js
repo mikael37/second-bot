@@ -48,6 +48,11 @@ client.on(Events.InteractionCreate, async interaction => {
 	}
 });
 
+client.on('interactionCreate', async (interaction) => {
+    if (interaction.isButton()) {
+      await buttonInteractionHandler(interaction);  // Call button interaction handler here
+    }
+  });
 
 
 client.once(Events.ClientReady, readyClient => {
