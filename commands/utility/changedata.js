@@ -5,11 +5,19 @@ module.exports = {
     .setName('request_data_change')
     .setDescription('Submit a request to change data')
 	.addStringOption(option =>
-		option.setName('input')
-			.setDescription('The input to echo back'))
-	.addBooleanOption(option =>
-		option.setName('ephemeral')
-			.setDescription('Whether or not the echo should be ephemeral')),
+		option.setName('Target User')
+		.setDescription('The individual to be affected by the request.')
+		.setRequired(true),
+
+		option.setName('Target Data(s)')
+		.setDescription('The revised value for the data.')
+		.setRequired(true),
+
+		option.setName('Additional Detail(s)')
+		.setDescription('Any extra context/information that may be necessary.')
+		.setRequired(false)
+	),
+	
 
   async execute(interaction) {
     // Reply to the user
@@ -21,10 +29,10 @@ module.exports = {
       .setTitle('Modification Request')
       .setDescription('A new data change request has been submitted.')
       .addFields(
-        { name: 'Request Details', value: 'Details of the request go here.' },
+        { name: 'Request Details', value: '-' },
       )
       .setTimestamp()
-      .setFooter({ text: `Requested by <@${interaction.user.id}>` }); // Footer with the user tag
+      .setFooter({ text: `Requested by <${interaction.user.username}>` });
 
     const channel = interaction.client.channels.cache.get('1317870586760007802');
     
