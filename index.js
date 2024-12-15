@@ -1,8 +1,7 @@
-import dotenv from 'dotenv';
-import { Client, Collection, Events, GatewayIntentBits } from 'discord.js';
-import path from 'path';
-import fs from 'fs';
-import { MessageFlags } from 'discord.js';
+const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
+const dotenv = require('dotenv');
+const fs = require('fs');
+const path = require('path');
 
 dotenv.config();
 
@@ -22,8 +21,7 @@ for (const folder of commandFolders) {
 	const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 	for (const file of commandFiles) {
 		const filePath = path.join(commandsPath, file);
-		const command = await import(filePath); // Using dynamic import
-		// Set a new item in the Collection with the key as the command name and the value as the exported module
+		const command = require(filePath);
 		if ('data' in command && 'execute' in command) {
 			client.commands.set(command.data.name, command);
 		} else {

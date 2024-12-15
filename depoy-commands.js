@@ -2,6 +2,12 @@ import { REST, Routes } from 'discord.js';
 import { clientId, guildId, token } from './config.json';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+// Get the current directory path
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const commands = [];
 
