@@ -17,8 +17,22 @@ module.exports = {
         .addStringOption(option =>
           option
             .setName('target_data')
+            .setDescription('The value to modify.')
+            .setRequired(true)
+            .addChoices(
+              { name: 'Discord Username', value: 'discord_username' },
+              { name: 'In-game Name', value: 'ingame_name' }
+            )
+        )
+        .addStringOption(option =>
+          option
+            .setName('new_value')
             .setDescription('The revised value for the data.')
             .setRequired(true)
+            .addChoices(
+              { name: 'Discord Username', value: 'gif_funny' },
+              { name: 'In-game Name', value: 'ingame_name' }
+            )
         )
         .addStringOption(option =>
           option
@@ -30,9 +44,10 @@ module.exports = {
 
   async execute(interaction) {
     // Retrieve options
-    const targetUser = interaction.options.getUser('target'); // Get the user object
-    const targetData = interaction.options.getString('target_data'); // Get the string value
-    const additionalDetail = interaction.options.getString('additional_detail') || 'None'; // Optional value with fallback
+    const targetUser = interaction.options.getUser('target');
+    const targetData = interaction.options.getString('target_data');
+    const newValue = interaction.options.getString('new_value');
+    const additionalDetail = interaction.options.getString('additional_detail') || 'None';
 
     // Ensure all required data is present
     if (!targetUser || !targetData) {
@@ -47,6 +62,7 @@ module.exports = {
       .addFields(
         { name: 'Target User', value: `${targetUser.tag}`, inline: true },
         { name: 'Target Data', value: targetData, inline: true },
+        { name: 'New Value', value: newValue, inline: true },
         { name: 'Additional Detail', value: additionalDetail, inline: false }
       )
       .setTimestamp()
