@@ -9,10 +9,7 @@ module.exports = {
         .setName('data-change')
         .setDescription('Request a data-change order')
         .addUserOption(option =>
-          option
-            .setName('target')
-            .setDescription('The individual to be affected by the request.')
-            .setRequired(true)
+          option.setName('target').setDescription('The individual to be affected.').setRequired(true)
         )
         .addStringOption(option =>
           option
@@ -31,35 +28,32 @@ module.exports = {
             )
         )
         .addStringOption(option =>
-          option
-            .setName('new_value')
-            .setDescription('The revised value for the data.')
-            .setRequired(true)
+          option.setName('new_value').setDescription('The revised value.').setRequired(true)
         )
         .addStringOption(option =>
-          option
-            .setName('additional_detail')
-            .setDescription('Any additional context or information that may be necessary.')
-            .setRequired(false)
+          option.setName('additional_detail').setDescription('Additional context.').setRequired(false)
         )
     )
     .addSubcommand(subcommand =>
       subcommand
         .setName('remove')
-        .setDescription('Request to remove a user\'s data from the database')
+        .setDescription('Request to remove a user\'s data')
         .addUserOption(option =>
-          option
-            .setName('target')
-            .setDescription('The individual whose data needs to be deleted.')
-            .setRequired(true)
+          option.setName('target').setDescription('The individual whose data to delete.').setRequired(true)
         )
     ),
 
   async execute(interaction) {
     const subcommand = interaction.options.getSubcommand();
-
-    // Defer the reply to avoid interaction timeout
     await interaction.deferReply({ ephemeral: true });
+
+    const channelId = process.env.REQUEST_CHANNEL_ID || '1317870586760007802';
+    const channel = interaction.client.channels.cache.get(channelId);
+
+    if (!channel) {
+      await interaction.editReply({ content: 'Error: Channel not found.', ephemeral: true });
+      return;
+    }
 
     if (subcommand === 'data-change') {
       const targetUser = interaction.options.getUser('target');
@@ -67,106 +61,43 @@ module.exports = {
       const newValue = interaction.options.getString('new_value');
       const additionalDetail = interaction.options.getString('additional_detail') || 'None';
 
-      const targetMember = await interaction.guild.members.fetch(targetUser.id);
-      const nickname = targetMember.nickname || targetUser.username;
-
       const embed = new EmbedBuilder()
-        .setColor(0xFFFF00) // Neon yellow color
-        .setTitle(`${targetUser.username} (${nickname})`)
-        .setDescription('A new data change request has been submitted.')
+        .setColor(0xFFFF00)
+        .setTitle(`${targetUser.username}`)
+        .setDescription('A new data change request.')
         .addFields(
           { name: 'Target User', value: `${targetUser.tag}`, inline: true },
           { name: 'Target Data', value: targetData, inline: true },
           { name: 'New Value', value: newValue, inline: true },
-          { name: 'Additional Detail', value: additionalDetail, inline: false }
+          { name: 'Additional Detail', value: additionalDetail }
         )
-        .setTimestamp()
-        .setFooter({ text: `Requested by ${interaction.user.tag}` });
+        .setFooter({ text: `Target User ID: ${targetUser.id}` })
+        .setTimestamp();
 
-      const confirm = new ButtonBuilder()
-        .setCustomId('confirm')
-        .setLabel('Mark as Completed')
-        .setStyle(ButtonStyle.Success);
+      const row = new ActionRowBuilder().addComponents(
+        new ButtonBuilder().setCustomId(`confirm_${interaction.id}`).setLabel('Mark as Completed').setStyle(ButtonStyle.Success),
+        new ButtonBuilder().setCustomId(`cancel_${interaction.id}`).setLabel('Cancel').setStyle(ButtonStyle.Danger)
+      );
 
-      const cancel = new ButtonBuilder()
-        .setCustomId('cancel')
-        .setLabel('Cancel')
-        .setStyle(ButtonStyle.Danger);
-
-      const row = new ActionRowBuilder().addComponents(confirm, cancel);
-
-      const channel = interaction.client.channels.cache.get('1317870586760007802');
-      if (channel) {
-        await channel.send({ embeds: [embed], components: [row] });
-        await interaction.editReply({ content: 'Request submitted successfully!', ephemeral: true });
-      } else {
-        console.error('Channel not found.');
-      }
+      await channel.send({ embeds: [embed], components: [row] });
+      await interaction.editReply({ content: 'Request submitted successfully.', ephemeral: true });
     } else if (subcommand === 'remove') {
       const targetUser = interaction.options.getUser('target');
-      const targetMember = await interaction.guild.members.fetch(targetUser.id);
-      const nickname = targetMember.nickname || targetUser.username;
 
       const embed = new EmbedBuilder()
         .setColor(0x0D47A1)
-        .setTitle(`Data Removal: ${targetUser.username} (${nickname})`)
-        .setDescription(`A new data removal request has been submitted.`)
-        .setTimestamp()
-        .setFooter({ text: `Requested by ${interaction.user.tag}` });
+        .setTitle(`Data Removal: ${targetUser.username}`)
+        .setDescription('A new data removal request.')
+        .setFooter({ text: `Target User ID: ${targetUser.id}` })
+        .setTimestamp();
 
-      const confirm = new ButtonBuilder()
-        .setCustomId('confirm')
-        .setLabel('Mark as Completed')
-        .setStyle(ButtonStyle.Success);
+      const row = new ActionRowBuilder().addComponents(
+        new ButtonBuilder().setCustomId(`confirm_${interaction.id}`).setLabel('Mark as Completed').setStyle(ButtonStyle.Success),
+        new ButtonBuilder().setCustomId(`cancel_${interaction.id}`).setLabel('Cancel').setStyle(ButtonStyle.Danger)
+      );
 
-      const cancel = new ButtonBuilder()
-        .setCustomId('cancel')
-        .setLabel('Cancel')
-        .setStyle(ButtonStyle.Danger);
-
-      const row = new ActionRowBuilder().addComponents(confirm, cancel);
-
-      const channel = interaction.client.channels.cache.get('1317870586760007802');
-      if (channel) {
-        await channel.send({ embeds: [embed], components: [row] });
-        await interaction.editReply({ content: 'Removal request submitted successfully!', ephemeral: true });
-      } else {
-        console.error('Channel not found.');
-      }
-    }
-  },
-
-  async buttonInteractionHandler(interaction) {
-    if (interaction.isButton()) {
-      try {
-        const targetUser = interaction.message.embeds[0].fields[0].value.split('#')[0]; // Get the username from the message
-        const user = await interaction.guild.members.fetch(targetUser);
-
-        if (interaction.customId === 'confirm') {
-          const updatedEmbed = new EmbedBuilder(interaction.message.embeds[0])
-            .setColor(0x00FF00) // Green for success
-            .setDescription('The request has been processed successfully.');
-
-          await interaction.update({
-            embeds: [updatedEmbed],
-            components: [],
-          });
-        } else if (interaction.customId === 'cancel') {
-          const canceledEmbed = new EmbedBuilder()
-            .setColor(0xFF0000) // Red for cancel
-            .setTitle(`Request Canceled by ${interaction.user.username}`)
-            .setDescription('The request has been canceled.')
-            .setTimestamp()
-            .setFooter({ text: `Canceled by ${interaction.user.tag}` });
-
-          await interaction.update({
-            embeds: [canceledEmbed],
-            components: [],
-          });
-        }
-      } catch (error) {
-        console.error('Error handling button interaction:', error);
-      }
+      await channel.send({ embeds: [embed], components: [row] });
+      await interaction.editReply({ content: 'Removal request submitted successfully.', ephemeral: true });
     }
   },
 };
