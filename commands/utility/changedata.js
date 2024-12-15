@@ -3,7 +3,13 @@ const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js'
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('request_data_change')
-    .setDescription('Submit a request to change data'),
+    .setDescription('Submit a request to change data')
+	.addStringOption(option =>
+		option.setName('input')
+			.setDescription('The input to echo back'))
+	.addBooleanOption(option =>
+		option.setName('ephemeral')
+			.setDescription('Whether or not the echo should be ephemeral')),
 
   async execute(interaction) {
     // Reply to the user
