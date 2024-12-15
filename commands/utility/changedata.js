@@ -53,7 +53,7 @@ module.exports = {
     // Create the initial embed message
     const embed = new EmbedBuilder()
       .setColor(0xFFFF00) // Set color to neon yellow
-      .setTitle(targetUser.nickname ? `${targetUser.username} (${targetUser.nickname})` : `${targetUser.username}`) // Show username and nickname if available
+      .setTitle(targetUser.nickname ? `${targetUser.username} (${targetUser.nickname})` : `${targetUser.username}`)
       .setDescription('A new data change request has been submitted.')
       .addFields(
         { name: 'Target User', value: `${targetUser.tag}`, inline: true },
@@ -81,7 +81,7 @@ module.exports = {
     const channel = interaction.client.channels.cache.get('1317870586760007802');
     if (channel) {
       try {
-        await interaction.reply({ content: 'Processing your request...', ephemeral: true }); // Direct reply to interaction
+        await interaction.reply({ content: 'Processing your request...', ephemeral: true });
         const message = await channel.send({ embeds: [embed], components: [row] });
         // Store necessary information in the message for future reference
         message.targetUser = targetUser; // Attach targetUser to message
@@ -102,7 +102,7 @@ module.exports = {
         if (interaction.customId === 'confirm') {
           const updatedEmbed = new EmbedBuilder(interaction.message.embeds[0])
             .setColor(0x00FF00) // Green color for success
-            .setTitle(`${targetUser.username} (${targetUser.nickname || 'No nickname'})`)
+			.setTitle(targetUser.nickname ? `${targetUser.username} (${targetUser.nickname})` : `${targetUser.username}`)
             .setDescription('The data change request has been successfully processed.');
 
           await interaction.update({
