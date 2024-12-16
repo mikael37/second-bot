@@ -112,7 +112,11 @@ module.exports = {
           .setStyle(ButtonStyle.Danger)
       );
 
-      await channel.send({ embeds: [embed], components: [row] });
+      await channel.send({ 
+        embeds: [embed], 
+        components: [row],  
+        custom: { dataChangeRequestCount } });
+        
       await interaction.editReply({
         content: "Request submitted successfully.",
         ephemeral: true,

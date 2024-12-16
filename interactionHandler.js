@@ -8,11 +8,14 @@ module.exports = async (interaction) => {
   const customId = interaction.customId;
 
   try {
+    // You should fetch or track the request count somewhere here
+    const dataChangeRequestCount = 41; // Replace with dynamic count fetching mechanism
+
     if (customId.startsWith("confirm_data-change_")) {
       // Create the updated embed with light grey color
       const updatedEmbed = new EmbedBuilder()
         .setColor(0xd3d3d3) // Light grey
-        .setTitle(`Data Change Request #<count>`) // Update with appropriate count
+        .setTitle(`Data Change Request #${dataChangeRequestCount}`) // Dynamically update with count
         .setDescription("Data change request completed.")
         .setTimestamp();
 
@@ -26,7 +29,7 @@ module.exports = async (interaction) => {
       // Create the updated embed with light red color
       const updatedEmbed = new EmbedBuilder()
         .setColor(0xff0000) // Light red
-        .setTitle(`Data Change Request #<count>`) // Update with appropriate count
+        .setTitle(`Data Change Request #${dataChangeRequestCount}`) // Dynamically update with count
         .setDescription("Data change request cancelled.")
         .setTimestamp();
 
