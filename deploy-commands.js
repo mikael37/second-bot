@@ -1,7 +1,6 @@
 const { REST, Routes } = require('discord.js');
 const fs = require('node:fs');
 const path = require('node:path');
-require('dotenv').config(); // Ensure environment variables are loaded
 
 const commands = [];
 const foldersPath = path.join(__dirname, 'commands');
@@ -25,6 +24,13 @@ for (const folder of commandFolders) {
 const token = process.env.DISCORD_TOKEN;
 const clientId = process.env.clientId;
 const guildId = process.env.guildId;
+
+require('dotenv').config();
+
+
+console.log("DISCORD_TOKEN:", process.env.DISCORD_TOKEN);
+console.log("clientId:", process.env.clientId);
+console.log("guildId:", process.env.guildId);
 
 if (!token || !clientId || !guildId) {
   console.error("Missing one or more environment variables: DISCORD_TOKEN, clientId, guildId.");
