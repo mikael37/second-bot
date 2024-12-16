@@ -78,20 +78,8 @@ module.exports = {
       return;
     }
 
-    if (subcommand === "data-change") {
-      // Handle data-change request as normal
-      // Your existing code for data-change
-    } else if (subcommand === "remove") {
+    if (subcommand === "remove") {
       const targetUser = interaction.options.getUser("target");
-
-      // Validate that the targetUser is correctly provided
-      if (!targetUser) {
-        await interaction.editReply({
-          content: "Error: Target user not found.",
-          ephemeral: true,
-        });
-        return;
-      }
 
       // Build the embed with data
       const embed = new EmbedBuilder()
@@ -122,45 +110,5 @@ module.exports = {
       });
     }
   },
-
-  // Handling button presses
-  async handleButtonInteraction(interaction) {
-    const customId = interaction.customId;
-
-    try {
-      if (customId.startsWith("confirm_remove_data")) {
-        // Handle confirm action here
-        await interaction.update({
-          content: "Data removal request completed.",
-          components: [], // Disable buttons
-          embed: {
-            color: 0xd3d3d3, // Light grey
-            description: "Data removal request completed.",
-          },
-        });
-      } else if (customId.startsWith("cancel_remove_data")) {
-        // Handle cancel action here
-        await interaction.update({
-          content: "Data removal request cancelled.",
-          components: [], // Disable buttons
-          embed: {
-            color: 0xff0000, // Light red
-            description: "Data removal request cancelled.",
-          },
-        });
-      } else {
-        await interaction.reply({
-          content: `Unhandled button interaction: ${customId}`,
-          ephemeral: true,
-        });
-      }
-    } catch (error) {
-      if (!interaction.replied && !interaction.deferred) {
-        await interaction.reply({
-          content: "An error occurred while processing the interaction.",
-          ephemeral: true,
-        });
-      }
-    }
-  },
 };
+

@@ -8,34 +8,29 @@ module.exports = async (interaction) => {
   const customId = interaction.customId;
 
   try {
-    // You should fetch or track the request count somewhere here
-    const dataChangeRequestCount = 41; // Replace with dynamic count fetching mechanism
-
-    if (customId.startsWith("confirm_data-change_")) {
-      // Create the updated embed with light grey color
+    if (customId.startsWith("confirm_remove_data")) {
+      // Handle confirm action (remove data)
       const updatedEmbed = new EmbedBuilder()
         .setColor(0xd3d3d3) // Light grey
-        .setTitle(`Data Change Request #${dataChangeRequestCount}`) // Dynamically update with count
-        .setDescription("Data change request completed.")
+        .setTitle(`Data Change Request #<count>`) // Update with appropriate count
+        .setDescription("Data removal request completed.")
         .setTimestamp();
 
-      // Update the message
       await interaction.update({
-        content: "Data change request completed.",
+        content: "Data removal request completed.",
         components: [], // Disable buttons
         embeds: [updatedEmbed], // Send updated embed
       });
-    } else if (customId.startsWith("cancel_data-change_")) {
-      // Create the updated embed with light red color
+    } else if (customId.startsWith("cancel_remove_data")) {
+      // Handle cancel action (remove data)
       const updatedEmbed = new EmbedBuilder()
         .setColor(0xff0000) // Light red
-        .setTitle(`Data Change Request #${dataChangeRequestCount}`) // Dynamically update with count
-        .setDescription("Data change request cancelled.")
+        .setTitle(`Data Change Request #<count>`) // Update with appropriate count
+        .setDescription("Data removal request cancelled.")
         .setTimestamp();
 
-      // Update the message
       await interaction.update({
-        content: "Data change request cancelled.",
+        content: "Data removal request cancelled.",
         components: [], // Disable buttons
         embeds: [updatedEmbed], // Send updated embed
       });
