@@ -84,7 +84,7 @@ module.exports = {
       // Build the embed with data
       const embed = new EmbedBuilder()
         .setColor(0xffff00)
-        .setTitle(`Data Change Request #${dataChangeRequestCount}`)
+        .setTitle(`Data Removal Request #${dataChangeRequestCount}`)
         .setDescription("A data removal request has been made.")
         .addFields(
           { name: "Target User", value: targetUser.tag, inline: true }

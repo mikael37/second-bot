@@ -25,7 +25,7 @@ module.exports = async (interaction) => {
       // Handle cancel action (remove data)
       const updatedEmbed = new EmbedBuilder()
         .setColor(0xff0000) // Light red
-        .setTitle(`Data Change Request #<count>`) // Update with appropriate count
+        .setTitle(`Data Removal Request #<count>`) // Update with appropriate count
         .setDescription("Data removal request cancelled.")
         .setTimestamp();
 
