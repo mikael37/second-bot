@@ -97,14 +97,14 @@ module.exports = {
         .setTimestamp();
 
       // Embed Buttons
-      const row = new ActionRowBuilder().addComponents(
+      const row = new ActionRowBuilder()
+      .addComponents(
         new ButtonBuilder()
-          .setCustomId(`complete_change-data_${interaction.id}`)
-          .setLabel("Mark as Completed")
-          .setStyle(ButtonStyle.Success),
-
+          .setCustomId("confirm_data-change_value1") // Ensure this matches your logic
+          .setLabel("Confirm Value 1")
+          .setStyle(ButtonStyle.Primary),
         new ButtonBuilder()
-          .setCustomId(`cancel_change-data_${interaction.id}`)
+          .setCustomId("cancel_data-change_")
           .setLabel("Cancel")
           .setStyle(ButtonStyle.Danger)
       );

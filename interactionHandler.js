@@ -4,22 +4,25 @@ module.exports = async (interaction) => {
   if (!interaction.isButton()) return;
 
   const customId = interaction.customId;
+  console.log("Button pressed with customId:", interaction.customId); // Debugging
 
   try {
     if (customId.startsWith("confirm_data-change_")) {
-      await interaction.update({
-        content: "Data change request confirmed.",
-        components: [], // Disable buttons after interaction
-      });
+      if (customId.includes("_value1")) {
+        await interaction.update({
+          content: "Data change request for Value 1 completed.",
+          components: [], // Remove buttons
+        });
+      }
     } else if (customId.startsWith("cancel_data-change_")) {
       await interaction.update({
         content: "Data change request cancelled.",
-        components: [],
+        components: [], // Remove buttons
       });
     } else {
       // Fallback for unrecognized customId
       await interaction.reply({
-        content: "Unhandled button interaction.",
+        content: `Unhandled button interaction: ${customId}`,
         ephemeral: true,
       });
     }
