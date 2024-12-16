@@ -134,3 +134,6 @@ dist
 
 # Configuration
 .config.json
+
+# Archived Commands
+.request.js
