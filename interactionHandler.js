@@ -11,7 +11,7 @@ module.exports = async (interaction) => {
     if (customId.startsWith("confirm_remove_data")) {
       // Handle confirm action (remove data)
       const updatedEmbed = new EmbedBuilder()
-        .setColor(0x2f2f2f) // Light grey
+        .setColor(0xff0000)
         .setTitle(`Data Removal Request #<count>`) // Update with appropriate count
         .setDescription("Data removal request completed.")
         .setTimestamp();
@@ -24,7 +24,7 @@ module.exports = async (interaction) => {
     } else if (customId.startsWith("cancel_remove_data")) {
       // Handle cancel action (remove data)
       const updatedEmbed = new EmbedBuilder()
-        .setColor(0xff0000) // Light red
+        .setColor(0x2c2d30) // Light red
         .setTitle(`Data Removal Request #<count>`) // Update with appropriate count
         .setDescription("Data removal request cancelled.")
         .setTimestamp();
@@ -36,7 +36,7 @@ module.exports = async (interaction) => {
       });
     } else {
       await interaction.reply({
-        // content: `Unhandled button interaction: ${customId}`,
+        content: `Unhandled button interaction: ${customId}`,
         ephemeral: true,
       });
     }
