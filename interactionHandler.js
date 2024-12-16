@@ -5,17 +5,32 @@ const path = require("path");
 // File path to store the dataChangeRequestCount
 const countFilePath = path.join(__dirname, "dataCount.json");
 
-// Load dataChangeRequestCount from file, default to 0 if file doesn't exist
-let dataChangeRequestCount = 0;
-if (fs.existsSync(countFilePath)) {
-  const fileData = JSON.parse(fs.readFileSync(countFilePath, "utf8"));
-  dataChangeRequestCount = fileData.count || 0;
-}
+// Function to load dataChangeRequestCount from the file, default to 0 if the file doesn't exist or is empty
+const loadDataChangeRequestCount = () => {
+  if (fs.existsSync(countFilePath)) {
+    try {
+      const fileData = JSON.parse(fs.readFileSync(countFilePath, "utf8"));
+      return fileData.count || 0; // Ensure default to 0 if no count key exists
+    } catch (err) {
+      console.error("Error reading data from dataCount.json:", err);
+      return 0; // Return 0 if the file is corrupted or unreadable
+    }
+  }
+  return 0; // Return 0 if file doesn't exist
+};
 
 // Function to save dataChangeRequestCount to the file
-const saveDataChangeRequestCount = () => {
-  fs.writeFileSync(countFilePath, JSON.stringify({ count: dataChangeRequestCount }, null, 2));
+const saveDataChangeRequestCount = (count) => {
+  try {
+    fs.writeFileSync(countFilePath, JSON.stringify({ count }, null, 2));
+    console.log("Data change request count saved:", count);
+  } catch (err) {
+    console.error("Error saving to dataCount.json:", err);
+  }
 };
+
+// Load initial count
+let dataChangeRequestCount = loadDataChangeRequestCount();
 
 module.exports = async (interaction) => {
   if (!interaction.isButton()) {
@@ -84,8 +99,9 @@ module.exports = async (interaction) => {
       });
     }
 
-    // Optionally, after processing the interaction, save the updated count
-    saveDataChangeRequestCount();
+    // After processing the interaction, increment the count and save it
+    dataChangeRequestCount++;
+    saveDataChangeRequestCount(dataChangeRequestCount);
 
   } catch (error) {
     if (!interaction.replied && !interaction.deferred) {
