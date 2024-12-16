@@ -29,8 +29,8 @@ require('dotenv').config();
 
 
 console.log("DISCORD_TOKEN:", process.env.DISCORD_TOKEN);
-console.log("clientId:", process.env.clientId);
-console.log("guildId:", process.env.guildId);
+console.log("clientId:", process.env.CLIENT_ID);
+console.log("guildId:", process.env.GUILD_ID);
 
 if (!token || !clientId || !guildId) {
   console.error("Missing one or more environment variables: DISCORD_TOKEN, clientId, guildId.");
