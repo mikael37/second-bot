@@ -6,7 +6,7 @@ const {
   ButtonStyle,
 } = require("discord.js");
 
-let dataChangeRequestCount = 0;
+let dataChangeRequestCount = 0; // Variable to keep track of the number of requests. You can persist this in a database.
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -66,9 +66,6 @@ module.exports = {
   async execute(interaction) {
     const subcommand = interaction.options.getSubcommand();
 
-    // Log important information
-    logCommandDetails(interaction, subcommand);
-
     await interaction.deferReply({ ephemeral: true });
 
     const channelId = process.env.REQUEST_CHANNEL_ID || "1317870586760007802";
@@ -85,6 +82,7 @@ module.exports = {
     if (subcommand === "remove") {
       const targetUser = interaction.options.getUser("target");
 
+      // Build the embed with data
       const embed = new EmbedBuilder()
         .setColor(0xffff00)
         .setTitle(`Data Removal Request #${dataChangeRequestCount}`)
@@ -118,8 +116,10 @@ module.exports = {
       const newValue = interaction.options.getString("new_value");
       const additionalDetail = interaction.options.getString("additional_detail");
 
+      // Increment the request count
       dataChangeRequestCount++;
 
+      // Build the embed with data
       const embed = new EmbedBuilder()
         .setColor(0xffff00)
         .setTitle(`Data Change Request #${dataChangeRequestCount}`)
@@ -152,11 +152,3 @@ module.exports = {
     }
   },
 };
-
-// Logging function to log important details about the command
-function logCommandDetails(interaction, commandId) {
-  const timestamp = new Date().toISOString();
-  const user = interaction.user.tag;
-  const args = interaction.options ? interaction.options.data : 'No args';
-  console.log(`[${timestamp}] Command executed by ${user} - Command: ${commandId}, Args: ${JSON.stringify(args)}`);
-}

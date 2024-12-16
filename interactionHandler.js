@@ -6,10 +6,7 @@ module.exports = async (interaction) => {
   }
 
   const customId = interaction.customId;
-  const dataChangeRequestCount = 41;
-
-  // Log important information
-  logCommandDetails(interaction, customId);
+  const dataChangeRequestCount = 41; // Replace with dynamic count fetching mechanism
 
   try {
     if (customId.startsWith("confirm_remove_data")) {
@@ -20,41 +17,41 @@ module.exports = async (interaction) => {
         .setTimestamp();
 
       await interaction.update({
-        components: [],
-        embeds: [updatedEmbed],
+        components: [], // Disable buttons
+        embeds: [updatedEmbed], // Send updated embed
       });
     } else if (customId.startsWith("cancel_remove_data")) {
       const updatedEmbed = new EmbedBuilder()
-        .setColor(0x2c2d30)
+        .setColor(0x2c2d30) // Light red
         .setTitle(`Data Removal Request #${dataChangeRequestCount}`)
         .setDescription("Data removal request cancelled.")
         .setTimestamp();
 
       await interaction.update({
-        components: [],
-        embeds: [updatedEmbed],
+        components: [], // Disable buttons
+        embeds: [updatedEmbed], // Send updated embed
       });
     } else if (customId.startsWith("confirm_change_data")) {
       const updatedEmbed = new EmbedBuilder()
-        .setColor(0x00ff00)
+        .setColor(0x00ff00) // Green for confirmation
         .setTitle(`Data Change Request #${dataChangeRequestCount}`)
         .setDescription("Data change request confirmed.")
         .setTimestamp();
 
       await interaction.update({
-        components: [],
-        embeds: [updatedEmbed],
+        components: [], // Disable buttons
+        embeds: [updatedEmbed], // Send updated embed
       });
     } else if (customId.startsWith("cancel_change_data")) {
       const updatedEmbed = new EmbedBuilder()
-        .setColor(0x2c2d30)
+        .setColor(0x2c2d30) // Light gray
         .setTitle(`Data Change Request #${dataChangeRequestCount}`)
         .setDescription("Data change request cancelled.")
         .setTimestamp();
 
       await interaction.update({
-        components: [],
-        embeds: [updatedEmbed],
+        components: [], // Disable buttons
+        embeds: [updatedEmbed], // Send updated embed
       });
     } else {
       await interaction.reply({
@@ -71,11 +68,3 @@ module.exports = async (interaction) => {
     }
   }
 };
-
-// Logging function to log important details about the command
-function logCommandDetails(interaction, commandId) {
-  const timestamp = new Date().toISOString();
-  const user = interaction.user.tag;
-  const args = interaction.options ? interaction.options.data : 'No args';
-  console.log(`[${timestamp}] Command executed by ${user} - Command: ${commandId}, Args: ${JSON.stringify(args)}`);
-}
