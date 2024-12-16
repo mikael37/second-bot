@@ -96,12 +96,10 @@ module.exports = {
         .setFooter({ text: `Target User ID: ${targetUser.id}` })
         .setTimestamp();
 
-      // Embed Buttons
-      const row = new ActionRowBuilder()
-      .addComponents(
+      const row = new ActionRowBuilder().addComponents(
         new ButtonBuilder()
-          .setCustomId("confirm_data-change_value1") // Ensure this matches your logic
-          .setLabel("Confirm Value 1")
+          .setCustomId("confirm_data-change_")
+          .setLabel("Confirm")
           .setStyle(ButtonStyle.Primary),
         new ButtonBuilder()
           .setCustomId("cancel_data-change_")
@@ -129,7 +127,6 @@ module.exports = {
           .setCustomId(`complete_remove-data_${interaction.id}`)
           .setLabel("Mark as Completed")
           .setStyle(ButtonStyle.Success),
-
         new ButtonBuilder()
           .setCustomId(`cancel_remove-data_${interaction.id}`)
           .setLabel("Cancel")
