@@ -45,18 +45,23 @@ client.on(Events.InteractionCreate, async interaction => {
     }
 
     try {
-        if (!interaction.replied && !interaction.deferred) {
+        // Only defer if the command requires it
+        if (command.defer) {
             await interaction.deferReply();
         }
+
+        // Execute the command
         await command.execute(interaction);
     } catch (error) {
         console.error(error);
 
-        if (!interaction.replied) {
-            await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
+        // Respond only if no reply or defer was sent
+        if (!interaction.replied && !interaction.deferred) {
+            await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
         }
     }
 });
+
 
 // Log bot ready event
 client.once(Events.ClientReady, readyClient => {
