@@ -6,6 +6,8 @@ const {
   ButtonStyle,
 } = require("discord.js");
 
+let dataChangeRequestCount = 0; // Variable to keep track of the number of requests. You can persist this in a database.
+
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("request")
@@ -76,7 +78,10 @@ module.exports = {
       return;
     }
 
-    if (subcommand === "data-change") {
+    if (subcommand === "data-change" || subcommand === "remove") {
+      // Increment request count for data-change or remove requests
+      dataChangeRequestCount++;
+
       const targetUser = interaction.options.getUser("target");
       const targetData = interaction.options.getString("target_data");
       const newValue = interaction.options.getString("new_value");
@@ -85,7 +90,7 @@ module.exports = {
 
       const embed = new EmbedBuilder()
         .setColor(0xffff00)
-        .setTitle(`${targetUser.username}`)
+        .setTitle(`Data Change Request #${dataChangeRequestCount}`)
         .setDescription("A new data change request.")
         .addFields(
           { name: "Target User", value: `${targetUser.tag}`, inline: true },
@@ -112,31 +117,29 @@ module.exports = {
         content: "Request submitted successfully.",
         ephemeral: true,
       });
-    } else if (subcommand === "remove") {
-      const targetUser = interaction.options.getUser("target");
+    }
+  },
 
-      const embed = new EmbedBuilder()
-        .setColor(0x0d47a1)
-        .setTitle(`Data Removal: ${targetUser.username}`)
-        .setDescription("A new data removal request.")
-        .setFooter({ text: `Target User ID: ${targetUser.id}` })
-        .setTimestamp();
+  // Handling button presses
+  async handleButtonInteraction(interaction) {
+    const customId = interaction.customId;
 
-      const row = new ActionRowBuilder().addComponents(
-        new ButtonBuilder()
-          .setCustomId(`complete_remove-data_${interaction.id}`)
-          .setLabel("Mark as Completed")
-          .setStyle(ButtonStyle.Success),
-        new ButtonBuilder()
-          .setCustomId(`cancel_remove-data_${interaction.id}`)
-          .setLabel("Cancel")
-          .setStyle(ButtonStyle.Danger)
-      );
-
-      await channel.send({ embeds: [embed], components: [row] });
-      await interaction.editReply({
-        content: "Removal request submitted successfully.",
-        ephemeral: true,
+    if (customId.startsWith("confirm_data-change_")) {
+      await interaction.update({
+        content: "Data change request completed.",
+        components: [],
+        embed: {
+          color: 0xd3d3d3, // Light grey
+        },
+      });
+    } else if (customId.startsWith("cancel_data-change_")) {
+      await interaction.update({
+        content: "Data change request cancelled.",
+        components: [],
+        embed: {
+          color: 0xff0000, // Light red
+          description: "Data change request cancelled.",
+        },
       });
     }
   },
