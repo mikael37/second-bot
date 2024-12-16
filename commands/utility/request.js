@@ -1,13 +1,3 @@
-const {
-  SlashCommandBuilder,
-  EmbedBuilder,
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-} = require("discord.js");
-
-let dataChangeRequestCount = 0; // Variable to keep track of the number of requests. You can persist this in a database.
-
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("request")
@@ -78,49 +68,89 @@ module.exports = {
       return;
     }
 
-    if (subcommand === "data-change" || subcommand === "remove") {
-      // Increment request count for data-change or remove requests
-      dataChangeRequestCount++;
-
+    if (subcommand === "data-change") {
+      // Handle data-change request as normal
+      // Your existing code for data-change
+    } else if (subcommand === "remove") {
       const targetUser = interaction.options.getUser("target");
-      const targetData = interaction.options.getString("target_data");
-      const newValue = interaction.options.getString("new_value");
-      const additionalDetail =
-        interaction.options.getString("additional_detail") || "None";
 
+      // Validate that the targetUser is correctly provided
+      if (!targetUser) {
+        await interaction.editReply({
+          content: "Error: Target user not found.",
+          ephemeral: true,
+        });
+        return;
+      }
+
+      // Build the embed with data
       const embed = new EmbedBuilder()
         .setColor(0xffff00)
         .setTitle(`Data Change Request #${dataChangeRequestCount}`)
-        .setDescription("A new data change request.")
+        .setDescription("A data removal request has been made.")
         .addFields(
-          { name: "Target User", value: `${targetUser.tag}`, inline: true },
-          { name: "Target Data", value: targetData, inline: true },
-          { name: "New Value", value: newValue, inline: true },
-          { name: "Additional Detail", value: additionalDetail }
+          { name: "Target User", value: targetUser.tag, inline: true }
         )
         .setFooter({ text: `Target User ID: ${targetUser.id}` })
         .setTimestamp();
 
       const row = new ActionRowBuilder().addComponents(
         new ButtonBuilder()
-          .setCustomId("confirm_data-change_")
+          .setCustomId("confirm_remove_data")
           .setLabel("Confirm")
           .setStyle(ButtonStyle.Primary),
         new ButtonBuilder()
-          .setCustomId("cancel_data-change_")
+          .setCustomId("cancel_remove_data")
           .setLabel("Cancel")
           .setStyle(ButtonStyle.Danger)
       );
 
-      await channel.send({ 
-        embeds: [embed], 
-        components: [row],  
-        custom: { dataChangeRequestCount } });
-        
+      await channel.send({ embeds: [embed], components: [row] });
       await interaction.editReply({
         content: "Request submitted successfully.",
         ephemeral: true,
       });
+    }
+  },
+
+  // Handling button presses
+  async handleButtonInteraction(interaction) {
+    const customId = interaction.customId;
+
+    try {
+      if (customId.startsWith("confirm_remove_data")) {
+        // Handle confirm action here
+        await interaction.update({
+          content: "Data removal request completed.",
+          components: [], // Disable buttons
+          embed: {
+            color: 0xd3d3d3, // Light grey
+            description: "Data removal request completed.",
+          },
+        });
+      } else if (customId.startsWith("cancel_remove_data")) {
+        // Handle cancel action here
+        await interaction.update({
+          content: "Data removal request cancelled.",
+          components: [], // Disable buttons
+          embed: {
+            color: 0xff0000, // Light red
+            description: "Data removal request cancelled.",
+          },
+        });
+      } else {
+        await interaction.reply({
+          content: `Unhandled button interaction: ${customId}`,
+          ephemeral: true,
+        });
+      }
+    } catch (error) {
+      if (!interaction.replied && !interaction.deferred) {
+        await interaction.reply({
+          content: "An error occurred while processing the interaction.",
+          ephemeral: true,
+        });
+      }
     }
   },
 };
