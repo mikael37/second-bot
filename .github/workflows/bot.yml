@@ -1,8 +1,11 @@
 name: Restart Discord Bot
 
 on:
+  push:  # Trigger the workflow on code pushes
+    branches:
+      - main  # Replace 'main' with your default branch name if different
   schedule:
-    - cron: '0 0 * * *'  # This runs at midnight UTC every 24 hours
+    - cron: '0 0 * * *'  # This still runs at midnight UTC every 24 hours
 
 jobs:
   restart-bot:
