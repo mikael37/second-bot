@@ -1,3 +1,13 @@
+const {
+  SlashCommandBuilder,
+  EmbedBuilder,
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+} = require("discord.js");
+
+let dataChangeRequestCount = 0; // Variable to keep track of the number of requests. You can persist this in a database.
+
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("request")
