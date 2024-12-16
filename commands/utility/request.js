@@ -96,7 +96,7 @@ module.exports = {
       const row = new ActionRowBuilder().addComponents(
         new ButtonBuilder()
           .setCustomId("confirm_remove_data")
-          .setLabel("Confirm")
+          .setLabel("Mark as Completed")
           .setStyle(ButtonStyle.Primary),
         new ButtonBuilder()
           .setCustomId("cancel_remove_data")

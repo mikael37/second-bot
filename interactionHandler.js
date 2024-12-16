@@ -23,7 +23,7 @@ module.exports = async (interaction) => {
     } else if (customId.startsWith("cancel_remove_data")) {
       const updatedEmbed = new EmbedBuilder()
         .setColor(0x2c2d30) // Light red
-        .setTitle(`Cancelled\nData Removal Request #${dataChangeRequestCount}`)
+        .setTitle(`Cancelled: Data Removal Request #${dataChangeRequestCount}`)
         .setDescription("Data removal request cancelled.")
         .setTimestamp();
 
@@ -45,7 +45,7 @@ module.exports = async (interaction) => {
     } else if (customId.startsWith("cancel_change_data")) {
       const updatedEmbed = new EmbedBuilder()
         .setColor(0x2c2d30) // Light gray
-        .setTitle(`Cancelled\nData Change Request #${dataChangeRequestCount}`)
+        .setTitle(`Cancelled: Data Change Request #${dataChangeRequestCount}`)
         .setDescription("Data change request cancelled.")
         .setTimestamp();
 
