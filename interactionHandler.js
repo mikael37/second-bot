@@ -7,8 +7,17 @@ const dataFilePath = path.join(__dirname, 'dataCount.json'); // Path to your dat
 // Load the count from the file
 const loadDataChangeRequestCount = () => {
   try {
-    const data = fs.readFileSync(dataFilePath, 'utf8');
-    return JSON.parse(data).count || 0;
+    if (fs.existsSync(dataFilePath)) {
+      const data = fs.readFileSync(dataFilePath, 'utf8');
+      const parsedData = JSON.parse(data);
+      console.log('Loaded data:', parsedData);
+      return parsedData.count || 0;
+    } else {
+      console.log('dataCount.json does not exist. Creating new file.');
+      // Create a new file if it doesn't exist
+      saveDataChangeRequestCount(0);
+      return 0;
+    }
   } catch (err) {
     console.error('Error reading data from dataCount.json:', err);
     return 0;
