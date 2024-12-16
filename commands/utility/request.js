@@ -6,7 +6,7 @@ const {
   ButtonStyle,
 } = require("discord.js");
 
-let dataChangeRequestCount = 0; // Variable to keep track of the number of requests. You can persist this in a database.
+let dataChangeRequestCount = 0;
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -65,7 +65,9 @@ module.exports = {
 
   async execute(interaction) {
     const subcommand = interaction.options.getSubcommand();
-    console.log(`Received subcommand: ${subcommand}`);
+
+    // Log important information
+    logCommandDetails(interaction, subcommand);
 
     await interaction.deferReply({ ephemeral: true });
 
@@ -73,7 +75,6 @@ module.exports = {
     const channel = interaction.client.channels.cache.get(channelId);
 
     if (!channel) {
-      console.log("Error: Channel not found.");
       await interaction.editReply({
         content: "Error: Channel not found.",
         ephemeral: true,
@@ -82,11 +83,8 @@ module.exports = {
     }
 
     if (subcommand === "remove") {
-      console.log("Processing remove request...");
-
       const targetUser = interaction.options.getUser("target");
 
-      // Build the embed with data
       const embed = new EmbedBuilder()
         .setColor(0xffff00)
         .setTitle(`Data Removal Request #${dataChangeRequestCount}`)
@@ -108,27 +106,20 @@ module.exports = {
           .setStyle(ButtonStyle.Danger)
       );
 
-      console.log("Sending embed and buttons for data removal.");
       await channel.send({ embeds: [embed], components: [row] });
 
-      console.log("Request submitted successfully.");
       await interaction.editReply({
         content: "Request submitted successfully.",
         ephemeral: true,
       });
     } else if (subcommand === "data-change") {
-      console.log("Processing data-change request...");
-
       const targetUser = interaction.options.getUser("target");
       const targetData = interaction.options.getString("target_data");
       const newValue = interaction.options.getString("new_value");
       const additionalDetail = interaction.options.getString("additional_detail");
 
-      // Increment the request count
       dataChangeRequestCount++;
-      console.log(`Data Change Request Count: ${dataChangeRequestCount}`);
 
-      // Build the embed with data
       const embed = new EmbedBuilder()
         .setColor(0xffff00)
         .setTitle(`Data Change Request #${dataChangeRequestCount}`)
@@ -152,10 +143,8 @@ module.exports = {
           .setStyle(ButtonStyle.Danger)
       );
 
-      console.log("Sending embed and buttons for data change.");
       await channel.send({ embeds: [embed], components: [row] });
 
-      console.log("Data change request submitted successfully.");
       await interaction.editReply({
         content: "Data change request submitted successfully.",
         ephemeral: true,
@@ -163,3 +152,11 @@ module.exports = {
     }
   },
 };
+
+// Logging function to log important details about the command
+function logCommandDetails(interaction, commandId) {
+  const timestamp = new Date().toISOString();
+  const user = interaction.user.tag;
+  const args = interaction.options ? interaction.options.data : 'No args';
+  console.log(`[${timestamp}] Command executed by ${user} - Command: ${commandId}, Args: ${JSON.stringify(args)}`);
+}
