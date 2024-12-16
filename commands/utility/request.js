@@ -97,7 +97,7 @@ module.exports = {
         new ButtonBuilder()
           .setCustomId("confirm_remove_data")
           .setLabel("Mark as Completed")
-          .setStyle(ButtonStyle.Primary),
+          .setStyle(ButtonStyle.Success),
         new ButtonBuilder()
           .setCustomId("cancel_remove_data")
           .setLabel("Cancel")
@@ -136,7 +136,7 @@ module.exports = {
         new ButtonBuilder()
           .setCustomId("confirm_change_data")
           .setLabel("Mark as Completed")
-          .setStyle(ButtonStyle.Primary),
+          .setStyle(ButtonStyle.Success),
         new ButtonBuilder()
           .setCustomId("cancel_change_data")
           .setLabel("Cancel")
