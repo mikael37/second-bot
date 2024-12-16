@@ -22,8 +22,8 @@ for (const folder of commandFolders) {
 
 // Fetch environment variables
 const token = process.env.DISCORD_TOKEN;
-const clientId = process.env.clientId;
-const guildId = process.env.guildId;
+const clientId = process.env.CLIENT_ID;
+const guildId = process.env.GUILD_ID;
 
 require('dotenv').config();
 
