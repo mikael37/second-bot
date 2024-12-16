@@ -12,7 +12,7 @@ module.exports = async (interaction) => {
       // Handle confirm action (remove data)
       const updatedEmbed = new EmbedBuilder()
         .setColor(0x2f2f2f) // Light grey
-        .setTitle(`Data Change Request #<count>`) // Update with appropriate count
+        .setTitle(`Data Removal Request #<count>`) // Update with appropriate count
         .setDescription("Data removal request completed.")
         .setTimestamp();
 
