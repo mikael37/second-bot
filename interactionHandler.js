@@ -11,7 +11,7 @@ module.exports = async (interaction) => {
   try {
     if (customId.startsWith("confirm_remove_data")) {
       const updatedEmbed = new EmbedBuilder()
-        .setColor(0xff0000)
+        .setColor(0x19e619)
         .setTitle(`Data Removal Request #${dataChangeRequestCount}`)
         .setDescription("Data removal request completed.")
         .setTimestamp();
@@ -23,7 +23,7 @@ module.exports = async (interaction) => {
     } else if (customId.startsWith("cancel_remove_data")) {
       const updatedEmbed = new EmbedBuilder()
         .setColor(0x2c2d30) // Light red
-        .setTitle(`Data Removal Request #${dataChangeRequestCount}`)
+        .setTitle(`Cancelled\nData Removal Request #${dataChangeRequestCount}`)
         .setDescription("Data removal request cancelled.")
         .setTimestamp();
 
@@ -35,7 +35,7 @@ module.exports = async (interaction) => {
       const updatedEmbed = new EmbedBuilder()
         .setColor(0x00ff00) // Green for confirmation
         .setTitle(`Data Change Request #${dataChangeRequestCount}`)
-        .setDescription("Data change request confirmed.")
+        .setDescription("Data change request completed.")
         .setTimestamp();
 
       await interaction.update({
@@ -45,7 +45,7 @@ module.exports = async (interaction) => {
     } else if (customId.startsWith("cancel_change_data")) {
       const updatedEmbed = new EmbedBuilder()
         .setColor(0x2c2d30) // Light gray
-        .setTitle(`Data Change Request #${dataChangeRequestCount}`)
+        .setTitle(`Cancelled\nData Change Request #${dataChangeRequestCount}`)
         .setDescription("Data change request cancelled.")
         .setTimestamp();
 
