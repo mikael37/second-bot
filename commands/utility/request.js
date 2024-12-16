@@ -5,8 +5,23 @@ const {
   ButtonBuilder,
   ButtonStyle,
 } = require("discord.js");
+const fs = require("fs");
+const path = require("path");
 
-let dataChangeRequestCount = 0; // Variable to keep track of the number of requests. You can persist this in a database.
+// File path to store the dataChangeRequestCount
+const countFilePath = path.join(__dirname, "dataCount.json");
+
+// Load dataChangeRequestCount from file, default to 0 if file doesn't exist
+let dataChangeRequestCount = 0;
+if (fs.existsSync(countFilePath)) {
+  const fileData = JSON.parse(fs.readFileSync(countFilePath, "utf8"));
+  dataChangeRequestCount = fileData.count || 0;
+}
+
+// Function to save dataChangeRequestCount to the file
+const saveDataChangeRequestCount = () => {
+  fs.writeFileSync(countFilePath, JSON.stringify({ count: dataChangeRequestCount }, null, 2));
+};
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -110,8 +125,6 @@ module.exports = {
         content: "Request submitted successfully.",
         ephemeral: true,
       });
-
-      console.log(`Data removal request submitted by ${interaction.user.tag}.`);
     } else if (subcommand === "data-change") {
       const targetUser = interaction.options.getUser("target");
       const targetData = interaction.options.getString("target_data");
@@ -120,6 +133,9 @@ module.exports = {
 
       // Increment the request count
       dataChangeRequestCount++;
+
+      // Save the updated count to the file
+      saveDataChangeRequestCount();
 
       // Build the embed with data
       const embed = new EmbedBuilder()
@@ -151,8 +167,6 @@ module.exports = {
         content: "Data change request submitted successfully.",
         ephemeral: true,
       });
-
-      console.log(`Data change request submitted by ${interaction.user.tag}.`);
     }
   },
 };
