@@ -1,27 +1,28 @@
 const { EmbedBuilder } = require("discord.js");
-const fs = require("fs");
-const path = require("path");
+const fs = require('fs');
+const path = require('path');
 
-const dataFilePath = path.join(__dirname, "dataCount.json");
+const dataFilePath = path.join(__dirname, 'dataCount.json'); // Path to your data file
 
-// Load the dataChangeRequestCount from the file
+// Load the count from the file
 const loadDataChangeRequestCount = () => {
   try {
-    const data = fs.readFileSync(dataFilePath, "utf8");
-    return JSON.parse(data).count;
+    const data = fs.readFileSync(dataFilePath, 'utf8');
+    return JSON.parse(data).count || 0;
   } catch (err) {
-    console.error("Error reading data from dataCount.json:", err);
-    return 0; // Default to 0 if the file doesn't exist or is corrupted
+    console.error('Error reading data from dataCount.json:', err);
+    return 0;
   }
 };
 
-// Save the dataChangeRequestCount to the file
+// Save the updated count to the file
 const saveDataChangeRequestCount = (count) => {
   try {
     const data = { count };
-    fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2), "utf8");
+    fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2), 'utf8');
+    console.log('Successfully saved count:', count);
   } catch (err) {
-    console.error("Error saving data to dataCount.json:", err);
+    console.error('Error saving data to dataCount.json:', err);
   }
 };
 
@@ -31,7 +32,7 @@ module.exports = async (interaction) => {
   }
 
   const customId = interaction.customId;
-  let dataChangeRequestCount = loadDataChangeRequestCount(); // Get the current count from the file
+  let dataChangeRequestCount = loadDataChangeRequestCount(); // Load the count
 
   try {
     if (customId.startsWith("confirm_remove_data")) {
@@ -42,51 +43,51 @@ module.exports = async (interaction) => {
         .setTimestamp();
 
       await interaction.update({
-        components: [],
-        embeds: [updatedEmbed],
+        components: [], // Disable buttons
+        embeds: [updatedEmbed], // Send updated embed
       });
 
       console.log(`Data removal request completed by ${interaction.user.tag}.`);
     } else if (customId.startsWith("cancel_remove_data")) {
       const updatedEmbed = new EmbedBuilder()
-        .setColor(0x2c2d30)
+        .setColor(0x2c2d30) // Light red
         .setTitle(`Cancelled: Data Removal Request #${dataChangeRequestCount}`)
         .setDescription("Data removal request cancelled.")
         .setTimestamp();
 
       await interaction.update({
-        components: [],
-        embeds: [updatedEmbed],
+        components: [], // Disable buttons
+        embeds: [updatedEmbed], // Send updated embed
       });
 
       console.log(`Data removal request cancelled by ${interaction.user.tag}.`);
     } else if (customId.startsWith("confirm_change_data")) {
-      dataChangeRequestCount++; // Increment the count for data change request
-
-      saveDataChangeRequestCount(dataChangeRequestCount); // Save the updated count to the file
-
       const updatedEmbed = new EmbedBuilder()
-        .setColor(0x00ff00)
+        .setColor(0x00ff00) // Green for confirmation
         .setTitle(`Data Change Request #${dataChangeRequestCount}`)
         .setDescription("Data change request completed.")
         .setTimestamp();
 
       await interaction.update({
-        components: [],
-        embeds: [updatedEmbed],
+        components: [], // Disable buttons
+        embeds: [updatedEmbed], // Send updated embed
       });
+
+      // Increment the count and save it
+      dataChangeRequestCount++;
+      saveDataChangeRequestCount(dataChangeRequestCount);
 
       console.log(`Data change request completed by ${interaction.user.tag}.`);
     } else if (customId.startsWith("cancel_change_data")) {
       const updatedEmbed = new EmbedBuilder()
-        .setColor(0x2c2d30)
+        .setColor(0x2c2d30) // Light gray
         .setTitle(`Cancelled: Data Change Request #${dataChangeRequestCount}`)
         .setDescription("Data change request cancelled.")
         .setTimestamp();
 
       await interaction.update({
-        components: [],
-        embeds: [updatedEmbed],
+        components: [], // Disable buttons
+        embeds: [updatedEmbed], // Send updated embed
       });
 
       console.log(`Data change request cancelled by ${interaction.user.tag}.`);
