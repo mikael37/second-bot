@@ -9,8 +9,15 @@ const countFilePath = path.join(__dirname, "dataCount.json");
 const loadDataChangeRequestCount = () => {
   if (fs.existsSync(countFilePath)) {
     try {
-      const fileData = JSON.parse(fs.readFileSync(countFilePath, "utf8"));
-      return fileData.count || 0; // Ensure default to 0 if no count key exists
+      const fileData = fs.readFileSync(countFilePath, "utf8");
+
+      // If the file is empty or malformed, reset the count to 0
+      if (!fileData) {
+        return 0;
+      }
+
+      const parsedData = JSON.parse(fileData);
+      return parsedData.count || 0; // Ensure default to 0 if no count key exists
     } catch (err) {
       console.error("Error reading data from dataCount.json:", err);
       return 0; // Return 0 if the file is corrupted or unreadable
