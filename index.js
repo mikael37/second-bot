@@ -44,30 +44,26 @@ client.on(Events.InteractionCreate, async interaction => {
     }
 
     try {
-        // Defer the reply if needed
+        // Defer the reply if not already done
         if (!interaction.replied && !interaction.deferred) {
             await interaction.deferReply();
         }
 
+        // Execute the command
         await command.execute(interaction);
+
     } catch (error) {
         console.error(error);
-        // If interaction is deferred or replied, don't send another message
-        if (interaction.replied || interaction.deferred) {
-            try {
-                await interaction.followUp({ content: 'There was an error while executing this command!', flags: MessageFlags.Ephemeral });
-            } catch (followUpError) {
-                console.error(followUpError);
-            }
+
+        // Only respond if interaction hasn't been acknowledged yet
+        if (!interaction.replied && !interaction.deferred) {
+            await interaction.reply({ content: 'There was an error while executing this command!', flags: MessageFlags.Ephemeral });
         } else {
-            try {
-                await interaction.reply({ content: 'There was an error while executing this command!', flags: MessageFlags.Ephemeral });
-            } catch (replyError) {
-                console.error(replyError);
-            }
+            await interaction.followUp({ content: 'There was an error while executing this command!', flags: MessageFlags.Ephemeral });
         }
     }
 });
+
 
 
 client.once(Events.ClientReady, readyClient => {
