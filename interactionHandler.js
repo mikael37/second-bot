@@ -2,42 +2,28 @@ const { EmbedBuilder } = require("discord.js");
 const fs = require("fs");
 const path = require("path");
 
-// File path to store the dataChangeRequestCount
-const countFilePath = path.join(__dirname, "dataCount.json");
+const dataFilePath = path.join(__dirname, "dataCount.json");
 
-// Function to load dataChangeRequestCount from the file, default to 0 if the file doesn't exist or is empty
+// Load the dataChangeRequestCount from the file
 const loadDataChangeRequestCount = () => {
-  if (fs.existsSync(countFilePath)) {
-    try {
-      const fileData = fs.readFileSync(countFilePath, "utf8");
-
-      // If the file is empty or malformed, reset the count to 0
-      if (!fileData) {
-        return 0;
-      }
-
-      const parsedData = JSON.parse(fileData);
-      return parsedData.count || 0; // Ensure default to 0 if no count key exists
-    } catch (err) {
-      console.error("Error reading data from dataCount.json:", err);
-      return 0; // Return 0 if the file is corrupted or unreadable
-    }
+  try {
+    const data = fs.readFileSync(dataFilePath, "utf8");
+    return JSON.parse(data).count;
+  } catch (err) {
+    console.error("Error reading data from dataCount.json:", err);
+    return 0; // Default to 0 if the file doesn't exist or is corrupted
   }
-  return 0; // Return 0 if file doesn't exist
 };
 
-// Function to save dataChangeRequestCount to the file
+// Save the dataChangeRequestCount to the file
 const saveDataChangeRequestCount = (count) => {
   try {
-    fs.writeFileSync(countFilePath, JSON.stringify({ count }, null, 2));
-    console.log("Data change request count saved:", count);
+    const data = { count };
+    fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2), "utf8");
   } catch (err) {
-    console.error("Error saving to dataCount.json:", err);
+    console.error("Error saving data to dataCount.json:", err);
   }
 };
-
-// Load initial count
-let dataChangeRequestCount = loadDataChangeRequestCount();
 
 module.exports = async (interaction) => {
   if (!interaction.isButton()) {
@@ -45,6 +31,7 @@ module.exports = async (interaction) => {
   }
 
   const customId = interaction.customId;
+  let dataChangeRequestCount = loadDataChangeRequestCount(); // Get the current count from the file
 
   try {
     if (customId.startsWith("confirm_remove_data")) {
@@ -55,47 +42,51 @@ module.exports = async (interaction) => {
         .setTimestamp();
 
       await interaction.update({
-        components: [], // Disable buttons
-        embeds: [updatedEmbed], // Send updated embed
+        components: [],
+        embeds: [updatedEmbed],
       });
 
       console.log(`Data removal request completed by ${interaction.user.tag}.`);
     } else if (customId.startsWith("cancel_remove_data")) {
       const updatedEmbed = new EmbedBuilder()
-        .setColor(0x2c2d30) // Light red
+        .setColor(0x2c2d30)
         .setTitle(`Cancelled: Data Removal Request #${dataChangeRequestCount}`)
         .setDescription("Data removal request cancelled.")
         .setTimestamp();
 
       await interaction.update({
-        components: [], // Disable buttons
-        embeds: [updatedEmbed], // Send updated embed
+        components: [],
+        embeds: [updatedEmbed],
       });
 
       console.log(`Data removal request cancelled by ${interaction.user.tag}.`);
     } else if (customId.startsWith("confirm_change_data")) {
+      dataChangeRequestCount++; // Increment the count for data change request
+
+      saveDataChangeRequestCount(dataChangeRequestCount); // Save the updated count to the file
+
       const updatedEmbed = new EmbedBuilder()
-        .setColor(0x00ff00) // Green for confirmation
+        .setColor(0x00ff00)
         .setTitle(`Data Change Request #${dataChangeRequestCount}`)
         .setDescription("Data change request completed.")
         .setTimestamp();
 
       await interaction.update({
-        components: [], // Disable buttons
-        embeds: [updatedEmbed], // Send updated embed
+        components: [],
+        embeds: [updatedEmbed],
       });
 
       console.log(`Data change request completed by ${interaction.user.tag}.`);
     } else if (customId.startsWith("cancel_change_data")) {
       const updatedEmbed = new EmbedBuilder()
-        .setColor(0x2c2d30) // Light gray
+        .setColor(0x2c2d30)
         .setTitle(`Cancelled: Data Change Request #${dataChangeRequestCount}`)
         .setDescription("Data change request cancelled.")
         .setTimestamp();
 
       await interaction.update({
-        components: [], // Disable buttons
-        embeds: [updatedEmbed], // Send updated embed
+        components: [],
+        embeds: [updatedEmbed],
       });
 
       console.log(`Data change request cancelled by ${interaction.user.tag}.`);
@@ -105,11 +96,6 @@ module.exports = async (interaction) => {
         ephemeral: true,
       });
     }
-
-    // After processing the interaction, increment the count and save it
-    dataChangeRequestCount++;
-    saveDataChangeRequestCount(dataChangeRequestCount);
-
   } catch (error) {
     if (!interaction.replied && !interaction.deferred) {
       await interaction.reply({
