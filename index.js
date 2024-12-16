@@ -27,27 +27,39 @@ for (const folder of commandFolders) {
 	}
   }
 
-client.on(Events.InteractionCreate, async interaction => {
-	if (!interaction.isChatInputCommand()) return;
-
-	const command = interaction.client.commands.get(interaction.commandName);
-
-	if (!command) {
+  client.on(Events.InteractionCreate, async interaction => {
+	if (interaction.isChatInputCommand()) {
+	  const command = interaction.client.commands.get(interaction.commandName);
+  
+	  if (!command) {
 		console.error(`No command matching ${interaction.commandName} was found.`);
 		return;
-	}
-
-	try {
+	  }
+  
+	  try {
 		await command.execute(interaction);
-	} catch (error) {
+	  } catch (error) {
 		console.error(error);
 		if (interaction.replied || interaction.deferred) {
-			await interaction.followUp({ content: 'There was an error while executing this command!', flags: MessageFlags.Ephemeral });
+		  await interaction.followUp({ content: 'There was an error while executing this command!', flags: MessageFlags.Ephemeral });
 		} else {
-			await interaction.reply({ content: 'There was an error while executing this command!', flags: MessageFlags.Ephemeral });
+		  await interaction.reply({ content: 'There was an error while executing this command!', flags: MessageFlags.Ephemeral });
 		}
+	  }
+	} else if (interaction.isButton()) {
+	  // Handle button interactions here
+	  const [action, requestId] = interaction.customId.split('_');
+  
+	  if (action === 'confirm') {
+		// Handle the "Mark as Completed" button
+		await interaction.reply({ content: `Request ${requestId} marked as completed.`, ephemeral: true });
+	  } else if (action === 'cancel') {
+		// Handle the "Cancel" button
+		await interaction.reply({ content: `Request ${requestId} was canceled.`, ephemeral: true });
+	  }
 	}
-});
+  });
+  
 
 
 client.login(process.env.DISCORD_TOKEN);
