@@ -7,17 +7,19 @@ module.exports = async (interaction) => {
 
   const customId = interaction.customId;
 
+  // Example of dynamically fetched request count (you can replace it with the actual count fetching logic)
+  const dataChangeRequestCount = 41; // Replace with dynamic count fetching mechanism
+
   try {
     if (customId.startsWith("confirm_remove_data")) {
       // Handle confirm action (remove data)
       const updatedEmbed = new EmbedBuilder()
         .setColor(0xff0000)
-        .setTitle(`Data Removal Request #<count>`) // Update with appropriate count
+        .setTitle(`Data Removal Request #${dataChangeRequestCount}`) // Dynamically update with count
         .setDescription("Data removal request completed.")
         .setTimestamp();
 
       await interaction.update({
-        // content: "Data removal request completed.",
         components: [], // Disable buttons
         embeds: [updatedEmbed], // Send updated embed
       });
@@ -25,12 +27,11 @@ module.exports = async (interaction) => {
       // Handle cancel action (remove data)
       const updatedEmbed = new EmbedBuilder()
         .setColor(0x2c2d30) // Light red
-        .setTitle(`Data Removal Request #<count>`) // Update with appropriate count
+        .setTitle(`Data Removal Request #${dataChangeRequestCount}`) // Dynamically update with count
         .setDescription("Data removal request cancelled.")
         .setTimestamp();
 
       await interaction.update({
-        // content: "Data removal request cancelled.",
         components: [], // Disable buttons
         embeds: [updatedEmbed], // Send updated embed
       });
