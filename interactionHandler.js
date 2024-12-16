@@ -11,13 +11,13 @@ module.exports = async (interaction) => {
     if (customId.startsWith("confirm_remove_data")) {
       // Handle confirm action (remove data)
       const updatedEmbed = new EmbedBuilder()
-        .setColor(0xd3d3d3) // Light grey
+        .setColor(0x2f2f2f) // Light grey
         .setTitle(`Data Change Request #<count>`) // Update with appropriate count
         .setDescription("Data removal request completed.")
         .setTimestamp();
 
       await interaction.update({
-        content: "Data removal request completed.",
+        // content: "Data removal request completed.",
         components: [], // Disable buttons
         embeds: [updatedEmbed], // Send updated embed
       });
@@ -30,13 +30,13 @@ module.exports = async (interaction) => {
         .setTimestamp();
 
       await interaction.update({
-        content: "Data removal request cancelled.",
+        // content: "Data removal request cancelled.",
         components: [], // Disable buttons
         embeds: [updatedEmbed], // Send updated embed
       });
     } else {
       await interaction.reply({
-        content: `Unhandled button interaction: ${customId}`,
+        // content: `Unhandled button interaction: ${customId}`,
         ephemeral: true,
       });
     }
