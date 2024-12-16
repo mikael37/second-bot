@@ -1,11 +1,11 @@
 name: Restart Discord Bot
 
 on:
-  push:  # Trigger the workflow on code pushes
+  push: # Trigger the workflow on code pushes
     branches:
-      - main  # Replace 'main' with your default branch name if different
+      - main # Replace 'main' with your default branch name if different
   schedule:
-    - cron: '0 0 * * *'  # This still runs at midnight UTC every 24 hours
+    - cron: "0 0 * * *" # This still runs at midnight UTC every 24 hours
 
 jobs:
   cancel-previous-runs:
@@ -17,24 +17,24 @@ jobs:
           gh run list --status in_progress --limit 10 --json databaseId -q '.[].databaseId' | xargs -I {} gh run cancel {}
 
   restart-bot:
-    needs: cancel-previous-runs  # This job runs after the cancel job
+    needs: cancel-previous-runs # This job runs after the cancel job
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
 
-    - name: Install dependencies
-      run: npm install
+      - name: Install dependencies
+        run: npm install
 
-    - name: Run Discord bot
-      env:
-        DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
-      run: |
-        # Run your bot
-        node index.js
+      - name: Run Discord bot
+        env:
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+        run: |
+          # Run your bot
+          node index.js

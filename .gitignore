@@ -136,3 +136,8 @@ dist
 .config.json
 
 # Archived Commands
+
+.env*
+.flaskenv*
+!.env.project
+!.env.vault
