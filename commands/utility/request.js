@@ -119,28 +119,4 @@ module.exports = {
       });
     }
   },
-
-  // Handling button presses
-  async handleButtonInteraction(interaction) {
-    const customId = interaction.customId;
-
-    if (customId.startsWith("confirm_data-change_")) {
-      await interaction.update({
-        content: "Data change request completed.",
-        components: [],
-        embed: {
-          color: 0xd3d3d3, // Light grey
-        },
-      });
-    } else if (customId.startsWith("cancel_data-change_")) {
-      await interaction.update({
-        content: "Data change request cancelled.",
-        components: [],
-        embed: {
-          color: 0xff0000, // Light red
-          description: "Data change request cancelled.",
-        },
-      });
-    }
-  },
 };
