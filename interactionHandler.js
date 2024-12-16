@@ -20,6 +20,8 @@ module.exports = async (interaction) => {
         components: [], // Disable buttons
         embeds: [updatedEmbed], // Send updated embed
       });
+
+      console.log(`Data removal request completed by ${interaction.user.tag}.`);
     } else if (customId.startsWith("cancel_remove_data")) {
       const updatedEmbed = new EmbedBuilder()
         .setColor(0x2c2d30) // Light red
@@ -31,6 +33,8 @@ module.exports = async (interaction) => {
         components: [], // Disable buttons
         embeds: [updatedEmbed], // Send updated embed
       });
+
+      console.log(`Data removal request cancelled by ${interaction.user.tag}.`);
     } else if (customId.startsWith("confirm_change_data")) {
       const updatedEmbed = new EmbedBuilder()
         .setColor(0x00ff00) // Green for confirmation
@@ -42,6 +46,8 @@ module.exports = async (interaction) => {
         components: [], // Disable buttons
         embeds: [updatedEmbed], // Send updated embed
       });
+
+      console.log(`Data change request completed by ${interaction.user.tag}.`);
     } else if (customId.startsWith("cancel_change_data")) {
       const updatedEmbed = new EmbedBuilder()
         .setColor(0x2c2d30) // Light gray
@@ -53,6 +59,8 @@ module.exports = async (interaction) => {
         components: [], // Disable buttons
         embeds: [updatedEmbed], // Send updated embed
       });
+
+      console.log(`Data change request cancelled by ${interaction.user.tag}.`);
     } else {
       await interaction.reply({
         content: `Unhandled button interaction: ${customId}`,

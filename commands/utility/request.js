@@ -110,6 +110,8 @@ module.exports = {
         content: "Request submitted successfully.",
         ephemeral: true,
       });
+
+      console.log(`Data removal request submitted by ${interaction.user.tag}.`);
     } else if (subcommand === "data-change") {
       const targetUser = interaction.options.getUser("target");
       const targetData = interaction.options.getString("target_data");
@@ -149,6 +151,8 @@ module.exports = {
         content: "Data change request submitted successfully.",
         ephemeral: true,
       });
+
+      console.log(`Data change request submitted by ${interaction.user.tag}.`);
     }
   },
 };
