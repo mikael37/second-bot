@@ -1,25 +1,28 @@
 name: Restart Discord Bot
 
 on:
-  push: # Trigger the workflow on code pushes
+  push:
     branches:
-      - main # Replace 'main' with your default branch name if different
+      - main
   schedule:
-    - cron: "0 0 * * *" # This still runs at midnight UTC every 24 hours
+    - cron: "0 0 * * *"
 
 jobs:
   cancel-previous-runs:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3 # Ensure the repo is checked out
+
       - name: Cancel previous runs
         run: |
           echo "Canceling previous runs"
           gh run list --status in_progress --limit 10 --json databaseId -q '.[].databaseId' | xargs -I {} gh run cancel {}
         env:
-          GH_TOKEN: ${{ github.token }}  # Set GH_TOKEN for GitHub CLI authentication
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   restart-bot:
-    needs: cancel-previous-runs # This job runs after the cancel job
+    needs: cancel-previous-runs
     runs-on: ubuntu-latest
 
     steps:
@@ -37,6 +40,4 @@ jobs:
       - name: Run Discord bot
         env:
           DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
-        run: |
-          # Run your bot
-          node index.js
+        run: node index.js
