@@ -1,53 +1,15 @@
 const { EmbedBuilder } = require("discord.js");
-const fs = require('fs');
-const path = require('path');
-
-const dataFilePath = path.join(__dirname, 'dataCount.json'); // Path to your data file
-
-// Load the count from the file
-const loadDataChangeRequestCount = () => {
-  try {
-    if (fs.existsSync(dataFilePath)) {
-      const data = fs.readFileSync(dataFilePath, 'utf8');
-      const parsedData = JSON.parse(data);
-      console.log('Loaded data:', parsedData);
-      return parsedData.count || 0;
-    } else {
-      console.log('dataCount.json does not exist. Creating new file.');
-      // Create a new file if it doesn't exist
-      saveDataChangeRequestCount(0);
-      return 0;
-    }
-  } catch (err) {
-    console.error('Error reading data from dataCount.json:', err);
-    return 0;
-  }
-};
-
-// Save the updated count to the file
-const saveDataChangeRequestCount = (count) => {
-  try {
-    const data = { count };
-    fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2), 'utf8');
-    console.log('Successfully saved count:', count);
-  } catch (err) {
-    console.error('Error saving data to dataCount.json:', err);
-  }
-};
 
 module.exports = async (interaction) => {
   if (!interaction.isButton()) {
     return;
   }
 
-  const customId = interaction.customId;
-  let dataChangeRequestCount = loadDataChangeRequestCount(); // Load the count
-
   try {
     if (customId.startsWith("confirm_remove_data")) {
       const updatedEmbed = new EmbedBuilder()
         .setColor(0x19e619)
-        .setTitle(`Data Removal Request #${dataChangeRequestCount}`)
+        .setTitle(`Data Removal Request`)
         .setDescription("Data removal request completed.")
         .setTimestamp();
 
@@ -60,7 +22,7 @@ module.exports = async (interaction) => {
     } else if (customId.startsWith("cancel_remove_data")) {
       const updatedEmbed = new EmbedBuilder()
         .setColor(0x2c2d30) // Light red
-        .setTitle(`Cancelled: Data Removal Request #${dataChangeRequestCount}`)
+        .setTitle(`Cancelled: Data Removal Request`)
         .setDescription("Data removal request cancelled.")
         .setTimestamp();
 
@@ -73,7 +35,7 @@ module.exports = async (interaction) => {
     } else if (customId.startsWith("confirm_change_data")) {
       const updatedEmbed = new EmbedBuilder()
         .setColor(0x00ff00) // Green for confirmation
-        .setTitle(`Data Change Request #${dataChangeRequestCount}`)
+        .setTitle(`Data Change Request`)
         .setDescription("Data change request completed.")
         .setTimestamp();
 
@@ -82,15 +44,11 @@ module.exports = async (interaction) => {
         embeds: [updatedEmbed], // Send updated embed
       });
 
-      // Increment the count and save it
-      dataChangeRequestCount++;
-      saveDataChangeRequestCount(dataChangeRequestCount);
-
       console.log(`Data change request completed by ${interaction.user.tag}.`);
     } else if (customId.startsWith("cancel_change_data")) {
       const updatedEmbed = new EmbedBuilder()
         .setColor(0x2c2d30) // Light gray
-        .setTitle(`Cancelled: Data Change Request #${dataChangeRequestCount}`)
+        .setTitle(`Cancelled: Data Change Request`)
         .setDescription("Data change request cancelled.")
         .setTimestamp();
 
