@@ -85,9 +85,7 @@ module.exports = {
         .setColor(0xffff00)
         .setTitle(`Data Removal Request`)
         .setDescription("A data removal request has been made.")
-        .addFields(
-          { name: "Target User", value: targetUser.tag, inline: true }
-        )
+        .addFields({ name: "Target User", value: targetUser.tag, inline: true })
         .setFooter({ text: `Target User ID: ${targetUser.id}` })
         .setTimestamp();
 
@@ -112,7 +110,8 @@ module.exports = {
       const targetUser = interaction.options.getUser("target");
       const targetData = interaction.options.getString("target_data");
       const newValue = interaction.options.getString("new_value");
-      const additionalDetail = interaction.options.getString("additional_detail");
+      const additionalDetail =
+        interaction.options.getString("additional_detail");
 
       // Build the embed with data
       const embed = new EmbedBuilder()
