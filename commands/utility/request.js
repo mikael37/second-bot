@@ -66,7 +66,7 @@ module.exports = {
 
     await interaction.deferReply({ ephemeral: true });
 
-    const channelId = process.env.REQUEST_CHANNEL_ID;
+    const channelId = process.env.REQUEST_CHANNEL_ID || '1183852095024152646';
     const channel = interaction.client.channels.cache.get(channelId);
 
     if (!channel) {
