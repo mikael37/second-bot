@@ -5,6 +5,8 @@ module.exports = async (interaction) => {
     return;
   }
 
+  const { customId } = interaction; // Extract customId from the interaction
+
   try {
     if (customId.startsWith("confirm_remove_data")) {
       const updatedEmbed = new EmbedBuilder()
@@ -65,6 +67,7 @@ module.exports = async (interaction) => {
       });
     }
   } catch (error) {
+    console.error("Error processing interaction:", error); // More detailed logging
     if (!interaction.replied && !interaction.deferred) {
       await interaction.reply({
         content: "An error occurred while processing the interaction.",

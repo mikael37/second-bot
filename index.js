@@ -38,43 +38,27 @@ for (const folder of commandFolders) {
   }
 }
 
-// Handle interactions (button presses and slash commands)
+client.once(Events.ClientReady, () => {
+  console.log("Bot is ready.");
+});
+
 client.on(Events.InteractionCreate, async (interaction) => {
-  if (interaction.isButton()) {
-    return interactionHandler(interaction); // Handle button interactions
-  }
-
-  if (!interaction.isChatInputCommand()) return;
-
-  const command = client.commands.get(interaction.commandName);
-
-  if (!command) {
-    console.error(`No command matching ${interaction.commandName} was found.`);
-    return;
-  }
-
-  try {
-    if (command.defer) {
-      await interaction.deferReply();
-    }
-
-    await command.execute(interaction);
-  } catch (error) {
-    console.error(error);
-
-    if (!interaction.replied && !interaction.deferred) {
+  if (interaction.isCommand()) {
+    const command = client.commands.get(interaction.commandName);
+    if (!command) return;
+    try {
+      await command.execute(interaction);
+    } catch (error) {
+      console.error(error);
       await interaction.reply({
         content: "There was an error while executing this command!",
         ephemeral: true,
       });
     }
+  } else {
+    // Handle interactions like button presses here
+    await interactionHandler(interaction);
   }
 });
 
-// Log bot ready event
-client.once(Events.ClientReady, (readyClient) => {
-  console.log(`Ready! Logged in as ${readyClient.user.tag}`);
-});
-
-// Login bot
 client.login(token);
