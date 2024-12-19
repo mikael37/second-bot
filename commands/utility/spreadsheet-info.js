@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require("discord.js");
 const { google } = require("googleapis");
-const path = require("path");
+const { JWT } = require("google-auth-library");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -8,16 +8,17 @@ module.exports = {
     .setDescription("Get general information about the Google Spreadsheet"),
 
   async execute(interaction) {
-    // Path to the service account credentials file
-    const keyFile = path.join(__dirname, '54b3b8.json');
+    // Retrieve the service account credentials from environment variable (GitHub secret)
+    const serviceAccount = JSON.parse(Buffer.from(process.env.GOOGLE_SERVICE_ACCOUNT_JSON, 'base64').toString('utf8'));
 
     // Spreadsheet ID (from the URL of your Google Sheet)
     const spreadsheetId = "15eNCa6N_GCLXXbuFjSnjPaUDLlHscEnaKmV80KbQ0vg"; // Replace with your sheet ID
 
     // Authenticate with the service account
-    const auth = new google.auth.GoogleAuth({
-      keyFile: keyFile,
-      scopes: ['https://www.googleapis.com/auth/spreadsheets'], // Read-only access
+    const auth = new JWT({
+      email: serviceAccount.client_email,
+      key: serviceAccount.private_key,
+      scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
     });
 
     const sheets = google.sheets({ version: 'v4', auth });
