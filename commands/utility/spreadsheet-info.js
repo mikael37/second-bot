@@ -9,7 +9,7 @@ module.exports = {
 
   async execute(interaction) {
     // Path to the service account credentials file
-    const keyFile = path.join(__dirname, '../path/to/your/service-account-file.json');
+    const keyFile = path.join(__dirname, '54b3b8.json');
 
     // Spreadsheet ID (from the URL of your Google Sheet)
     const spreadsheetId = "15eNCa6N_GCLXXbuFjSnjPaUDLlHscEnaKmV80KbQ0vg"; // Replace with your sheet ID
@@ -17,7 +17,7 @@ module.exports = {
     // Authenticate with the service account
     const auth = new google.auth.GoogleAuth({
       keyFile: keyFile,
-      scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'], // Read-only access
+      scopes: ['https://www.googleapis.com/auth/spreadsheets'], // Read-only access
     });
 
     const sheets = google.sheets({ version: 'v4', auth });
