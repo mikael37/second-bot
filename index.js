@@ -1,7 +1,7 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const { Client, Collection, Events, GatewayIntentBits } = require("discord.js");
-const interactionHandler = require("./interactionhandler");
+const interactionHandler = require("./interactionHandler");
 
 
 const { DISCORD_TOKEN: token } = process.env;
