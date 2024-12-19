@@ -9,7 +9,7 @@ module.exports = {
 
   async execute(interaction) {
     // Retrieve the service account credentials from environment variable (GitHub secret)
-    const serviceAccount = JSON.parse(Buffer.from(process.env.GOOGLE_SERVICE_ACCOUNT_JSON, 'base64').toString('utf8'));
+    const serviceAccount = Buffer.from(process.env.GOOGLE_SERVICE_ACCOUNT_JSON, 'base64').toString('utf8')
 
     // Spreadsheet ID (from the URL of your Google Sheet)
     const spreadsheetId = "15eNCa6N_GCLXXbuFjSnjPaUDLlHscEnaKmV80KbQ0vg"; // Replace with your sheet ID
