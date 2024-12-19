@@ -21,12 +21,6 @@ jobs:
           gh run list --status in_progress --limit 10 --json databaseId -q '.[].databaseId' | xargs -I {} gh run cancel {}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
-      - name: Run Spreadsheet Info Command
-        env:
-          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
-          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}  # Add the secret here
-        run: node commands/utility/spreadsheet-info.js
 
   restart-bot:
     needs: cancel-previous-runs
