@@ -140,9 +140,15 @@ module.exports = {
       await channel.send({ embeds: [embed], components: [row] });
 
       await interaction.editReply({
-        content: "Data change request submitted successfully.",
+        content: "Data request submitted successfully.",
         ephemeral: true,
       });
+      
+      setTimeout(async () => {
+        if (interaction.replied) {
+          await interaction.deleteReply();
+        }
+      }, 10000);
     }
   },
 };
