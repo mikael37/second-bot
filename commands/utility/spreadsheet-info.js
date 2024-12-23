@@ -1,6 +1,5 @@
 const { SlashCommandBuilder } = require("discord.js");
-const { google } = require("googleapis");
-const { JWT } = require("google-auth-library");
+const fetch = require("node-fetch");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -8,32 +7,16 @@ module.exports = {
     .setDescription("Get general information about the Google Spreadsheet"),
 
   async execute(interaction) {
-    // Retrieve the service account credentials from environment variable (GitHub secret)
-    const serviceAccount = Buffer.from(process.env.GOOGLE_SERVICE_ACCOUNT_JSON, 'base64').toString('utf8')
-
-    // Spreadsheet ID (from the URL of your Google Sheet)
-    const spreadsheetId = "15eNCa6N_GCLXXbuFjSnjPaUDLlHscEnaKmV80KbQ0vg"; // Replace with your sheet ID
-
-    // Authenticate with the service account
-    const auth = new JWT({
-      email: serviceAccount.client_email,
-      key: serviceAccount.private_key,
-      scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
-    });
-
-    const sheets = google.sheets({ version: 'v4', auth });
+    const sheetDBUrl = process.env.SHEETDB_API_URL; // Your SheetDB API URL
 
     try {
-      // Get spreadsheet metadata (including sheet names, number of rows, columns, etc.)
-      const res = await sheets.spreadsheets.get({
-        spreadsheetId,
-      });
+      // Fetch data from the SheetDB API
+      const response = await fetch(sheetDBUrl);
+      const data = await response.json();
 
-      // Extract relevant details from the spreadsheet metadata
-      const spreadsheet = res.data;
-      const title = spreadsheet.properties.title;
-      const sheetsList = spreadsheet.sheets.map(sheet => sheet.properties.title).join(", ");
-      const sheetCount = spreadsheet.sheets.length;
+      // Get the number of rows and columns
+      const rowCount = data.length;
+      const columnCount = data[0] ? Object.keys(data[0]).length : 0;
 
       // Build the embed to show spreadsheet info
       const embed = {
@@ -42,18 +25,18 @@ module.exports = {
         description: `Here is the general information about the spreadsheet:`,
         fields: [
           {
-            name: "Spreadsheet Title",
-            value: title,
+            name: "Number of Rows",
+            value: `${rowCount}`,
             inline: true,
           },
           {
-            name: "Number of Sheets",
-            value: `${sheetCount}`,
+            name: "Number of Columns",
+            value: `${columnCount}`,
             inline: true,
           },
           {
-            name: "Sheets in the Spreadsheet",
-            value: sheetsList,
+            name: "Spreadsheet Data Preview",
+            value: `First row data: ${JSON.stringify(data[0])}`,
             inline: false,
           },
         ],
