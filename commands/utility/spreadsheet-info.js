@@ -1,4 +1,5 @@
 const { SlashCommandBuilder } = require("discord.js");
+const fetch = require('node-fetch');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -7,6 +8,14 @@ module.exports = {
 
   async execute(interaction) {
     const sheetDBUrl = process.env.SHEETDB_API_URL; // Your SheetDB API URL
+
+    // Check if the URL is undefined or empty
+    if (!sheetDBUrl) {
+      return interaction.reply({
+        content: "The SheetDB API URL is not configured.",
+        ephemeral: true,
+      });
+    }
 
     try {
       // Fetch data from the SheetDB API
