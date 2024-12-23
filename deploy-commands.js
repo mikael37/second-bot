@@ -1,7 +1,7 @@
-import "dotenv/config";  // loads .env variables
-import { REST, Routes } from "discord.js";
-import fs from "node:fs";
-import path from "node:path";
+require("dotenv").config();
+const { REST, Routes } = require("discord.js");
+const fs = require("node:fs");
+const path = require("node:path");
 
 const commands = [];
 const foldersPath = path.join(__dirname, "commands");
@@ -14,7 +14,7 @@ for (const folder of commandFolders) {
     .filter((file) => file.endsWith(".js"));
   for (const file of commandFiles) {
     const filePath = path.join(commandsPath, file);
-    const command = import(filePath);
+    const command = require(filePath);
     if ("data" in command && "execute" in command) {
       commands.push(command.data.toJSON());
     } else {
