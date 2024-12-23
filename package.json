@@ -14,5 +14,6 @@
     "node-fetch": "^3.3.2",
     "undici": "^7.1.0"
   },
-  "description": ""
+  "description": "",
+  "type": "module"
 }
