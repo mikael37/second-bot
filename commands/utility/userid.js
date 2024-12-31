@@ -2,9 +2,67 @@ const { SlashCommandBuilder } = require("discord.js");
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName("userid")
-    .setDescription("Replies with Account ID of the user"),
+    .setName("syncusers")
+    .setDescription("Sync users by renaming and assigning roles."),
   async execute(interaction) {
-    await interaction.reply(`${client.user.tag}`);
+    // Example data
+    const usersData = [
+      { discordId: "1278014996910968926", inGameUsername: "Popxorn123", alliance: "The Rumbling" },
+      { discordId: "1049698647266295888", inGameUsername: "DVNCE", alliance: "Yeagerists" },
+      // Add more users as needed
+    ];
+
+    try {
+      // Defer the reply to allow the bot to take its time processing
+      await interaction.deferReply();
+
+      // Array to store status messages for each user
+      const statusMessages = [];
+
+      // Loop through each user in the data array
+      for (const user of usersData) {
+        try {
+          const member = await interaction.guild.members.fetch(user.discordId);
+
+          if (!member) {
+            statusMessages.push(`User with ID ${user.discordId} not found.`);
+            continue;
+          }
+
+          // Rename the member to "[TR05] InGameUsername"
+          const newNickname = `[TR05] ${user.inGameUsername}`;
+          await member.setNickname(newNickname);
+          console.log(`Renamed ${member.user.tag} to ${newNickname}.`);
+
+          // Find or create the role for the alliance
+          let role = interaction.guild.roles.cache.find((r) => r.name === user.alliance);
+          if (!role) {
+            role = await interaction.guild.roles.create({
+              name: user.alliance,
+              color: "BLUE", // Customize the color if needed
+              reason: `Created for user synchronization.`,
+            });
+            console.log(`Created role ${user.alliance}.`);
+          }
+
+          // Assign the role to the member
+          await member.roles.add(role);
+          console.log(`Assigned role ${role.name} to ${member.user.tag}.`);
+
+          statusMessages.push(
+            `Successfully renamed ${member.user.tag} and assigned the role "${role.name}".`
+          );
+        } catch (userError) {
+          console.error(`Error processing user ${user.discordId}:`, userError);
+          statusMessages.push(`Failed to process user with ID ${user.discordId}.`);
+        }
+      }
+
+      // Respond with a summary of actions taken
+      await interaction.editReply(statusMessages.join("\n"));
+    } catch (error) {
+      console.error(error);
+      await interaction.editReply("An error occurred while syncing users.");
+    }
   },
 };
