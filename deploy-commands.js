@@ -1,64 +1,53 @@
-require("dotenv").config();
-const { REST, Routes } = require("discord.js");
-const fs = require("node:fs");
-const path = require("node:path");
+const { SlashCommandBuilder } = require("discord.js");
 
-const commands = [];
-const foldersPath = path.join(__dirname, "commands");
-const commandFolders = fs.readdirSync(foldersPath);
+module.exports = {
+  data: new SlashCommandBuilder()
+    .setName("syncusers")
+    .setDescription("Sync users by renaming and assigning roles."),
+  async execute(interaction) {
+    // Example data
+    const usersData = [
+      { discordId: "409123936748437516", inGameUsername: "Popxorn123", alliance: "The Rumbling" },
+      { discordId: "963603991063851018", inGameUsername: "DVNCE", alliance: "Yeagerists" },
+      // Add more users as needed
+    ];
 
-for (const folder of commandFolders) {
-  const commandsPath = path.join(foldersPath, folder);
-  const commandFiles = fs
-    .readdirSync(commandsPath)
-    .filter((file) => file.endsWith(".js"));
-  for (const file of commandFiles) {
-    const filePath = path.join(commandsPath, file);
-    const command = require(filePath);
-    if ("data" in command && "execute" in command) {
-      commands.push(command.data.toJSON());
-    } else {
-      console.log(
-        `[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`
-      );
+    try {
+      // Loop through each user in the data array
+      for (const user of usersData) {
+        const member = await interaction.guild.members.fetch(user.discordId);
+
+        if (!member) {
+          console.log(`User with ID ${user.discordId} not found.`);
+          continue;
+        }
+
+        // Rename the member to "[TR05] InGameUsername"
+        const newNickname = `[TR05] ${user.inGameUsername}`;
+        await member.setNickname(newNickname);
+        console.log(`Renamed ${member.user.tag} to ${newNickname}.`);
+
+        // Find or create the role for the alliance
+        let role = interaction.guild.roles.cache.find((r) => r.name === user.alliance);
+        if (!role) {
+          role = await interaction.guild.roles.create({
+            name: user.alliance,
+            color: "BLUE", // Customize the color if needed
+            reason: `Created for user synchronization.`,
+          });
+          console.log(`Created role ${user.alliance}.`);
+        }
+
+        // Assign the role to the member
+        await member.roles.add(role);
+        console.log(`Assigned role ${role.name} to ${member.user.tag}.`);
+      }
+
+      // Respond to the interaction
+      await interaction.reply("Users have been synced successfully.");
+    } catch (error) {
+      console.error(error);
+      await interaction.reply("An error occurred while syncing users.");
     }
-  }
-}
-
-// Fetch environment variables
-const token = process.env.DISCORD_TOKEN;
-const clientId = process.env.CLIENT_ID;
-const guildId = process.env.GUILD_ID;
-
-if (!token || !clientId || !guildId) {
-  console.error(
-    "Missing one or more environment variables: DISCORD_TOKEN, clientId, guildId."
-  );
-  process.exit(1); // Exit if variables are not defined
-}
-
-// Construct and prepare an instance of the REST module
-const rest = new REST({ version: "10" }).setToken(token);
-
-(async () => {
-  try {
-    console.log(
-      `Started refreshing ${commands.length} application (/) commands.`
-    );
-
-    // Use the REST API to register commands
-    const data = await rest.put(
-      Routes.applicationGuildCommands(clientId, guildId),
-      { body: commands }
-    );
-
-    console.log(
-      `Successfully reloaded ${data.length} application (/) commands.`
-    );
-  } catch (error) {
-    console.error(error);
-  }
-})();
-
-
-console.log('SheetDB API URL:', process.env.SHEETDB_API_URL);
+  },
+};
