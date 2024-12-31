@@ -7,7 +7,7 @@ module.exports = {
   async execute(interaction) {
     // Example data
     const usersData = [
-      { discordId: "409123936748437516", inGameUsername: "Popxorn123", alliance: "The Rumbling" },
+      { discordId: "1278014996910968926", inGameUsername: "Popxorn123", alliance: "The Rumbling" },
       { discordId: "1049698647266295888", inGameUsername: "DVNCE", alliance: "Yeagerists" },
       // Add more users as needed
     ];
