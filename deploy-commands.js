@@ -13,41 +13,56 @@ module.exports = {
     ];
 
     try {
+      // Defer the reply to allow the bot to take its time processing
+      await interaction.deferReply();
+
+      // Array to store status messages for each user
+      const statusMessages = [];
+
       // Loop through each user in the data array
       for (const user of usersData) {
-        const member = await interaction.guild.members.fetch(user.discordId);
+        try {
+          const member = await interaction.guild.members.fetch(user.discordId);
 
-        if (!member) {
-          console.log(`User with ID ${user.discordId} not found.`);
-          continue;
+          if (!member) {
+            statusMessages.push(`User with ID ${user.discordId} not found.`);
+            continue;
+          }
+
+          // Rename the member to "[TR05] InGameUsername"
+          const newNickname = `[TR05] ${user.inGameUsername}`;
+          await member.setNickname(newNickname);
+          console.log(`Renamed ${member.user.tag} to ${newNickname}.`);
+
+          // Find or create the role for the alliance
+          let role = interaction.guild.roles.cache.find((r) => r.name === user.alliance);
+          if (!role) {
+            role = await interaction.guild.roles.create({
+              name: user.alliance,
+              color: "BLUE", // Customize the color if needed
+              reason: `Created for user synchronization.`,
+            });
+            console.log(`Created role ${user.alliance}.`);
+          }
+
+          // Assign the role to the member
+          await member.roles.add(role);
+          console.log(`Assigned role ${role.name} to ${member.user.tag}.`);
+
+          statusMessages.push(
+            `Successfully renamed ${member.user.tag} and assigned the role "${role.name}".`
+          );
+        } catch (userError) {
+          console.error(`Error processing user ${user.discordId}:`, userError);
+          statusMessages.push(`Failed to process user with ID ${user.discordId}.`);
         }
-
-        // Rename the member to "[TR05] InGameUsername"
-        const newNickname = `[TR05] ${user.inGameUsername}`;
-        await member.setNickname(newNickname);
-        console.log(`Renamed ${member.user.tag} to ${newNickname}.`);
-
-        // Find or create the role for the alliance
-        let role = interaction.guild.roles.cache.find((r) => r.name === user.alliance);
-        if (!role) {
-          role = await interaction.guild.roles.create({
-            name: user.alliance,
-            color: "BLUE", // Customize the color if needed
-            reason: `Created for user synchronization.`,
-          });
-          console.log(`Created role ${user.alliance}.`);
-        }
-
-        // Assign the role to the member
-        await member.roles.add(role);
-        console.log(`Assigned role ${role.name} to ${member.user.tag}.`);
       }
 
-      // Respond to the interaction
-      await interaction.reply("Users have been synced successfully.");
+      // Respond with a summary of actions taken
+      await interaction.editReply(statusMessages.join("\n"));
     } catch (error) {
       console.error(error);
-      await interaction.reply("An error occurred while syncing users.");
+      await interaction.editReply("An error occurred while syncing users.");
     }
   },
 };
