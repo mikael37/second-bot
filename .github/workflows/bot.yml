@@ -15,12 +15,13 @@ jobs:
       - name: Install GitHub CLI
         run: sudo apt-get install -y gh
 
-      - name: Cancel previous runs
+      - name: Cancel all previous runs
         run: |
           echo "Canceling previous runs"
-          gh run list --status in_progress --limit 10 --json databaseId -q '.[].databaseId' | xargs -I {} gh run cancel {}
+          # List all in-progress runs and cancel them
+          gh run list --status in_progress --json databaseId -q '.[].databaseId' | xargs -I {} gh run cancel {}
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.CANCEL_TOKEN }}  # Use your PAT here
 
   restart-bot:
     needs: cancel-previous-runs
@@ -40,5 +41,5 @@ jobs:
 
       - name: Run Discord bot
         env:
-          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}  # Use your Discord token here
         run: node index.js
