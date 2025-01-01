@@ -52,3 +52,29 @@ const rest = new REST({ version: "10" }).setToken(token);
     console.error("Error while reloading commands:", error);
   }
 })();
+
+
+client.once(Events.ClientReady, () => {
+  console.log("Bot is ready.");
+});
+
+client.on(Events.InteractionCreate, async (interaction) => {
+  if (interaction.isCommand()) {
+    const command = client.commands.get(interaction.commandName);
+    if (!command) return;
+    try {
+      await command.execute(interaction);
+    } catch (error) {
+      console.error(error);
+      await interaction.reply({
+        content: "There was an error while executing this command!",
+        ephemeral: true,
+      });
+    }
+  } else {
+    // Handle interactions like button presses here
+    await interactionHandler(interaction);
+  }
+});
+
+client.login(token);
