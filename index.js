@@ -1,5 +1,6 @@
 const fs = require("node:fs");
 const path = require("node:path");
+const chalk = require("chalk");
 const { Client, Collection, Events, GatewayIntentBits } = require("discord.js");
 const interactionHandler = require("./interactionHandler"); // Import the handler
 
