@@ -3,7 +3,7 @@ const fs = require("fs");
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName("bulkassignroles")
+    .setName("syncdatabase")
     .setDescription("Assign roles and rename users in bulk."),
   async execute(interaction) {
     try {
