@@ -1,3 +1,4 @@
+require("dotenv").config();
 const fs = require("node:fs");
 const path = require("node:path");
 const { Client, Collection, Events, GatewayIntentBits, REST, Routes } = require("discord.js");
