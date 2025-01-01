@@ -5,8 +5,11 @@ module.exports = {
     .setName("mypermissions")
     .setDescription("Lists all the bot's permissions in the current channel."),
   async execute(interaction) {
+    // Ensure the bot is fully available
+    const botMember = await interaction.guild.members.fetchMe();
+
     // Get the bot's permissions in the current channel
-    const permissions = interaction.guild.me.permissionsIn(interaction.channel);
+    const permissions = botMember.permissionsIn(interaction.channel);
 
     // List all permissions the bot has in this channel
     const permissionList = permissions.toArray().join(", ") || "No permissions";
