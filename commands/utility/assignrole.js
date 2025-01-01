@@ -8,7 +8,7 @@ module.exports = {
   async execute(interaction) {
     try {
       // Load user data from JSON file
-      const usersData = JSON.parse(fs.readFileSync("usersData.json"));
+      const usersData = JSON.parse(fs.readFileSync("userData.json"));
 
       // Defer the reply to allow processing time
       await interaction.deferReply();
