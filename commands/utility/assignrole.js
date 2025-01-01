@@ -25,10 +25,11 @@ module.exports = {
 
       // Define a mapping of alliances to prefixes
       const alliancePrefixes = {
-        "The Rumbling": "[TR05]",
-        "Yeagerists": "[YG05]",
-        "Shiganshina's Hope": "[SH05]",
-        "The Survery Corps": "[SC05]"
+        "The Rumbling": "TR",
+        "Yeagerists": "YG",
+        "Shiganshina's Hope": "SH",
+        "The Survery Corps": "SC",
+        "Devils of Paradis": "DP"
       };
 
       // Process each user
@@ -43,7 +44,7 @@ module.exports = {
 
         try {
           // Get the prefix for the user's alliance, or use a default if not found
-          const prefix = alliancePrefixes[user.alliance] || "[XX05]";
+          const prefix = alliancePrefixes[user.alliance] || "XX";
 
           // Rename the user with the appropriate prefix
           const newNickname = `[${prefix}05] ${user.inGameUsername}`;
@@ -54,7 +55,7 @@ module.exports = {
           if (!role) {
             role = await guild.roles.create({
               name: user.alliance,
-              color: "BLUE", // Customize if needed
+              color: "BLUE",
               reason: `Created for ${user.alliance}`,
             });
             existingRoles.set(user.alliance, role);

@@ -59,6 +59,3 @@ const rest = new REST({ version: "10" }).setToken(token);
     console.error(error);
   }
 })();
-
-
-console.log('SheetDB API URL:', process.env.SHEETDB_API_URL);
