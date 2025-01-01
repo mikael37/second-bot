@@ -11,10 +11,13 @@ module.exports = {
     // Get the bot's permissions in the current channel
     const permissions = botMember.permissionsIn(interaction.channel);
 
-    // List all permissions the bot has in this channel
-    const permissionList = permissions.toArray().join(", ") || "No permissions";
+    // Create a vertical list with each permission in rich text format
+    const permissionList = permissions.toArray().map(permission => `\`${permission}\``).join("\n");
 
-    // Send the permission list as a reply
-    await interaction.reply(`The bot has the following permissions in this channel: \n${permissionList}`);
+    // If no permissions, display a default message
+    const message = permissionList || "`No permissions`";
+
+    // Send the formatted permission list as a reply
+    await interaction.reply(`The bot has the following permissions in this channel:\n${message}`);
   },
 };
