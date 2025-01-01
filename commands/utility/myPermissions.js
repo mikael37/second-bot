@@ -16,11 +16,19 @@ module.exports = {
 
     // Split the permissions into two columns
     const midIndex = Math.ceil(permissionList.length / 2);
-    const column1 = permissionList.slice(0, midIndex).join("\n");
-    const column2 = permissionList.slice(midIndex).join("\n");
+    const column1 = permissionList.slice(0, midIndex);
+    const column2 = permissionList.slice(midIndex);
 
-    // Combine both columns with a separator
-    const formattedMessage = `${column1}\n\n${column2}`;
+    // Format the two columns to align vertically
+    let formattedMessage = "";
+    const maxLength = Math.max(column1.length, column2.length);
+
+    for (let i = 0; i < maxLength; i++) {
+      // Add each permission from column1, and align with column2
+      const col1 = column1[i] || ""; // Add empty if column1 is shorter
+      const col2 = column2[i] || ""; // Add empty if column2 is shorter
+      formattedMessage += `${col1.padEnd(35)} ${col2}\n`;
+    }
 
     // If no permissions, display a default message
     const message = formattedMessage || "`No permissions`";
