@@ -18,18 +18,22 @@ module.exports = {
       // Fetch all members in one request
       const members = await guild.members.fetch();
 
-      // Cache roles to avoid repeated API calls
-      const existingRoles = new Map(
-        guild.roles.cache.map((role) => [role.name, role])
-      );
-
       // Define a mapping of alliances to prefixes
       const alliancePrefixes = {
         "The Rumbling": "TR",
         "Yeagerists": "YG",
         "Shiganshina's Hope": "SH",
         "The Survery Corps": "SC",
-        "Devils of Paradis": "DP"
+        "Devils of Paradis": "DP",
+      };
+
+      // Define a mapping of alliances to role IDs
+      const allianceRoleIds = {
+        "The Rumbling": "123456789012345678", // Replace with actual role IDs
+        "Yeagerists": "987654321098765432",
+        "Shiganshina's Hope": "112233445566778899",
+        "The Survery Corps": "998877665544332211",
+        "Devils of Paradis": "776655443322110099",
       };
 
       // Process each user
@@ -50,20 +54,18 @@ module.exports = {
           const newNickname = `[${prefix}05] ${user.inGameUsername}`;
           await member.setNickname(newNickname);
 
-          // Find or create the alliance role
-          let role = existingRoles.get(user.alliance);
-          if (!role) {
-            role = await guild.roles.create({
-              name: user.alliance,
-              color: "BLUE",
-              reason: `Created for ${user.alliance}`,
-            });
-            existingRoles.set(user.alliance, role);
+          // Assign the role using the allianceRoleIds map
+          const roleId = allianceRoleIds[user.alliance];
+          if (roleId) {
+            await member.roles.add(roleId);
+            statusMessages.push(
+              `Updated ${member.user.tag}: Renamed and assigned role "${user.alliance}".`
+            );
+          } else {
+            statusMessages.push(
+              `Role for alliance "${user.alliance}" not found. Skipping role assignment.`
+            );
           }
-
-          // Assign the role
-          await member.roles.add(role);
-          statusMessages.push(`Updated ${member.user.tag}: Renamed and assigned role "${user.alliance}".`);
         } catch (userError) {
           console.error(`Error updating ${user.discordId}:`, userError);
           statusMessages.push(`Failed to update user with ID ${user.discordId}.`);
