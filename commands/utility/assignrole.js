@@ -1,32 +1,79 @@
 const { SlashCommandBuilder } = require("discord.js");
+const fs = require("fs");
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName("assignrole")
-    .setDescription("Assigns a role to a user with a specific ID."),
+    .setName("bulkassignroles")
+    .setDescription("Assign roles and rename users in bulk."),
   async execute(interaction) {
-    const targetUserID = "409123936748437516"; // The target user ID
-    const roleID = "1323727567613595769"; // The role ID to assign
-
     try {
-      // Get all members in the server
-      const members = await interaction.guild.members.fetch();
+      // Load user data from JSON file
+      const usersData = JSON.parse(fs.readFileSync("usersData.json"));
 
-      // Find the member with the specified user ID
-      const member = members.get(targetUserID);
+      // Defer the reply to allow processing time
+      await interaction.deferReply();
 
-      if (!member) {
-        return interaction.reply("User with the specified ID not found.");
+      const guild = interaction.guild;
+
+      // Fetch all members in one request
+      const members = await guild.members.fetch();
+
+      // Cache roles to avoid repeated API calls
+      const existingRoles = new Map(
+        guild.roles.cache.map((role) => [role.name, role])
+      );
+
+      // Define a mapping of alliances to prefixes
+      const alliancePrefixes = {
+        "The Rumbling": "[TR05]",
+        "Yeagerists": "[YG05]",
+        "Shiganshina's Hope": "[SH05]",
+        "The Survery Corps": "[SC05]"
+      };
+
+      // Process each user
+      const statusMessages = [];
+      for (const user of usersData) {
+        const member = members.get(user.discordId);
+
+        if (!member) {
+          statusMessages.push(`User with ID ${user.discordId} not found.`);
+          continue;
+        }
+
+        try {
+          // Get the prefix for the user's alliance, or use a default if not found
+          const prefix = alliancePrefixes[user.alliance] || "[XX05]";
+
+          // Rename the user with the appropriate prefix
+          const newNickname = `[${prefix}05] ${user.inGameUsername}`;
+          await member.setNickname(newNickname);
+
+          // Find or create the alliance role
+          let role = existingRoles.get(user.alliance);
+          if (!role) {
+            role = await guild.roles.create({
+              name: user.alliance,
+              color: "BLUE", // Customize if needed
+              reason: `Created for ${user.alliance}`,
+            });
+            existingRoles.set(user.alliance, role);
+          }
+
+          // Assign the role
+          await member.roles.add(role);
+          statusMessages.push(`Updated ${member.user.tag}: Renamed and assigned role "${user.alliance}".`);
+        } catch (userError) {
+          console.error(`Error updating ${user.discordId}:`, userError);
+          statusMessages.push(`Failed to update user with ID ${user.discordId}.`);
+        }
       }
 
-      // Assign the role to the found member
-      await member.roles.add(roleID);
-
-      // Reply with a success message
-      return interaction.reply(`Role successfully assigned to ${member.user.tag}.`);
+      // Respond with a summary
+      await interaction.editReply(statusMessages.join("\n"));
     } catch (error) {
-      console.error(error);
-      return interaction.reply("An error occurred while assigning the role.");
+      console.error("Bulk assignment failed:", error);
+      await interaction.editReply("An error occurred while assigning roles in bulk.");
     }
   },
 };
