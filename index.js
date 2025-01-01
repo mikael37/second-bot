@@ -62,3 +62,9 @@ client.on(Events.InteractionCreate, async (interaction) => {
 });
 
 client.login(token);
+
+console.log(
+  chalk.bgMagentaBright.black(` ${client.guilds.cache.size} servers `),
+  chalk.bgMagentaBright.black(` ${client.channels.cache.size} channels `),
+  chalk.bgMagentaBright.black(` ${allMembers.size} members `)
+);

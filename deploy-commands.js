@@ -1,4 +1,5 @@
 require("dotenv").config();
+const chalk = require("chalk");
 const { REST, Routes } = require("discord.js");
 const fs = require("node:fs");
 const path = require("node:path");
@@ -6,6 +7,7 @@ const path = require("node:path");
 const commands = [];
 const foldersPath = path.join(__dirname, "commands");
 const commandFolders = fs.readdirSync(foldersPath);
+
 
 for (const folder of commandFolders) {
   const commandsPath = path.join(foldersPath, folder);
