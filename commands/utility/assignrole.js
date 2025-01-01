@@ -23,17 +23,17 @@ module.exports = {
         "The Rumbling": "TR",
         "Yeagerists": "YG",
         "Shiganshina's Hope": "SH",
-        "The Survery Corps": "SC",
+        "The Survey Corps": "SC",
         "Devils of Paradis": "DP",
       };
 
       // Define a mapping of alliances to role IDs
       const allianceRoleIds = {
-        "The Rumbling": "123456789012345678", // Replace with actual role IDs
-        "Yeagerists": "987654321098765432",
-        "Shiganshina's Hope": "112233445566778899",
-        "The Survery Corps": "998877665544332211",
-        "Devils of Paradis": "776655443322110099",
+        "The Rumbling": "1323727567613595769", // Replace with actual role IDs
+        "Yeagerists": "1323849904161951794",
+        "Shiganshina's Hope": "1323850193312940104",
+        "The Survey Corps": "1323849911900442715",
+        "Devils of Paradis": "1323849912508481617",
       };
 
       // Process each user
