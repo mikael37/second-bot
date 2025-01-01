@@ -36,13 +36,15 @@ module.exports = {
         "Devils of Paradis": "1323849912508481617",
       };
 
+      const kingdomRoleId = "1324055858786861077"
+
       // Process each user
       const statusMessages = [];
       for (const user of usersData) {
         const member = members.get(user.discordId);
 
         if (!member) {
-          statusMessages.push(`User with ID ${user.discordId} not found.`);
+          statusMessages.push('`User with ID ${user.discordId} not found.`');
           continue;
         }
 
@@ -57,18 +59,18 @@ module.exports = {
           // Assign the role using the allianceRoleIds map
           const roleId = allianceRoleIds[user.alliance];
           if (roleId) {
-            await member.roles.add(roleId);
+            await member.roles.add(roleId); member.roles.add(kingdomRoleId)
             statusMessages.push(
-              `Updated ${member.user.tag}: Renamed and assigned role "${user.alliance}".`
+              '`Updated ${member.user.tag}: Renamed and assigned role "${user.alliance}".`'
             );
           } else {
             statusMessages.push(
-              `Role for alliance "${user.alliance}" not found. Skipping role assignment.`
+              '`Role for alliance "${user.alliance}" not found. Skipping role assignment.`'
             );
           }
         } catch (userError) {
-          console.error(`Error updating ${user.discordId}:`, userError);
-          statusMessages.push(`Failed to update user with ID ${user.discordId}.`);
+          console.error('`Error updating ${user.discordId}:`', userError);
+          statusMessages.push('`Failed to update user with ID ${user.discordId}.`');
         }
       }
 
@@ -76,7 +78,7 @@ module.exports = {
       await interaction.editReply(statusMessages.join("\n"));
     } catch (error) {
       console.error("Bulk assignment failed:", error);
-      await interaction.editReply("An error occurred while assigning roles in bulk.");
+      await interaction.editReply('`An error occurred while assigning roles in bulk.`');
     }
   },
 };
