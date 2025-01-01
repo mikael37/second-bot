@@ -1,6 +1,5 @@
 const fs = require("node:fs");
 const path = require("node:path");
-import chalk from 'chalk';
 const { Client, Collection, Events, GatewayIntentBits } = require("discord.js");
 const interactionHandler = require("./interactionHandler"); // Import the handler
 
@@ -41,6 +40,18 @@ for (const folder of commandFolders) {
 
 client.once(Events.ClientReady, () => {
   console.log("Bot is ready.");
+
+  // Set bot status and activity
+  client.user.setPresence({
+    status: 'online', // 'online', 'idle', 'dnd' (Do Not Disturb), or 'invisible'
+    activities: [
+      {
+        name: 'Serving you!', // This is the status message
+        type: 'WATCHING', // Type can be 'PLAYING', 'STREAMING', 'LISTENING', 'WATCHING'
+        url: 'https://yourstreamurl.com', // Optional, only required for 'STREAMING' type
+      },
+    ],
+  });
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {
@@ -64,8 +75,3 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
 client.login(token);
 
-console.log(
-  chalk.bgMagentaBright.black(` ${client.guilds.cache.size} servers `),
-  chalk.bgMagentaBright.black(` ${client.channels.cache.size} channels `),
-  chalk.bgMagentaBright.black(` ${allMembers.size} members `)
-);
