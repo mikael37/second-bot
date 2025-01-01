@@ -46,7 +46,6 @@ const rest = new REST({ version: "10" }).setToken(token);
       `Started refreshing ${commands.length} application (/) commands.`
     );
 
-    // Use the REST API to register commands
     const data = await rest.put(
       Routes.applicationGuildCommands(clientId, guildId),
       { body: commands }
@@ -59,6 +58,3 @@ const rest = new REST({ version: "10" }).setToken(token);
     console.error(error);
   }
 })();
-
-
-console.log('SheetDB API URL:', process.env.SHEETDB_API_URL);
