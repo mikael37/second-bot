@@ -41,17 +41,9 @@ for (const folder of commandFolders) {
 client.once(Events.ClientReady, () => {
   console.log(`Logged in as ${client.user.tag}!`);
 
-  // Set bot status and activity
-  client.user.setPresence({
-    status: 'online',
-    activities: [
-      {
-        name: 'live coding sessions',
-        type: 'STREAMING',
-        url: 'https://twitch.tv/some_channel', // Required for STREAMING type
-      },
-    ],
-  });
+  client.user.setActivity({
+    name: "Miracle"
+  })
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {
