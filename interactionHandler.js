@@ -82,9 +82,9 @@ async function performSync(interaction, usersData) {
       if (roleId) {
         await member.roles.add(roleId);
         await member.roles.add(kingdomRoleId);
-        statusMessages.push(`User: ${member.user.tag} renamed and assigned role "\${user.alliance}".`);
+        statusMessages.push(`User: ${member.user.tag} renamed and assigned role "${user.allianceName}".`);
       } else {
-        statusMessages.push(`Alliance role: "\${user.alliance}" not found. Skipping role assignment.`);
+        statusMessages.push(`Alliance role: "${user.allianceName}" not found. Skipping role assignment.`);
       }
     } catch (userError) {
       console.error(`Error updating ${user.discordId}:`, userError);
