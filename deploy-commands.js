@@ -7,6 +7,13 @@ const commands = [];
 const foldersPath = path.join(__dirname, "commands");
 const commandFolders = fs.readdirSync(foldersPath);
 
+// Define the list of commands you want to skip (can also be pulled from .env)
+const commandsNotToDeploy = process.env.COMMANDS_NOT_TO_DEPLOY
+  ? process.env.COMMANDS_NOT_TO_DEPLOY.split(",")
+  : [];
+
+console.log("Commands NOT to deploy:", commandsNotToDeploy);
+
 // Loop through the command files and add them to the commands array
 for (const folder of commandFolders) {
   const commandsPath = path.join(foldersPath, folder);
@@ -18,7 +25,13 @@ for (const folder of commandFolders) {
     const command = require(filePath);
 
     if ("data" in command && "execute" in command) {
-      commands.push(command.data.toJSON());
+      // Only add commands that are NOT in the commandsNotToDeploy list
+      if (commandsNotToDeploy.length === 0 || !commandsNotToDeploy.includes(command.data.name)) {
+        commands.push(command.data.toJSON());
+        console.log(`Command ${command.data.name} will be deployed.`);
+      } else {
+        console.log(`Command ${command.data.name} is skipped (not in the deploy list).`);
+      }
     } else {
       console.log(
         `[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`
