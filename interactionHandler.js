@@ -82,7 +82,7 @@ async function performSync(interaction, usersData) {
       if (roleId) {
         await member.roles.add(roleId);
         await member.roles.add(kingdomRoleId);
-        statusMessages.push(`User: ${member.user.tag} renamed and assigned role "${user.alliance}".`);
+        statusMessages.push(`User: <@${member.user.tag}> renamed and assigned role "${user.alliance}".`);
       } else {
         statusMessages.push(`Alliance role: "${user.alliance}" not found. Skipping role assignment.`);
       }
