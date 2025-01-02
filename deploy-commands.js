@@ -36,9 +36,9 @@ for (const folder of commandFolders) {
 const token = process.env.DISCORD_TOKEN;
 const clientId = process.env.CLIENT_ID;
 const guildIds = process.env.GUILD_ID.split(",");
-if (!token || !clientId) {
+if (!token || !clientId || !guildIds) {
   console.error(
-    "Missing one or more environment variables: DISCORD_TOKEN, clientId."
+    "Missing one or more environment variables: DISCORD_TOKEN, clientId, guildIds."
   );
   process.exit(1); // Exit if variables are not defined
 }
@@ -48,20 +48,44 @@ const rest = new REST({ version: "10" }).setToken(token);
 
 (async () => {
   try {
-    console.log(`Started refreshing ${commands.length} application (/) commands.`);
+    // 1. Deploy global commands
+    console.log(
+      `Started refreshing ${commands.length} global application (/) commands.`
+    );
 
-    // Loop through each guildId and deploy commands
+    const globalData = await rest.put(
+      Routes.applicationCommands(clientId), // Deploy globally
+      { body: commands }
+    );
+
+    console.log(
+      `Successfully reloaded ${globalData.length} global application (/) commands.`
+    );
+
+    // 2. Deploy guild-specific commands
     for (const guildId of guildIds) {
-      const data = await rest.put(
-        Routes.applicationGuildCommands(clientId, guildId),
-        { body: commands }
+      console.log(
+        `Started refreshing guild-specific application (/) commands for guild ${guildId}.`
       );
 
-      console.log(`Successfully reloaded commands for guild: ${guildId}`);
-    }
+      // Fetch existing guild-specific commands and delete them
+      const existingGuildCommands = await rest.get(Routes.applicationGuildCommands(clientId, guildId));
+      for (const command of existingGuildCommands) {
+        await rest.delete(Routes.applicationGuildCommand(clientId, guildId, command.id));
+        console.log(`Deleted old command: ${command.name} in guild ${guildId}`);
+      }
 
-    console.log(`Successfully reloaded commands for all specified guilds.`);
+      // Deploy new guild-specific commands
+      const guildData = await rest.put(
+        Routes.applicationGuildCommands(clientId, guildId), // Deploy for the specific guild
+        { body: guildCommands }
+      );
+
+      console.log(
+        `Successfully reloaded ${guildData.length} guild-specific application (/) commands for guild ${guildId}.`
+      );
+    }
   } catch (error) {
-    console.error(error);
+    console.error("Error deploying commands:", error);
   }
 })();
