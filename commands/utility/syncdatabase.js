@@ -40,15 +40,18 @@ module.exports = {
       });
 
       collector.on("collect", async (i) => {
+        // Acknowledge the interaction right away
+        await i.deferUpdate();  // This will stop the "Unknown interaction" error
+
         if (i.customId === "confirmSync") {
           // Respond immediately before syncing
-          await i.update({ content: "Syncing database...", components: [] });
+          await i.editReply({ content: "Syncing database...", components: [] });
 
           // Proceed with the sync if confirmed
           await performSync(interaction, usersData); // Perform the sync task
         } else if (i.customId === "cancelSync") {
           // Respond immediately and cancel sync
-          await i.update({ content: "Sync operation canceled.", components: [] });
+          await i.editReply({ content: "Sync operation canceled.", components: [] });
         }
 
         collector.stop(); // Stop collecting after the user responds
