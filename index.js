@@ -53,9 +53,18 @@ client.once(Events.ClientReady, () => {
 
 client.on(Events.InteractionCreate, async (interaction) => {
   if (interaction.isCommand()) {
+    // Check if the user has the specific ID (replace "001" with the actual ID)
+    if (interaction.user.id !== "409123936748437516") {
+      return interaction.reply({
+        content: "You are not authorized to use this command.",
+        ephemeral: true, // Makes the message visible only to the user
+      });
+    }
+
     const command = client.commands.get(interaction.commandName);
     if (!command) return;
     try {
+      // Execute the command
       await command.execute(interaction);
     } catch (error) {
       console.error(error);
