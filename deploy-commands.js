@@ -51,26 +51,31 @@ const rest = new REST({ version: "10" }).setToken(token);
       `Started refreshing ${commands.length} global application (/) commands.`
     );
 
-    // Loop through each allowed guild and deploy commands
-    for (const guildId of allowedGuildIds) {
-      console.log(`Deploying commands to guild: ${guildId}`);
+    // Get all guilds the bot is in
+    const guilds = await rest.get(Routes.userGuilds());
+
+    // Loop through all guilds the bot is in
+    for (const guild of guilds) {
+      console.log(`Deploying commands to guild: ${guild.id}`);
 
       // Fetch existing commands and delete them
-      const existingCommands = await rest.get(Routes.applicationGuildCommands(clientId, guildId));
+      const existingCommands = await rest.get(Routes.applicationGuildCommands(clientId, guild.id));
       for (const command of existingCommands) {
-        await rest.delete(Routes.applicationGuildCommand(clientId, guildId, command.id));
-        console.log(`Deleted old command: ${command.name} in guild ${guildId}`);
+        await rest.delete(Routes.applicationGuildCommand(clientId, guild.id, command.id));
+        console.log(`Deleted old command: ${command.name} in guild ${guild.id}`);
       }
 
-      // Deploy new commands for the allowed guild
-      const guildData = await rest.put(
-        Routes.applicationGuildCommands(clientId, guildId),
-        { body: commands }
-      );
-
-      console.log(
-        `Successfully reloaded ${guildData.length} application (/) commands for guild ${guildId}.`
-      );
+      // Only deploy commands for guilds in allowedGuildIds
+      if (allowedGuildIds.includes(guild.id)) {
+        // Deploy new commands for the allowed guild
+        const guildData = await rest.put(
+          Routes.applicationGuildCommands(clientId, guild.id),
+          { body: commands }
+        );
+        console.log(
+          `Successfully reloaded ${guildData.length} application (/) commands for guild ${guild.id}.`
+        );
+      }
     }
 
     console.log("Successfully deployed commands to all allowed guilds.");
