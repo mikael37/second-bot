@@ -1,39 +1,38 @@
-const { SlashCommandBuilder } = require("discord.js");
-const fs = require("fs");
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
+const { users, config } = require("./userData");
 
-module.exports = {
-  data: new SlashCommandBuilder()
-    .setName("syncdatabase")
-    .setDescription("Assign roles and rename users in bulk."),
-  async execute(interaction) {
-    try {
-      // Load user data from JSON file
-      const usersData = JSON.parse(fs.readFileSync("userData.json"));
+async function performSync(interaction) {
+  const guild = interaction.guild;
+  const members = await guild.members.fetch();
 
-      // Defer the reply to allow processing time
-      await interaction.deferReply();
+  const { alliancePrefixes, allianceRoleIds, kingdomRoleId } = config;
 
-      // Send confirmation message with buttons
-      const confirmButton = new ButtonBuilder()
-        .setCustomId("confirmSync")
-        .setLabel("Confirm Sync")
-        .setStyle(ButtonStyle.Primary);
+  const statusMessages = [];
 
-      const cancelButton = new ButtonBuilder()
-        .setCustomId("cancelSync")
-        .setLabel("Cancel Sync")
-        .setStyle(ButtonStyle.Danger);
-
-      const row = new ActionRowBuilder().addComponents(confirmButton, cancelButton);
-
-      await interaction.editReply({
-        content: "Do you want to proceed with syncing the database?",
-        components: [row],
-      });
-    } catch (error) {
-      console.error("Bulk assignment failed:", error);
-      await interaction.editReply('An error occurred while assigning roles in bulk.');
+  for (const user of users) {
+    const member = members.get(user.discordId);
+    if (!member) {
+      statusMessages.push(`User with ID ${user.discordId} not found.`);
+      continue;
     }
-  },
-};
+
+    try {
+      const prefix = alliancePrefixes[user.alliance] || "XX";
+      const newNickname = `[${prefix}05] ${user.inGameUsername}`;
+      await member.setNickname(newNickname);
+
+      const roleId = allianceRoleIds[user.alliance];
+      if (roleId) {
+        await member.roles.add(roleId);
+        await member.roles.add(kingdomRoleId);
+        statusMessages.push(`Updated ${member.user.tag}: Renamed and assigned role "${user.alliance}".`);
+      } else {
+        statusMessages.push(`Role for alliance "${user.alliance}" not found. Skipping role assignment.`);
+      }
+    } catch (userError) {
+      console.error(`Error updating ${user.discordId}:`, userError);
+      statusMessages.push(`Failed to update user with ID ${user.discordId}.`);
+    }
+  }
+
+  await interaction.editReply(statusMessages.join("\n"));
+}
