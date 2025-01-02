@@ -56,7 +56,7 @@ async function performSync(interaction, usersData) {
 
   const allianceRoleIds = {
     "The Rumbling": "1323727567613595769",
-    "Yeagerists": "1323849904161951794",
+    "Yeagerists": "1301315222073507860",
     "Shiganshina's Hope": "1323850193312940104",
     "The Survey Corps": "1323849911900442715",
     "Devils of Paradis": "1323849912508481617",
