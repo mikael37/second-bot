@@ -1,6 +1,6 @@
 const fs = require("node:fs");
 const path = require("node:path");
-const { Client, Collection, Events, GatewayIntentBits } = require("discord.js");
+const { Client, Collection, Events, GatewayIntentBits, ActivityType } = require("discord.js");
 const interactionHandler = require("./interactionHandler"); // Import the handler
 
 const { DISCORD_TOKEN: token } = process.env;
@@ -40,9 +40,11 @@ for (const folder of commandFolders) {
 
 client.once(Events.ClientReady, () => {
   console.log(`Logged in as ${client.user.tag}!`);
-
   client.user.setActivity({
-    name: "Miracle"
+    name: "Miracle",
+    type: ActivityType.Streaming,
+    url: 'https://www.youtube.com/watch?v=CFGLoQIhmow'
+
   })
 });
 
