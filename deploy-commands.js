@@ -7,6 +7,7 @@ const commands = [];
 const foldersPath = path.join(__dirname, "commands");
 const commandFolders = fs.readdirSync(foldersPath);
 
+
 for (const folder of commandFolders) {
   const commandsPath = path.join(foldersPath, folder);
   const commandFiles = fs
@@ -28,10 +29,11 @@ for (const folder of commandFolders) {
 // Fetch environment variables
 const token = process.env.DISCORD_TOKEN;
 const clientId = process.env.CLIENT_ID;
+const guildId = process.env.GUILD_ID;
 
-if (!token || !clientId) {
+if (!token || !clientId || !guildId) {
   console.error(
-    "Missing one or more environment variables: DISCORD_TOKEN, clientId."
+    "Missing one or more environment variables: DISCORD_TOKEN, clientId, guildId."
   );
   process.exit(1); // Exit if variables are not defined
 }
@@ -45,14 +47,13 @@ const rest = new REST({ version: "10" }).setToken(token);
       `Started refreshing ${commands.length} application (/) commands.`
     );
 
-    // Deploy commands globally (to all servers)
     const data = await rest.put(
-      Routes.applicationCommands(clientId), // Updated to global commands
+      Routes.applicationGuildCommands(clientId, guildId),
       { body: commands }
     );
 
     console.log(
-      `Successfully reloaded ${data.length} application (/) commands globally.`
+      `Successfully reloaded ${data.length} application (/) commands.`
     );
   } catch (error) {
     console.error(error);
