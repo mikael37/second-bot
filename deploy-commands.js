@@ -28,11 +28,10 @@ for (const folder of commandFolders) {
 // Fetch environment variables
 const token = process.env.DISCORD_TOKEN;
 const clientId = process.env.CLIENT_ID;
-const guildId = process.env.GUILD_ID;  // This should be the guild you want commands specific to
 
-if (!token || !clientId || !guildId) {
+if (!token || !clientId) {
   console.error(
-    "Missing one or more environment variables: DISCORD_TOKEN, clientId, guildId."
+    "Missing one or more environment variables: DISCORD_TOKEN, clientId."
   );
   process.exit(1); // Exit if variables are not defined
 }
@@ -43,16 +42,17 @@ const rest = new REST({ version: "10" }).setToken(token);
 (async () => {
   try {
     console.log(
-      `Started refreshing ${commands.length} application (/) commands for the guild.`
+      `Started refreshing ${commands.length} application (/) commands.`
     );
 
+    // Deploy commands globally (to all servers)
     const data = await rest.put(
-      Routes.applicationGuildCommands(clientId, guildId),  // Specific to one guild
+      Routes.applicationCommands(clientId), // Updated to global commands
       { body: commands }
     );
 
     console.log(
-      `Successfully reloaded ${data.length} application (/) commands for the guild.`
+      `Successfully reloaded ${data.length} application (/) commands globally.`
     );
   } catch (error) {
     console.error(error);
