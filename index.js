@@ -38,9 +38,15 @@ for (const folder of commandFolders) {
   }
 }
 
-client.once(Events.ClientReady, () => {
-  console.log("Bot is ready.");
-  client.user.setActivity('Playing a game', { type: 'PLAYING' });
+client.user.setPresence({
+  status: 'online',
+  activities: [
+    {
+      name: 'live coding sessions',
+      type: 'STREAMING',
+      url: 'https://twitch.tv/some_channel', // Required for STREAMING type
+    },
+  ],
 });
 
 
