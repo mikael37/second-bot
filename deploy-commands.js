@@ -7,7 +7,6 @@ const commands = [];
 const foldersPath = path.join(__dirname, "commands");
 const commandFolders = fs.readdirSync(foldersPath);
 
-
 for (const folder of commandFolders) {
   const commandsPath = path.join(foldersPath, folder);
   const commandFiles = fs
@@ -29,7 +28,7 @@ for (const folder of commandFolders) {
 // Fetch environment variables
 const token = process.env.DISCORD_TOKEN;
 const clientId = process.env.CLIENT_ID;
-const guildId = process.env.GUILD_ID;
+const guildId = process.env.GUILD_ID;  // This should be the guild you want commands specific to
 
 if (!token || !clientId || !guildId) {
   console.error(
@@ -44,16 +43,16 @@ const rest = new REST({ version: "10" }).setToken(token);
 (async () => {
   try {
     console.log(
-      `Started refreshing ${commands.length} application (/) commands.`
+      `Started refreshing ${commands.length} application (/) commands for the guild.`
     );
 
     const data = await rest.put(
-      Routes.applicationGuildCommands(clientId, guildId),
+      Routes.applicationGuildCommands(clientId, guildId),  // Specific to one guild
       { body: commands }
     );
 
     console.log(
-      `Successfully reloaded ${data.length} application (/) commands.`
+      `Successfully reloaded ${data.length} application (/) commands for the guild.`
     );
   } catch (error) {
     console.error(error);
