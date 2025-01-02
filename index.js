@@ -40,12 +40,15 @@ for (const folder of commandFolders) {
 
 client.once(Events.ClientReady, () => {
   console.log(`Logged in as ${client.user.tag}!`);
-  client.user.setActivity({
-    name: "Titan movements",
-    type: ActivityType.Watching,
-    // url: 'https://www.youtube.com/watch?v=CFGLoQIhmow'
-
-  })
+  client.user.setPresence({
+    status: 'online', // Explicitly sets the bot's status to online
+    activities: [
+      {
+        name: "Titan movements",
+        type: ActivityType.Watching, // Watching activity type
+      },
+    ],
+  });
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {
