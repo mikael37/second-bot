@@ -13,30 +13,25 @@ const rest = new REST({ version: "10" }).setToken(token);
 
 (async () => {
   try {
-    console.log(`Started deleting commands from guilds...`);
+    console.log("Started deleting commands from all guilds...");
 
     // Get all guilds the bot is in
     const guilds = await rest.get(Routes.userGuilds());
 
-    // Loop through all guilds the bot is in
+    // Loop through all guilds the bot is in and delete commands
     for (const guild of guilds) {
       console.log(`Deleting commands from guild: ${guild.id}`);
 
-      // If the guild is not in the allowed list, skip deleting its commands
-      if (!allowedGuildIds.includes(guild.id)) {
-        console.log(`Skipping guild ${guild.id} (not in allowed list)`);
-        continue;
-      }
-
-      // Fetch existing commands and delete them
+      // Fetch existing commands and delete them for every guild the bot is in
       const existingCommands = await rest.get(Routes.applicationGuildCommands(clientId, guild.id));
       for (const command of existingCommands) {
         await rest.delete(Routes.applicationGuildCommand(clientId, guild.id, command.id));
-        console.log(`Deleted old command: ${command.name} in guild ${guild.id}`);
+        console.log(`Deleted command: ${command.name} in guild ${guild.id}`);
       }
     }
 
-    console.log("Successfully deleted commands from allowed guilds.");
+    console.log("Successfully deleted commands from all guilds.");
+
   } catch (error) {
     console.error("Error deleting commands:", error);
   }
