@@ -69,7 +69,7 @@ async function performSync(interaction, usersData) {
   for (const user of usersData) {
     const member = members.get(user.discordId);
     if (!member) {
-      statusMessages.push(`User with ID <@${user.discordId}> not found.`);
+      statusMessages.push(`User: <@${user.discordId}> not found.`);
       continue;
     }
 
@@ -82,13 +82,13 @@ async function performSync(interaction, usersData) {
       if (roleId) {
         await member.roles.add(roleId);
         await member.roles.add(kingdomRoleId);
-        statusMessages.push(`Updated ${member.user.tag}: Renamed and assigned role "${user.alliance}".`);
+        statusMessages.push(`User: ${member.user.tag} renamed and assigned role "\${user.alliance}".`);
       } else {
-        statusMessages.push(`Role for alliance "${user.alliance}" not found. Skipping role assignment.`);
+        statusMessages.push(`Alliance role: "\${user.alliance}" not found. Skipping role assignment.`);
       }
     } catch (userError) {
       console.error(`Error updating ${user.discordId}:`, userError);
-      statusMessages.push(`Failed to update user with ID <@${user.discordId}>.`);
+      statusMessages.push(`Failed to update user: <@${user.discordId}>.`);
     }
   }
 

@@ -29,7 +29,7 @@ module.exports = {
       const row = new ActionRowBuilder().addComponents(confirmButton, cancelButton);
 
       await interaction.editReply({
-        content: "Do you want to proceed with syncing the database?",
+        content: "Do you want to proceed with syncing to database?",
         components: [row],
       });
     } catch (error) {
