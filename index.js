@@ -41,18 +41,23 @@ for (const folder of commandFolders) {
 client.once(Events.ClientReady, () => {
   console.log("Bot is ready.");
 
-  // Set bot status and activity
-  client.user.setPresence({
-    status: 'online', // 'online', 'idle', 'dnd' (Do Not Disturb), or 'invisible'
-    activities: [
-      {
-        name: 'Serving you!', // This is the status message
-        type: 'WATCHING', // Type can be 'PLAYING', 'STREAMING', 'LISTENING', 'WATCHING'
-        url: 'https://yourstreamurl.com', // Optional, only required for 'STREAMING' type
-      },
-    ],
-  });
+  // Ensure the bot's presence is set correctly
+  if (client.user) {
+    client.user.setPresence({
+      status: 'online', // 'online', 'idle', 'dnd', 'invisible'
+      activities: [
+        {
+          name: 'Serving you!', // Activity message
+          type: 'WATCHING', // Activity type: 'PLAYING', 'STREAMING', etc.
+        },
+      ],
+    });
+    console.log("Presence has been set.");
+  } else {
+    console.error("client.user is not defined. Presence was not set.");
+  }
 });
+
 
 client.on(Events.InteractionCreate, async (interaction) => {
   if (interaction.isCommand()) {
