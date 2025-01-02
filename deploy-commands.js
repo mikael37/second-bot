@@ -15,14 +15,22 @@ const rest = new REST({ version: "10" }).setToken(token);
   try {
     console.log("Started deleting commands from all guilds...");
 
-    // Get all guilds the bot is in
-    const guilds = await rest.get(Routes.userGuilds());
+    // Delete Global Commands
+    console.log("Deleting global commands...");
+    const globalCommands = await rest.get(Routes.applicationCommands(clientId));
+    for (const command of globalCommands) {
+      await rest.delete(Routes.applicationCommand(clientId, command.id));
+      console.log(`Deleted global command: ${command.name}`);
+    }
 
+    // Get all guilds the bot is in and delete guild-specific commands
+    const guilds = await rest.get(Routes.userGuilds());
+    
     // Loop through all guilds the bot is in and delete commands
     for (const guild of guilds) {
       console.log(`Deleting commands from guild: ${guild.id}`);
 
-      // Fetch existing commands and delete them for every guild the bot is in
+      // Fetch existing commands for this guild and delete them
       const existingCommands = await rest.get(Routes.applicationGuildCommands(clientId, guild.id));
       for (const command of existingCommands) {
         await rest.delete(Routes.applicationGuildCommand(clientId, guild.id, command.id));
