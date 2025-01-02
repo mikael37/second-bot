@@ -8,15 +8,6 @@ module.exports = {
     .setDescription("Assign roles and rename users in bulk."),
     
   async execute(interaction) {
-    const allowedGuildId = process.env.SYNC_DB_GUILD_ID;
-
-    if (interaction.guild.id !== allowedGuildId) {
-      return await interaction.reply({
-        content: "This command is not available in this server.",
-        ephemeral: true,
-      });
-    }
-
     try {
       // Load user data from JSON file
       const usersData = JSON.parse(fs.readFileSync("userData.json"));
