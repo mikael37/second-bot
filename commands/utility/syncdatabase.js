@@ -2,11 +2,23 @@ const { SlashCommandBuilder } = require("discord.js");
 const fs = require("fs");
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
 
+// List of allowed server IDs for this command
+const allowedServers = ["1047266915120332801"]; // Add the server IDs where the command is allowed
+
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("syncdatabase")
     .setDescription("Assign roles and rename users in bulk."),
+  
   async execute(interaction) {
+    // Check if the command is being used in an allowed server
+    if (!allowedServers.includes(interaction.guild.id)) {
+      return interaction.reply({
+        content: "This command cannot be used in this server.",
+        ephemeral: true,
+      });
+    }
+
     try {
       // Load user data from JSON file
       const usersData = JSON.parse(fs.readFileSync("userData.json"));
