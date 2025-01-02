@@ -10,15 +10,8 @@ module.exports = {
     .setName("syncdatabase")
     .setDescription("Assign roles and rename users in bulk."),
   
+  guildId: process.env.SYNC_DB_GUILD_ID,  
   async execute(interaction) {
-    // Check if the command is being used in an allowed server
-    if (!allowedServers.includes(interaction.guild.id)) {
-      return interaction.reply({
-        content: "This command cannot be used in this server.",
-        ephemeral: true,
-      });
-    }
-
     try {
       // Load user data from JSON file
       const usersData = JSON.parse(fs.readFileSync("userData.json"));
