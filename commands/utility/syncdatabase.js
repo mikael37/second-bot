@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require("discord.js");
-const { users } = require("../../userData"); // Import user data
+const fs = require("fs");
+const path = require("path");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -8,6 +9,18 @@ module.exports = {
 
   async execute(interaction) {
     try {
+      // Read user data from the JSON file
+      const userDataPath = path.join(__dirname, "../../userData.json");
+      const rawData = fs.readFileSync(userDataPath, "utf-8");
+
+      // Parse the JSON data
+      const users = JSON.parse(rawData);
+
+      // Check if users is an array
+      if (!Array.isArray(users)) {
+        throw new Error("User data is not an array.");
+      }
+
       // Static configuration for roles and prefixes
       const alliancePrefixes = {
         "The Rumbling": "TR",
