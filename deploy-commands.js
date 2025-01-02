@@ -35,8 +35,7 @@ for (const folder of commandFolders) {
 // Fetch environment variables
 const token = process.env.DISCORD_TOKEN;
 const clientId = process.env.CLIENT_ID;
-const guildId = process.env.GUILD_ID; // Guild ID where sync commands are valid
-
+const guildIds = process.env.GUILD_ID.split(",");
 if (!token || !clientId) {
   console.error(
     "Missing one or more environment variables: DISCORD_TOKEN, clientId."
@@ -49,35 +48,19 @@ const rest = new REST({ version: "10" }).setToken(token);
 
 (async () => {
   try {
-    console.log(
-      `Started refreshing ${commands.length} global application (/) commands.`
-    );
+    console.log(`Started refreshing ${commands.length} application (/) commands.`);
 
-    // Deploy global commands
-    const data = await rest.put(
-      Routes.applicationCommands(clientId), // Deploy globally
-      { body: commands }
-    );
-
-    console.log(
-      `Successfully reloaded ${data.length} global application (/) commands.`
-    );
-
-    if (guildId) {
-      console.log(
-        `Started refreshing ${guildCommands.length} guild-specific application (/) commands.`
+    // Loop through each guildId and deploy commands
+    for (const guildId of guildIds) {
+      const data = await rest.put(
+        Routes.applicationGuildCommands(clientId, guildId),
+        { body: commands }
       );
 
-      // Deploy guild-specific commands to a particular guild
-      const guildData = await rest.put(
-        Routes.applicationGuildCommands(clientId, guildId), // Deploy for the specific guild
-        { body: guildCommands }
-      );
-
-      console.log(
-        `Successfully reloaded ${guildData.length} guild-specific application (/) commands for guild ${guildId}.`
-      );
+      console.log(`Successfully reloaded commands for guild: ${guildId}`);
     }
+
+    console.log(`Successfully reloaded commands for all specified guilds.`);
   } catch (error) {
     console.error(error);
   }
