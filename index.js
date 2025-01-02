@@ -41,9 +41,9 @@ for (const folder of commandFolders) {
 client.once(Events.ClientReady, () => {
   console.log(`Logged in as ${client.user.tag}!`);
   client.user.setActivity({
-    name: "Titan Encyclopedia",
-    type: ActivityType.Streaming,
-    url: 'https://www.youtube.com/watch?v=CFGLoQIhmow'
+    name: "Titan movements",
+    type: ActivityType.Watching,
+    // url: 'https://www.youtube.com/watch?v=CFGLoQIhmow'
 
   })
 });
