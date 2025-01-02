@@ -33,26 +33,24 @@ module.exports = {
     const guild = interaction.guild;
     const members = await guild.members.fetch();
 
-    // Loop through usernames and respond for each
+    // Create an array to store results in the same order as usernames
+    const results = [];
+
     for (const username of usernames) {
+      // Find member by exact username or displayName (case-sensitive)
       const member = members.find(
         (member) =>
           member.user.username === username || member.displayName === username
       );
 
-      // Respond with only the ID or "Not Found"
-      const response = member ? `${member.user.id}` : "Not Found";
-
-      // Send a reply for each username
-      await interaction.channel.send(response);
+      // Add result to the array
+      results.push(member ? `${member.user.id}` : "Not Found");
     }
 
-    // Acknowledge the command to prevent interaction timeout
-    if (!interaction.replied) {
-      await interaction.reply({
-        content: "`Processed all usernames from the file.`",
-        ephemeral: true,
-      });
-    }
+    // Send the results in a single message to ensure order
+    const response = results.join("\n");
+    await interaction.reply({
+      content: `\`\`\`\n${response}\n\`\`\``,
+    });
   },
 };
