@@ -3,7 +3,7 @@ const fs = require("fs");
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
 
 // List of allowed server IDs for this command
-const allowedServers = ["1047266915120332801", "1324440897110282441"]; // Add the server IDs where the command is allowed
+const allowedServers = ["1324440897110282441"]; // Add the server IDs where the command is allowed
 
 module.exports = {
   data: new SlashCommandBuilder()
