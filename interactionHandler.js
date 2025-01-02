@@ -62,7 +62,7 @@ async function performSync(interaction, usersData) {
     "Devils of Paradis": "1323849912508481617",
   };
 
-  const kingdomRoleId = "1324055858786861077";
+  const kingdomRoleId = "1310229163847974982";
 
   const statusMessages = [];
 
