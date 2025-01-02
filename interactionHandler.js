@@ -69,7 +69,7 @@ async function performSync(interaction, usersData) {
   for (const user of usersData) {
     const member = members.get(user.discordId);
     if (!member) {
-      statusMessages.push(`User with ID ${user.discordId} not found.`);
+      statusMessages.push(`User with ID <@${user.discordId}> not found.`);
       continue;
     }
 
@@ -88,7 +88,7 @@ async function performSync(interaction, usersData) {
       }
     } catch (userError) {
       console.error(`Error updating ${user.discordId}:`, userError);
-      statusMessages.push(`Failed to update user with ID ${user.discordId}.`);
+      statusMessages.push(`Failed to update user with ID <@${user.discordId}>.`);
     }
   }
 
