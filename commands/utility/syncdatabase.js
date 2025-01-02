@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require("discord.js");
-const { users, config } = require("../../userData");
+const { users } = require("../../userData"); // Import user data
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -8,11 +8,28 @@ module.exports = {
 
   async execute(interaction) {
     try {
-      // Load user data from userData.js
+      // Static configuration for roles and prefixes
+      const alliancePrefixes = {
+        "The Rumbling": "TR",
+        "Yeagerists": "YG",
+        "Shiganshina's Hope": "SH",
+        "The Survey Corps": "SC",
+        "Devils of Paradis": "DP",
+      };
+
+      const allianceRoleIds = {
+        "The Rumbling": "1323727567613595769",
+        "Yeagerists": "1323849904161951794",
+        "Shiganshina's Hope": "1323850193312940104",
+        "The Survey Corps": "1323849911900442715",
+        "Devils of Paradis": "1323849912508481617",
+      };
+
+      const kingdomRoleId = "1324055858786861077"; // Static kingdom role ID
+
       const guild = interaction.guild;
       const members = await guild.members.fetch();
 
-      const { alliancePrefixes, allianceRoleIds, kingdomRoleId } = config;
       const statusMessages = [];
 
       for (const user of users) {
