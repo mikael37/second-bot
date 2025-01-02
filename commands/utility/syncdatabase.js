@@ -1,6 +1,5 @@
 const { SlashCommandBuilder } = require("discord.js");
 const fs = require("fs");
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -14,57 +13,8 @@ module.exports = {
       // Defer the reply to allow processing time
       await interaction.deferReply();
 
-      // Send a message asking for confirmation
-      const confirmButton = new ButtonBuilder()
-        .setCustomId("confirmSync")
-        .setLabel("Confirm Sync")
-        .setStyle(ButtonStyle.Primary);
-
-      const cancelButton = new ButtonBuilder()
-        .setCustomId("cancelSync")
-        .setLabel("Cancel Sync")
-        .setStyle(ButtonStyle.Danger);
-
-      const row = new ActionRowBuilder().addComponents(confirmButton, cancelButton);
-
-      await interaction.editReply({
-        content: "Do you want to proceed with syncing the database?",
-        components: [row],
-      });
-
-      // Wait for button interaction
-      const filter = (i) => i.user.id === interaction.user.id;
-      const collector = interaction.channel.createMessageComponentCollector({
-        filter,
-        time: 15000, // Wait for 15 seconds for a response
-      });
-
-      collector.on("collect", async (i) => {
-        // Acknowledge the interaction right away
-        await i.deferUpdate();  // This will stop the "Unknown interaction" error
-
-        if (i.customId === "confirmSync") {
-          // Respond immediately before syncing
-          await i.update({ content: "Syncing database...", components: [] });
-
-          // Proceed with the sync if confirmed
-          await performSync(interaction, usersData); // Perform the sync task
-        } else if (i.customId === "cancelSync") {
-          // Respond immediately and cancel sync
-          await i.update({ content: "Sync operation canceled.", components: [] });
-        }
-
-        collector.stop(); // Stop collecting after the user responds
-      });
-
-      collector.on("end", (collected, reason) => {
-        if (reason === "time") {
-          interaction.editReply({
-            content: "You took too long to respond. Sync operation canceled.",
-            components: [],
-          });
-        }
-      });
+      // Perform the sync operation immediately
+      await performSync(interaction, usersData); // Perform the sync task
     } catch (error) {
       console.error("Bulk assignment failed:", error);
       await interaction.editReply('An error occurred while assigning roles in bulk.');
