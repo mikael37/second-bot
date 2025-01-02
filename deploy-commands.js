@@ -35,10 +35,10 @@ for (const folder of commandFolders) {
 // Fetch environment variables
 const token = process.env.DISCORD_TOKEN;
 const clientId = process.env.CLIENT_ID;
-const guildIds = process.env.GUILD_ID.split(",");
-if (!token || !clientId || !guildIds) {
+const allowedGuildIds = process.env.GUILD_ID.split(","); // This is a list of guild IDs from the .env
+if (!token || !clientId || !allowedGuildIds) {
   console.error(
-    "Missing one or more environment variables: DISCORD_TOKEN, clientId, guildIds."
+    "Missing one or more environment variables: DISCORD_TOKEN, clientId, GUILD_ID."
   );
   process.exit(1); // Exit if variables are not defined
 }
@@ -62,11 +62,17 @@ const rest = new REST({ version: "10" }).setToken(token);
       `Successfully reloaded ${globalData.length} global application (/) commands.`
     );
 
-    // 2. Deploy guild-specific commands
-    for (const guildId of guildIds) {
+    // 2. Deploy guild-specific commands to the allowed guilds
+    for (const guildId of allowedGuildIds) {
       console.log(
         `Started refreshing guild-specific application (/) commands for guild ${guildId}.`
       );
+
+      // Skip guild if it's not in the allowed list
+      if (!allowedGuildIds.includes(guildId)) {
+        console.log(`Skipping guild ${guildId} as it is not in the allowed list.`);
+        continue;
+      }
 
       // Fetch existing guild-specific commands and delete them
       const existingGuildCommands = await rest.get(Routes.applicationGuildCommands(clientId, guildId));
