@@ -44,7 +44,7 @@ client.once(Events.ClientReady, () => {
     status: 'online', // Explicitly sets the bot's status to online
     activities: [
       {
-        name: "Titan movements",
+        name: "for Titan movements",
         type: ActivityType.Watching, // Watching activity type
       },
     ],
