@@ -56,7 +56,7 @@ const rest = new REST({ version: "10" }).setToken(token);
 
     // Loop through all guilds the bot is in
     for (const guild of guilds) {
-      console.log(`Deploying commands to guild: ${guild.id}`);
+      console.log(`Deleting commands from guild: ${guild.id}`);
 
       // Fetch existing commands and delete them
       const existingCommands = await rest.get(Routes.applicationGuildCommands(clientId, guild.id));
@@ -65,7 +65,7 @@ const rest = new REST({ version: "10" }).setToken(token);
         console.log(`Deleted old command: ${command.name} in guild ${guild.id}`);
       }
 
-      // Only deploy commands for guilds in allowedGuildIds
+      // Only deploy commands to guilds in allowedGuildIds
       if (allowedGuildIds.includes(guild.id)) {
         // Deploy new commands for the allowed guild
         const guildData = await rest.put(
@@ -75,6 +75,8 @@ const rest = new REST({ version: "10" }).setToken(token);
         console.log(
           `Successfully reloaded ${guildData.length} application (/) commands for guild ${guild.id}.`
         );
+      } else {
+        console.log(`Skipping refresh for guild: ${guild.id} (not in allowed list)`);
       }
     }
 
