@@ -60,15 +60,7 @@ const rest = new REST({ version: "10" }).setToken(token);
 
     console.log(`Deleted commands from all guilds.`);
 
-    // Deploy commands only to allowed guilds
-    for (const guildId of allowedGuildIds) {
-      console.log(`Deploying commands to allowed guild: ${guildId}`);
-      await rest.put(Routes.applicationGuildCommands(clientId, guildId), {
-        body: commands,
-      });
-    }
 
-    console.log("Successfully deployed commands to allowed guilds.");
   } catch (error) {
     console.error("Error deploying commands:", error);
   }
