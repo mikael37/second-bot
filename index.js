@@ -40,22 +40,7 @@ for (const folder of commandFolders) {
 
 client.once(Events.ClientReady, () => {
   console.log("Bot is ready.");
-
-  // Ensure the bot's presence is set correctly
-  if (client.user) {
-    client.user.setPresence({
-      status: 'idle', // 'online', 'idle', 'dnd', 'invisible'
-      activities: [
-        {
-          name: 'Serving you!', // Activity message
-          type: 'PLAYING', // Activity type: 'PLAYING', 'STREAMING', etc.
-        },
-      ],
-    });
-    console.log("Presence has been set.");
-  } else {
-    console.error("client.user is not defined. Presence was not set.");
-  }
+  client.user.setActivity('Playing a game', { type: 'PLAYING' });
 });
 
 
