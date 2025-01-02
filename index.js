@@ -44,11 +44,11 @@ client.once(Events.ClientReady, () => {
   // Ensure the bot's presence is set correctly
   if (client.user) {
     client.user.setPresence({
-      status: 'online', // 'online', 'idle', 'dnd', 'invisible'
+      status: 'idle', // 'online', 'idle', 'dnd', 'invisible'
       activities: [
         {
           name: 'Serving you!', // Activity message
-          type: 'WATCHING', // Activity type: 'PLAYING', 'STREAMING', etc.
+          type: 'PLAYING', // Activity type: 'PLAYING', 'STREAMING', etc.
         },
       ],
     });
