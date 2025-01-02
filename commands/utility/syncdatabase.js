@@ -41,11 +41,13 @@ module.exports = {
 
       collector.on("collect", async (i) => {
         if (i.customId === "confirmSync") {
-          // Proceed with the sync if confirmed
+          // Respond immediately before syncing
           await i.update({ content: "Syncing database...", components: [] });
+
+          // Proceed with the sync if confirmed
           await performSync(interaction, usersData); // Perform the sync task
         } else if (i.customId === "cancelSync") {
-          // Abort if canceled
+          // Respond immediately and cancel sync
           await i.update({ content: "Sync operation canceled.", components: [] });
         }
 
