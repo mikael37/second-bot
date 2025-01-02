@@ -1,4 +1,4 @@
-const { users, config } = require("./userData");
+const { users, config } = require("../../userData");
 
 async function performSync(interaction) {
   const guild = interaction.guild;
