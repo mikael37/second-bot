@@ -1,5 +1,3 @@
-const { EmbedBuilder } = require("discord.js");
-
 module.exports = {
   data: new SlashCommandBuilder()
       .setName("clearroles")
@@ -11,10 +9,7 @@ module.exports = {
           "1323850193312940104", // Example role IDs
           "1323849912508481617",
           "1323849911900442715",
-          "1323849904161951794",
-          "1323727567613595769",
-          "1325568167480918207", // Add other role IDs
-          "1325568136543473772"
+          // Add other role IDs here
       ];
 
       const guild = interaction.guild;
@@ -24,13 +19,13 @@ module.exports = {
       let errorCount = 0;
       const errors = [];
 
-      // Send initial message to indicate the operation has started
-      let progressMessage = await interaction.followUp({
-          content: "Removing roles... This might take a while.",
+      // Send the initial "removal in progress" message
+      const progressMessage = await interaction.followUp({
+          content: "Removing roles from members... Please wait.",
           ephemeral: true
       });
 
-      // Remove specified roles from all members using the removeRoleIds array
+      // Loop through all roles and remove them from members
       for (const roleId of removeRoleIds) {
           console.log(`Starting to remove role: ${roleId}`);
 
@@ -50,18 +45,18 @@ module.exports = {
           }
       }
 
-      // Final status message
-      let replyMessage = `Roles removed from ${removedCount} users.`;
+      // Create the final summary message
+      let replyMessage = `Roles removal completed! Removed roles from ${removedCount} users.`;
 
       if (errorCount > 0) {
           replyMessage += `\nEncountered ${errorCount} errors during role removal.`;
-          replyMessage += "\n\n **Errors:** \n";
+          replyMessage += "\n\n**Errors:**\n";
           replyMessage += errors.join("\n");
       }
 
       try {
-          // Edit the original message to show completion
-          await progressMessage.edit({
+          // Send the final summary message
+          await interaction.editReply({
               content: replyMessage,
               ephemeral: true
           });
