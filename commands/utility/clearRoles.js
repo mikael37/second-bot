@@ -27,30 +27,23 @@ module.exports = {
         let errorCount = 0;
         const errors = [];
 
-        // Initial progress message
-        let progressMessage;
-        try {
-            progressMessage = await interaction.editReply({
-                content: "Starting to remove roles from members... Please wait.",
-                ephemeral: true
-            });
-        } catch (err) {
-            console.error("Error sending progress message:", err);
-            await interaction.editReply({
-                content: "Error while trying to start the role removal process.",
-                ephemeral: true
-            });
-            return;
-        }
+        // Send initial message to indicate the operation has started
+        let progressMessage = await interaction.editReply({
+            content: "Starting to remove roles from members... Please wait.",
+            ephemeral: true
+        });
 
-        // Processing the removal in chunks to avoid blocking
         for (const roleId of removeRoleIds) {
             console.log(`Starting to remove role: ${roleId}`);
 
+            // Loop through all members and remove the role if they have it
             for (const member of members.values()) {
                 try {
-                    await member.roles.remove(roleId);
-                    removedCount++;
+                    // Check if the member has the role before attempting to remove it
+                    if (member.roles.cache.has(roleId)) {
+                        await member.roles.remove(roleId);
+                        removedCount++;
+                    }
                 } catch (roleError) {
                     errorCount++;
                     errors.push(`Error removing role ${roleId} from ${member.user.tag}: ${roleError.message}`);
@@ -58,16 +51,15 @@ module.exports = {
                 }
             }
 
-            // Periodically update progress to avoid timing out
+            // Send progress update every 50 removed roles (or when a roleId is fully processed)
             if (removedCount % 50 === 0 || removedCount === members.size) {
                 console.log(`Removed roles from ${removedCount} users so far...`);
                 try {
-                    // Check if progressMessage is valid before editing
-                    if (progressMessage) {
-                        await progressMessage.edit({
-                            content: `Removed roles from ${removedCount} users so far...`
-                        });
-                    }
+                    // Send a new progress message
+                    progressMessage = await interaction.followUp({
+                        content: `Removed roles from ${removedCount} users so far...`,
+                        ephemeral: true
+                    });
                 } catch (err) {
                     console.error("Error updating progress message:", err);
                 }
@@ -82,7 +74,6 @@ module.exports = {
             replyMessage += errors.join("\n");
         }
 
-        // Final reply or edit
         try {
             await interaction.editReply({
                 content: replyMessage,
