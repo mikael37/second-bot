@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require("discord.js");
+const { SlashCommandBuilder } = require('@discordjs/builders');  // Import the required builder
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -8,16 +8,10 @@ module.exports = {
         await interaction.deferReply({ ephemeral: true }); // Defer reply for longer operations
 
         const removeRoleIds = [
-            "1323850193312940104",
+            "1323850193312940104", // Example role IDs
             "1323849912508481617",
             "1323849911900442715",
-            "1323849904161951794",
-            "1323727567613595769",
-            "1325568167480918207",
-            "1325568136543473772",
-            "1325568167480918207",
-            "1325568167480918207",
-            "1324055858786861077"
+            // Add other role IDs here
         ];
 
         const guild = interaction.guild;
@@ -27,12 +21,13 @@ module.exports = {
         let errorCount = 0;
         const errors = [];
 
-        // Send initial message to indicate the operation has started
-        let progressMessage = await interaction.editReply({
-            content: "Starting to remove roles from members... Please wait.",
+        // Send the initial "removal in progress" message
+        const progressMessage = await interaction.followUp({
+            content: "Removing roles from members... Please wait.",
             ephemeral: true
         });
 
+        // Loop through all roles and remove them from members
         for (const roleId of removeRoleIds) {
             console.log(`Starting to remove role: ${roleId}`);
 
@@ -50,31 +45,19 @@ module.exports = {
                     console.error(`Error removing role ${roleId} from ${member.user.tag}:`, roleError);
                 }
             }
-
-            // Send progress update every 50 removed roles (or when a roleId is fully processed)
-            if (removedCount % 50 === 0 || removedCount === members.size) {
-                console.log(`Removed roles from ${removedCount} users so far...`);
-                try {
-                    // Send a new progress message
-                    progressMessage = await interaction.followUp({
-                        content: `Removed roles from ${removedCount} users so far...`,
-                        ephemeral: true
-                    });
-                } catch (err) {
-                    console.error("Error updating progress message:", err);
-                }
-            }
         }
 
-        let replyMessage = `Successfully removed roles from ${removedCount} users.`;
+        // Create the final summary message
+        let replyMessage = `Roles removal completed! Removed roles from ${removedCount} users.`;
 
         if (errorCount > 0) {
             replyMessage += `\nEncountered ${errorCount} errors during role removal.`;
-            replyMessage += "\n\n **Errors:** \n";
+            replyMessage += "\n\n**Errors:**\n";
             replyMessage += errors.join("\n");
         }
 
         try {
+            // Send the final summary message
             await interaction.editReply({
                 content: replyMessage,
                 ephemeral: true
