@@ -17,10 +17,10 @@ module.exports = async (interaction) => {
 
       // Get user data from JSON file
       const usersData = JSON.parse(require("fs").readFileSync("userData.json"));
-      
+
       // Perform the sync operation
       await performSync(interaction, usersData);
-      
+
     } else if (customId === "cancelSync") {
       // Cancel the sync operation
       await interaction.update({
@@ -47,25 +47,43 @@ async function performSync(interaction, usersData) {
   const members = await guild.members.fetch();
 
   const alliancePrefixes = {
-    "The Rumbling": "TR",
-    "Yeagerists": "YG",
-    "Shiganshina's Hope": "SH",
-    "The Survey Corps": "SC",
-    "Devils of Paradis": "DP",
+    "Shadow Spartans": "SS",
+    "Shadow Lumina": "SL",
+    "Shadow Eclipse": "SE",
+    "Shadow Monarchs": "SC",
+    "Shadow Vanguard": "SV"
   };
 
   const allianceRoleIds = {
-    "The Rumbling": "1323727567613595769",
-    "Yeagerists": "1301315222073507860",
-    "Shiganshina's Hope": "1306716369533800479",
-    "The Survey Corps": "1323849911900442715",
-    "Devils of Paradis": "1323849912508481617",
+    "Shadow Spartans": "1323850193312940104",
+    "Shadow Lumina": "1323849912508481617",
+    "Shadow Eclipse": "1323849911900442715",
+    "Shadow Monarchs": "1323849904161951794",
+    "Shadow Vanguard": "1323727567613595769",
+
+    "Unaffiliated": "1325568167480918207",
+    "Migrant": "1325568136543473772",
+
+    "Academy": "1325568167480918207",
+    "Shadow Death" : "1325568167480918207"
   };
 
-  const kingdomRoleId = "1310229163847974982";
+  const kingdomRoleId = "1324055858786861077";
 
   const statusMessages = [];
 
+  // Remove the specified roles from all members
+  for (const roleId of Object.values(allianceRoleIds)) {
+    for (const member of members.values()) {
+      try {
+        await member.roles.remove(roleId);
+      } catch (roleError) {
+        console.error(`Error removing role ${roleId} from ${member.user.tag}:`, roleError);
+      }
+    }
+  }
+
+  // Proceed with syncing (nickname changes and role assignments)
   for (const user of usersData) {
     const member = members.get(user.discordId);
     if (!member) {
@@ -75,7 +93,7 @@ async function performSync(interaction, usersData) {
 
     try {
       const prefix = alliancePrefixes[user.alliance] || "XX";
-      const newNickname = `[${prefix}05] ${user.inGameUsername}`;
+      const newNickname = `[${prefix}] ${user.inGameUsername}`;
       await member.setNickname(newNickname);
 
       const roleId = allianceRoleIds[user.alliance];

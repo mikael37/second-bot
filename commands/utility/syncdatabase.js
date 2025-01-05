@@ -6,7 +6,7 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("syncdatabase")
     .setDescription("Assign roles and rename users in bulk."),
-    
+
   async execute(interaction) {
     try {
       // Load user data from JSON file
