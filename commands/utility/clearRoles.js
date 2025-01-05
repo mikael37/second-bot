@@ -55,6 +55,15 @@ module.exports = {
     }
 
     // Send the final message
-    await interaction.editReply({ content: replyMessage, ephemeral: true });
+    const finalMessage = await interaction.editReply({ content: replyMessage, ephemeral: true });
+
+    // Delete the message after 10 seconds
+    setTimeout(async () => {
+      try {
+        await interaction.deleteReply();
+      } catch (error) {
+        console.error("Error deleting reply:", error);
+      }
+    }, 10000); // 10,000 milliseconds = 10 seconds
   },
 };
