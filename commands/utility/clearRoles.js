@@ -28,10 +28,20 @@ module.exports = {
         const errors = [];
 
         // Initial progress message
-        let progressMessage = await interaction.editReply({
-            content: "Starting to remove roles from members... Please wait.",
-            ephemeral: true
-        });
+        let progressMessage;
+        try {
+            progressMessage = await interaction.editReply({
+                content: "Starting to remove roles from members... Please wait.",
+                ephemeral: true
+            });
+        } catch (err) {
+            console.error("Error sending progress message:", err);
+            await interaction.editReply({
+                content: "Error while trying to start the role removal process.",
+                ephemeral: true
+            });
+            return;
+        }
 
         // Processing the removal in chunks to avoid blocking
         for (const roleId of removeRoleIds) {
@@ -51,11 +61,13 @@ module.exports = {
             // Periodically update progress to avoid timing out
             if (removedCount % 50 === 0 || removedCount === members.size) {
                 console.log(`Removed roles from ${removedCount} users so far...`);
-                // Ensure the progress message exists and is editable
                 try {
-                    await progressMessage.edit({
-                        content: `Removed roles from ${removedCount} users so far...`
-                    });
+                    // Check if progressMessage is valid before editing
+                    if (progressMessage) {
+                        await progressMessage.edit({
+                            content: `Removed roles from ${removedCount} users so far...`
+                        });
+                    }
                 } catch (err) {
                     console.error("Error updating progress message:", err);
                 }
@@ -70,7 +82,7 @@ module.exports = {
             replyMessage += errors.join("\n");
         }
 
-        // Edit the original deferred message instead of sending a new reply
+        // Final reply or edit
         try {
             await interaction.editReply({
                 content: replyMessage,
