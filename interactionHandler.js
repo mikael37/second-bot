@@ -1,4 +1,4 @@
-const { EmbedBuilder } = require("discord.js");
+const fs = require("fs");
 
 module.exports = async (interaction) => {
   if (!interaction.isButton()) {
@@ -13,19 +13,20 @@ module.exports = async (interaction) => {
       await interaction.update({
         content: "Syncing database...",
         components: [], // Remove buttons after confirmation
+        ephemeral: true,
       });
 
       // Get user data from JSON file
-      const usersData = JSON.parse(require("fs").readFileSync("userData.json"));
+      const usersData = JSON.parse(fs.readFileSync("userData.json"));
 
       // Perform the sync operation
       await performSync(interaction, usersData);
-
     } else if (customId === "cancelSync") {
       // Cancel the sync operation
       await interaction.update({
         content: "Sync operation canceled.",
         components: [], // Remove buttons after cancellation
+        ephemeral: true,
       });
 
       console.log(`Sync operation canceled by ${interaction.user.tag}.`);
@@ -51,7 +52,7 @@ async function performSync(interaction, usersData) {
     "Shadow Lumina": "SL",
     "Shadow Eclipse": "SE",
     "Shadow Monarchs": "SC",
-    "Shadow Vanguard": "SV"
+    "Shadow Vanguard": "SV",
   };
 
   const allianceRoleIds = {
@@ -60,15 +61,13 @@ async function performSync(interaction, usersData) {
     "Shadow Eclipse": "1323849911900442715",
     "Shadow Monarchs": "1323849904161951794",
     "Shadow Vanguard": "1323727567613595769",
-
     "Unaffiliated": "1325568167480918207",
     "Migrant": "1325568136543473772",
-
     "Academy": "1325568167480918207",
-    "Shadow Death" : "1325568167480918207"
+    "Shadow Death": "1325568167480918207",
   };
 
-    const removeRoleIds = [
+  const removeRoleIds = [
     "1323850193312940104",
     "1323849912508481617",
     "1323849911900442715",
@@ -78,16 +77,13 @@ async function performSync(interaction, usersData) {
     "1325568136543473772",
     "1325568167480918207",
     "1325568167480918207",
-    "1324055858786861077"
-    ];
-
+    "1324055858786861077",
+  ];
 
   const kingdomRoleId = "1324055858786861077";
-
   const statusMessages = [];
 
-
-    // Remove specified roles from all members using the removeRoleIds array
+  // Remove specified roles from all members using the removeRoleIds array
   for (const roleId of removeRoleIds) {
     for (const member of members.values()) {
       try {
@@ -97,8 +93,6 @@ async function performSync(interaction, usersData) {
       }
     }
   }
-
-
 
   // Proceed with syncing (nickname changes and role assignments)
   for (const user of usersData) {
@@ -127,5 +121,9 @@ async function performSync(interaction, usersData) {
     }
   }
 
-  await interaction.editReply(statusMessages.join("\n"));
+  // Send the final status message (ephemeral)
+  await interaction.editReply({
+    content: statusMessages.join("\n"),
+    ephemeral: true,
+  });
 }

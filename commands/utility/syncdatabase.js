@@ -12,10 +12,10 @@ module.exports = {
       // Load user data from JSON file
       const usersData = JSON.parse(fs.readFileSync("userData.json"));
 
-      // Defer the reply to allow processing time
-      await interaction.deferReply();
+      // Defer the reply to allow processing time (ephemeral)
+      await interaction.deferReply({ ephemeral: true });
 
-      // Send confirmation message with buttons
+      // Send confirmation message with buttons (ephemeral)
       const confirmButton = new ButtonBuilder()
         .setCustomId("confirmSync")
         .setLabel("Confirm Sync")
@@ -34,7 +34,10 @@ module.exports = {
       });
     } catch (error) {
       console.error("Bulk assignment failed:", error);
-      await interaction.editReply('An error occurred while assigning roles in bulk.');
+      await interaction.editReply({
+        content: "An error occurred while assigning roles in bulk.",
+        ephemeral: true,
+      });
     }
   },
 };
