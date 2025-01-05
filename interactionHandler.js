@@ -67,32 +67,8 @@ async function performSync(interaction, usersData) {
     "Shadow Death": "1325568167480918207",
   };
 
-  const removeRoleIds = [
-    "1323850193312940104",
-    "1323849912508481617",
-    "1323849911900442715",
-    "1323849904161951794",
-    "1323727567613595769",
-    "1325568167480918207",
-    "1325568136543473772",
-    "1325568167480918207",
-    "1325568167480918207",
-    "1324055858786861077",
-  ];
-
   const kingdomRoleId = "1324055858786861077";
   const statusMessages = [];
-
-  // Remove specified roles from all members using the removeRoleIds array
-  for (const roleId of removeRoleIds) {
-    for (const member of members.values()) {
-      try {
-        await member.roles.remove(roleId);
-      } catch (roleError) {
-        console.error(`Error removing role ${roleId} from ${member.user.tag}:`, roleError);
-      }
-    }
-  }
 
   // Proceed with syncing (nickname changes and role assignments)
   for (const user of usersData) {
@@ -127,3 +103,4 @@ async function performSync(interaction, usersData) {
     ephemeral: true,
   });
 }
+
