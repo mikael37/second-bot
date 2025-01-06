@@ -88,9 +88,17 @@ async function deployCommandsWithRetry() {
     // Deploy commands only to allowed guilds
     for (const guildId of allowedGuildIds) {
       console.log(`Deploying commands to allowed guild: ${guildId}`);
-      await rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commands });
-      console.log(`Commands deployed to guild: ${guildId}`);
-      
+
+      // Adding detailed logging before and after the command deployment
+      try {
+        console.log(`Sending commands to guild: ${guildId}...`);
+        await rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commands });
+        console.log(`Commands deployed to guild: ${guildId}`);
+      } catch (err) {
+        console.error(`Error deploying to guild ${guildId}:`, err);
+      }
+
+      // Delay between guild deployments
       await delay(2000);  // Add a delay between guild deployments
     }
 
@@ -107,5 +115,6 @@ async function deployCommandsWithRetry() {
     }
   }
 }
+
 
 deployCommandsWithRetry();
