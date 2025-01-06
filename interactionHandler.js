@@ -1,4 +1,5 @@
 const fs = require("fs");
+const clearRoles = require('./commands/clearroles'); // Import clearRoles function
 
 module.exports = async (interaction) => {
   if (!interaction.isButton()) {
@@ -26,6 +27,20 @@ module.exports = async (interaction) => {
       });
 
       console.log(`Sync operation canceled by ${interaction.user.tag}.`);
+    } else if (customId === "clearRoles") {
+      // Handle the clearRoles button interaction
+      await interaction.update({
+        content: "The process of clearing roles is starting. Please wait...",
+        components: [],
+        ephemeral: true,
+      });
+
+      console.log("Starting the role removal process...");
+      await clearRoles(); // Trigger the clearRoles function
+      await interaction.followUp({
+        content: "Roles have been successfully cleared from the specified users.",
+        ephemeral: true,
+      });
     }
   } catch (error) {
     console.error("Error processing interaction:", error);
