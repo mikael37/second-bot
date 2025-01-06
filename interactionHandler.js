@@ -10,7 +10,13 @@ module.exports = async (interaction) => {
 
   try {
     if (customId === "confirmSync") {
-      await interaction.update({
+      const initialMessage = await interaction.update({
+        content: "The database synchronization process is about to start. Please confirm or cancel.",
+        components: [],
+        ephemeral: true,
+      });
+
+      await initialMessage.edit({
         content: "The database synchronization process is currently in progress. Please be patient as updates are applied.",
         components: [],
         ephemeral: true,
@@ -18,7 +24,7 @@ module.exports = async (interaction) => {
 
       const usersData = JSON.parse(fs.readFileSync("userData.json"));
       console.log("Starting the synchronization process...");
-      await performSync(interaction, usersData);
+      await performSync(interaction, usersData, initialMessage);
     } else if (customId === "cancelSync") {
       await interaction.update({
         content: `The synchronization operation has been canceled at the request of <@${interaction.user.id}>. No further changes have been made.`,
@@ -53,7 +59,7 @@ module.exports = async (interaction) => {
   }
 };
 
-async function performSync(interaction, usersData) {
+async function performSync(interaction, usersData, initialMessage) {
   const guild = interaction.guild;
   const members = await guild.members.fetch();
 
@@ -86,6 +92,7 @@ async function performSync(interaction, usersData) {
   const kingdomRoleId = "1310229163847974982"; // Kingdom role ID
   const syncExclusionRoleId = "1325565234894733414"; // Sync-Exclusion role ID
   const statusMessages = [];
+  const excludedUsers = [];
   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
   async function sendChunks(interaction, messages) {
@@ -126,8 +133,8 @@ async function performSync(interaction, usersData) {
     }
   }
 
-  await interaction.editReply({
-    content: "Proceeding to rename users and assign new roles.",
+  await initialMessage.edit({
+    content: "Proceeding to rename users and assign new roles. Updates will be sent here.",
     ephemeral: true,
   });
 
@@ -140,11 +147,7 @@ async function performSync(interaction, usersData) {
     for (const user of batch) {
       const member = members.get(user.discordId);
       if (!member || member.user.bot || member.id === guild.ownerId || member.roles.cache.has(syncExclusionRoleId)) {
-        statusMessages.push({
-          userId: user.discordId,
-          message: "Could not be located or excluded",
-          roleId: "", // No role assigned
-        });
+        excludedUsers.push(user.discordId);
         continue;
       }
 
@@ -189,15 +192,11 @@ async function performSync(interaction, usersData) {
         }
       } catch (userError) {
         console.error(`Error updating ${user.discordId}:`, userError);
-        statusMessages.push({
-          userId: user.discordId,
-          message: "Error occurred during update",
-          roleId: "",
-        });
+        excludedUsers.push(user.discordId);
       }
     }
 
-    await interaction.editReply({
+    await initialMessage.edit({
       content: `Processed ${i + batchSize} of ${usersData.length} users so far...`,
       ephemeral: true,
     });
@@ -208,4 +207,20 @@ async function performSync(interaction, usersData) {
   console.log("Sync complete, sending final message...");
   // Break status messages into smaller chunks to avoid exceeding Discord's limit
   await sendChunks(interaction, statusMessages);
+
+  // Sending final report/summary
+  const summary = `
+    **Sync Summary:**
+    - Total users processed: ${usersData.length}
+    - Successfully renamed and assigned roles: ${statusMessages.filter(msg => msg.roleId).length}
+    - Failed or excluded users: ${excludedUsers.length}
+
+    **Users not renamed or assigned roles:**
+    - ${excludedUsers.join("\n- ") || "None"}
+  `;
+
+  await interaction.followUp({
+    content: summary,
+    ephemeral: true,
+  });
 }
