@@ -119,7 +119,7 @@ async function performSync(interaction, usersData) {
           throw error;
         }
         console.error("Retrying due to error:", error);
-        await delay(1000);
+        await delay(100);
       }
     }
   }
