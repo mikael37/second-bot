@@ -29,13 +29,13 @@ module.exports = {
       const row = new ActionRowBuilder().addComponents(confirmButton, cancelButton);
 
       await interaction.editReply({
-        content: "Do you want to proceed with syncing to database?",
+        content: "Please confirm if you would like to proceed with the database synchronization. This action will update roles and nicknames for all relevant users.",
         components: [row],
       });
     } catch (error) {
       console.error("Bulk assignment failed:", error);
       await interaction.editReply({
-        content: "An error occurred while assigning roles in bulk.",
+        content: "An error occurred during the execution of the command. Please try again later or contact support if the issue persists.",
         ephemeral: true,
       });
     }

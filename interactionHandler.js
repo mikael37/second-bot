@@ -11,7 +11,7 @@ module.exports = async (interaction) => {
     if (customId === "confirmSync") {
       // Proceed with syncing the database
       await interaction.update({
-        content: "Syncing database...",
+        content: "The database synchronization process is currently in progress. Please be patient as updates are applied.",
         components: [], // Remove buttons after confirmation
         ephemeral: true,
       });
@@ -24,7 +24,7 @@ module.exports = async (interaction) => {
     } else if (customId === "cancelSync") {
       // Cancel the sync operation
       await interaction.update({
-        content: "Sync operation canceled.",
+        content: "The synchronization operation has been canceled at the request of <@" + interaction.user.id + ">. No further changes have been made.",
         components: [], // Remove buttons after cancellation
         ephemeral: true,
       });
@@ -67,14 +67,38 @@ async function performSync(interaction, usersData) {
     "Shadow Death": "1325568167480918207",
   };
 
+  const removeRoleIds = [
+    "1323850193312940104",
+    "1323849912508481617",
+    "1323849911900442715",
+    "1323849904161951794",
+    "1323727567613595769",
+    "1325568167480918207",
+    "1325568136543473772",
+    "1325568167480918207",
+    "1325568167480918207",
+    "1324055858786861077",
+  ];
+
   const kingdomRoleId = "1324055858786861077";
   const statusMessages = [];
+
+  // Remove specified roles from all members using the removeRoleIds array
+  for (const roleId of removeRoleIds) {
+    for (const member of members.values()) {
+      try {
+        await member.roles.remove(roleId);
+      } catch (roleError) {
+        console.error(`Error removing role ${roleId} from ${member.user.tag}:`, roleError);
+      }
+    }
+  }
 
   // Proceed with syncing (nickname changes and role assignments)
   for (const user of usersData) {
     const member = members.get(user.discordId);
     if (!member) {
-      statusMessages.push(`User: <@${user.discordId}> not found.`);
+      statusMessages.push(`The user with ID <@${user.discordId}> could not be located within the guild's members.`);
       continue;
     }
 
@@ -87,13 +111,13 @@ async function performSync(interaction, usersData) {
       if (roleId) {
         await member.roles.add(roleId);
         await member.roles.add(kingdomRoleId);
-        statusMessages.push(`User: <@${member.user.tag}> renamed and assigned role "${user.alliance}".`);
+        statusMessages.push(`User: <@${member.user.tag}> has been successfully renamed and assigned the '${user.alliance}' role.`);
       } else {
-        statusMessages.push(`Alliance role: "${user.alliance}" not found. Skipping role assignment.`);
+        statusMessages.push(`The alliance role '${user.alliance}' was not found in the database. The role assignment for this user has been skipped.`);
       }
     } catch (userError) {
       console.error(`Error updating ${user.discordId}:`, userError);
-      statusMessages.push(`Failed to update user: <@${user.discordId}>.`);
+      statusMessages.push(`An error occurred while updating the user with ID <@${user.discordId}>.`);
     }
   }
 
@@ -103,4 +127,3 @@ async function performSync(interaction, usersData) {
     ephemeral: true,
   });
 }
-
