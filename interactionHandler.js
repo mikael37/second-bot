@@ -20,7 +20,9 @@ module.exports = async (interaction) => {
       const usersData = JSON.parse(fs.readFileSync("userData.json"));
 
       // Perform the sync operation
+      console.log("Starting the synchronization process..."); // Added logging
       await performSync(interaction, usersData);
+
     } else if (customId === "cancelSync") {
       // Cancel the sync operation
       await interaction.update({
@@ -83,7 +85,14 @@ async function performSync(interaction, usersData) {
   const kingdomRoleId = "1324055858786861077";
   const statusMessages = [];
 
+  // Send initial progress update
+  await interaction.editReply({
+    content: "Removing outdated roles...",
+    ephemeral: true,
+  });
+
   // Remove specified roles from all members using the removeRoleIds array
+  console.log("Removing roles..."); // Added logging
   for (const roleId of removeRoleIds) {
     for (const member of members.values()) {
       try {
@@ -94,7 +103,14 @@ async function performSync(interaction, usersData) {
     }
   }
 
+  // Send another progress update after role removal
+  await interaction.editReply({
+    content: "Removing outdated roles completed. Proceeding to rename users and assign new roles.",
+    ephemeral: true,
+  });
+
   // Proceed with syncing (nickname changes and role assignments)
+  console.log("Assigning roles and renaming users..."); // Added logging
   for (const user of usersData) {
     const member = members.get(user.discordId);
     if (!member) {
@@ -122,6 +138,7 @@ async function performSync(interaction, usersData) {
   }
 
   // Send the final status message (ephemeral)
+  console.log("Sync complete, sending final message..."); // Added logging
   await interaction.editReply({
     content: statusMessages.join("\n"),
     ephemeral: true,
