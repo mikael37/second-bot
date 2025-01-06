@@ -17,17 +17,12 @@ jobs:
       - name: Install GitHub CLI
         run: sudo apt-get install -y gh
 
-      - name: Get current workflow run ID
-        id: get_run_id
-        run: |
-          echo "Getting current run ID"
-          echo "run_id=$(gh run view --json databaseId -q '.databaseId')" >> $GITHUB_ENV
-
       - name: Cancel all previous runs
         run: |
-          echo "Canceling previous runs"
-          current_run_id="${{ env.run_id }}"
+          echo "Getting current run ID"
+          current_run_id="${{ github.run_id }}"
 
+          echo "Canceling previous runs"
           # List all in-progress runs and cancel them, except the current run
           gh run list --status in_progress --json databaseId -q '.[].databaseId' | grep -v $current_run_id | xargs -I {} gh run cancel {}
         env:
