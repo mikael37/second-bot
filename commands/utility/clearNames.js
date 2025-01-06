@@ -17,6 +17,7 @@ module.exports = {
     const guild = interaction.guild;
     const members = await guild.members.fetch();
     const statusMessages = [];
+    const syncExclusionRoleId = "1325565234894733414"; // Sync-Exclusion role ID
 
     // If 'file' option is provided, read the file for user IDs
     let userIds = [];
@@ -40,10 +41,11 @@ module.exports = {
     });
 
     for (const [id, member] of members) {
-      // Skip bots, the server owner, and members not in the file if 'file' option is used
+      // Skip bots, the server owner, members with the Sync-Exclusion role, and members not in the file if 'file' option is used
       if (
-        member.user.bot || 
-        id === guild.ownerId || 
+        member.user.bot ||
+        id === guild.ownerId ||
+        member.roles.cache.has(syncExclusionRoleId) || // Skip if member has the Sync-Exclusion role
         (userIds.length > 0 && !userIds.includes(id.toString())) // Ensure id is a string before checking
       ) {
         continue;
