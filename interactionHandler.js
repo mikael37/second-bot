@@ -213,20 +213,4 @@ async function performSync(interaction, usersData, initialMessage) {
   console.log("Sync complete, sending final message...");
   // Break status messages into smaller chunks to avoid exceeding Discord's limit
   await sendChunks(interaction, statusMessages);
-
-  // Sending final report/summary
-  const summary = `
-  __Sync Summary:__
-  Total users processed: ${usersData.length}
-  - Successfully renamed and assigned roles: ${statusMessages.filter(msg => msg.roleId).length}
-  * Failed or excluded users: ${excludedUsers.length}
-
-  Users not renamed or assigned roles:
-  - ${excludedUsers.join("\n- ") || "None"}
-  `;
-
-  await interaction.followUp({
-    content: summary,
-    ephemeral: true,
-  });
 }
