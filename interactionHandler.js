@@ -44,7 +44,6 @@ module.exports = async (interaction) => {
   }
 };
 
-// Function to perform the sync operation
 async function performSync(interaction, usersData) {
   const guild = interaction.guild;
   const members = await guild.members.fetch();
@@ -68,15 +67,15 @@ async function performSync(interaction, usersData) {
     "Shadow Eclipse": "1323849911900442715",
     "Shadow Monarchs": "1323849904161951794",
     "Shadow Vanguard": "1323727567613595769",
-
-    // "Unaffiliated": "1325568167480918207",
+    "Unaffiliated": "1325568167480918207",
     "Migrant": "1325568136543473772",
-    // "Academy / Farm": "",
-    // "Shadow Death": "",
-    "None": "1325568167480918207"
+    "Academy / Farm": "",
+    "Shadow Death": "",
+    "None": ""
   };
 
   const kingdomRoleId = "1324055858786861077";  // Kingdom role ID
+  const syncExclusionRoleId = "1325568100845883543"; // Sync-Exclusion role ID
   const statusMessages = [];
 
   // Send initial progress update
@@ -94,25 +93,41 @@ async function performSync(interaction, usersData) {
       continue;
     }
 
+    // Check if the user has the Sync-Exclusion role
+    if (member.roles.cache.has(syncExclusionRoleId)) {
+      statusMessages.push(`User <@${member.user.id}> has the Sync-Exclusion role and is excluded from the sync process.`);
+      continue;
+    }
+
     try {
       const prefix = alliancePrefixes[user.alliance] || "XX";
       const newNickname = `[${prefix}] ${user.inGameUsername}`;
       await member.setNickname(newNickname);
 
-      const roleId = allianceRoleIds[user.alliance];
-      if (roleId) {
-        await member.roles.add(roleId);
-        
-        // Only add kingdom role if the user does not have the "Migrant" or "Unaffiliated" role
-        const hasMigrantRole = member.roles.cache.has(allianceRoleIds["Migrant"]);
-        
-        if (!hasMigrantRole && !hasUnaffiliatedRole) {
+      // Special case for users in "Migrant", "Academy / Farm", or "Shadow Death" alliances
+      const specialAlliances = ["Migrant", "Academy / Farm", "Shadow Death", "None"];
+      if (specialAlliances.includes(user.alliance)) {
+        // Assign only the Kingdom role
+        if (!member.roles.cache.has(kingdomRoleId)) {
           await member.roles.add(kingdomRoleId);
+          statusMessages.push(`User: <@${member.user.id}> has been assigned the Kingdom role only.`);
         }
-
-        statusMessages.push(`User: <@${member.user.id}> has been successfully renamed and assigned <@&${roleId}>`);
       } else {
-        statusMessages.push(`The alliance role '${user.alliance}' was not found in the database. The role assignment for this user has been skipped.`);
+        const roleId = allianceRoleIds[user.alliance];
+        if (roleId) {
+          await member.roles.add(roleId);
+          
+          // Only add kingdom role if the user does not have the "Migrant" or "Unaffiliated" role
+          const hasMigrantRole = member.roles.cache.has(allianceRoleIds["Migrant"]);
+
+          if (!hasMigrantRole) {
+            await member.roles.add(kingdomRoleId);
+          }
+
+          statusMessages.push(`User: <@${member.user.id}> has been successfully renamed and assigned <@&${roleId}>`);
+        } else {
+          statusMessages.push(`The alliance role '${user.alliance}' was not found in the database. The role assignment for this user has been skipped.`);
+        }
       }
     } catch (userError) {
       console.error(`Error updating ${user.discordId}:`, userError);
@@ -127,3 +142,4 @@ async function performSync(interaction, usersData) {
     ephemeral: true,
   });
 }
+
