@@ -10,6 +10,7 @@ module.exports = {
     const guild = interaction.guild;
     const members = await guild.members.fetch(); // Fetch all members in the guild
 
+    const serverOwnerId = guild.ownerId; // Get the server owner ID
     let resetCount = 0;
     let errorCount = 0;
     const errors = [];
@@ -18,6 +19,11 @@ module.exports = {
     await interaction.followUp({ content: "Starting to reset nicknames...", ephemeral: true });
 
     for (const member of members.values()) {
+      // Skip bots and the server owner
+      if (member.user.bot || member.id === serverOwnerId) {
+        continue;
+      }
+
       try {
         await member.setNickname(null); // Reset the nickname to the default username
         resetCount++;
