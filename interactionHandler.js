@@ -91,26 +91,29 @@ async function performSync(interaction, usersData) {
 
   async function sendChunks(interaction, messages) {
     const chunkSize = 2000;
-    let messageChunk = '```'; // Start code block
-
+    let messageChunk = '';
+  
     for (let i = 0; i < messages.length; i++) {
-      if (messageChunk.length + messages[i].length > chunkSize) {
-        // Close the block and send the current chunk
-        messageChunk += '```';
+      // Modify the message format to wrap only the "Renamed and assigned" part in backticks
+      const formattedMessage = `* <@${messages[i].userId}>: \`${messages[i].message}\` <@&${messages[i].roleId}>`;
+  
+      if (messageChunk.length + formattedMessage.length > chunkSize) {
+        // Send the current chunk
         await interaction.followUp({ content: messageChunk, ephemeral: true });
         // Reset the chunk
-        messageChunk = '```';
+        messageChunk = '';
       }
-
-      messageChunk += messages[i] + '\n';
-
+  
+      messageChunk += `${formattedMessage}\n`;
+  
       // If it's the last message, send it even if it exceeds the chunk limit
-      if (i === messages.length - 1) {
-        messageChunk += '```'; // Close the block
+      if (i === messages.length - 1 && messageChunk.trim() !== '') {
         await interaction.followUp({ content: messageChunk, ephemeral: true });
       }
     }
   }
+  
+  
 
   async function safeCall(promiseFn, retries = 3) {
     for (let i = 0; i < retries; i++) {
