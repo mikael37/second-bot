@@ -31,6 +31,8 @@ module.exports = {
 
     const guild = interaction.guild;
     const members = await guild.members.fetch(); // Fetch all members in the guild
+    console.log(`Total members fetched: ${members.size}`); // Debug log for the number of members
+
     const statusMessages = [];
 
     // If 'file' option is provided, read the file for user IDs
@@ -57,6 +59,9 @@ module.exports = {
     await interaction.followUp({ content: "Starting to remove roles...", ephemeral: true });
 
     for (const member of members.values()) {
+      // Debug log to check member.id and userIds
+      console.log(`Checking member ID: ${member.id}`);
+
       // Skip members not in the file if 'file' option is used or those with the Sync-Exclusion role
       if (
         userIds.length > 0 && !userIds.includes(member.id.toString()) || // Ensure both IDs are strings
