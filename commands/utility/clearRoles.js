@@ -29,8 +29,7 @@ module.exports = {
       "1325568167480918207", // Unaffiliated
       "1325565433348227212", // Migrant
       "1325567866073911400", // None
-      "", // Shadow Death (if it has an ID)
-      "", // Academy / Farm (no ID provided)
+      "1310229163847974982" // Kingdom
     ];
 
     // If 'file' option is provided, read the file for user IDs
