@@ -55,10 +55,10 @@ if (!token || !clientId || !allowedGuildIds) {
 // Construct and prepare an instance of the REST module
 const rest = new REST({ version: "10" }).setToken(token);
 
-// Delay function to pause for a given time in milliseconds
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+// Function to delay execution
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-(async () => {
+async function deployCommandsWithRetry() {
   try {
     console.log(`Deleting commands from all guilds...`);
 
@@ -85,22 +85,27 @@ const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
     console.log(`Deleted all commands from the bot.`);
 
-    // Deploy commands only to allowed guilds with delay to avoid rate limits
+    // Deploy commands only to allowed guilds
     for (const guildId of allowedGuildIds) {
       console.log(`Deploying commands to allowed guild: ${guildId}`);
+      await rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commands });
+      console.log(`Commands deployed to guild: ${guildId}`);
       
-      // Deploy commands to the guild
-      await rest.put(Routes.applicationGuildCommands(clientId, guildId), {
-        body: commands,
-      });
-
-      // Add a delay between each deployment to prevent rate limit issues
-      console.log(`Waiting before deploying to the next guild...`);
-      await delay(1000); // 1000 ms delay (1 second)
+      await delay(2000);  // Add a delay between guild deployments
     }
 
     console.log("Successfully deployed commands to allowed guilds.");
   } catch (error) {
-    console.error("Error deploying commands:", error);
+    if (error.httpStatus === 429) {
+      // Handle rate limit error
+      const retryAfter = error.headers['retry-after'] || 1000; // Default to 1 second if no retry-after header is present
+      console.log(`Rate limited! Retrying after ${retryAfter}ms`);
+      await delay(retryAfter);
+      await deployCommandsWithRetry();  // Retry after waiting
+    } else {
+      console.error("Error deploying commands:", error);
+    }
   }
-})();
+}
+
+deployCommandsWithRetry();
