@@ -94,7 +94,7 @@ async function performSync(interaction, usersData) {
     let messageChunk = '';
   
     for (let i = 0; i < messages.length; i++) {
-      // Modify the message format to wrap only the "Renamed and assigned" part in backticks
+      // Format the message by ensuring we have correct userId and roleId
       const formattedMessage = `* <@${messages[i].userId}>: \`${messages[i].message}\` <@&${messages[i].roleId}>`;
   
       if (messageChunk.length + formattedMessage.length > chunkSize) {
@@ -112,8 +112,6 @@ async function performSync(interaction, usersData) {
       }
     }
   }
-  
-  
   
 
   async function safeCall(promiseFn, retries = 3) {
