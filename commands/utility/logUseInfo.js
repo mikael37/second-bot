@@ -58,10 +58,25 @@ module.exports = {
         logMessages.push("------------------------------------------------------");
       }
 
-      // Send the log messages to the specified channel
-      await channel.send({
-        content: logMessages.join("\n"), // Join all messages into a single string with newlines
-      });
+      // Split the logMessages into chunks
+      const maxLength = 2000; // Max Discord message length
+      let currentMessage = "";
+      for (let i = 0; i < logMessages.length; i++) {
+        const message = logMessages[i];
+        
+        // If adding the message would exceed maxLength, send the current message and start a new one
+        if ((currentMessage + message).length > maxLength) {
+          await channel.send(currentMessage);
+          currentMessage = message + "\n"; // Start a new chunk
+        } else {
+          currentMessage += message + "\n";
+        }
+      }
+
+      // Send any remaining log messages
+      if (currentMessage.length > 0) {
+        await channel.send(currentMessage);
+      }
 
       // Edit the initial message to indicate completion
       await replyMessage.edit({
