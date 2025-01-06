@@ -183,7 +183,7 @@ async function performSync(interaction, usersData) {
       ephemeral: true,
     });
 
-    await delay(1000); // Delay between batches to avoid hitting rate limits
+    await delay(100); // Delay between batches to avoid hitting rate limits
   }
 
   console.log("Sync complete, sending final message...");
