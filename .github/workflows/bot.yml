@@ -20,10 +20,15 @@ jobs:
       - name: Cancel all previous runs
         run: |
           echo "Canceling previous runs"
-          # List all in-progress runs and cancel them
-          gh run list --status in_progress --json databaseId -q '.[].databaseId' | xargs -I {} gh run cancel {}
+          
+          # Get the current run ID
+          current_run_id=$(gh run view --json databaseId -q '.databaseId')
+
+          # List all in-progress runs and cancel them, except the current run
+          gh run list --status in_progress --json databaseId -q '.[].databaseId' | grep -v $current_run_id | xargs -I {} gh run cancel {}
         env:
           GH_TOKEN: ${{ secrets.CANCEL_TOKEN }}  # Use your PAT here
+
 
   restart-bot:
     needs: cancel-previous-runs
