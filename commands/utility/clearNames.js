@@ -44,7 +44,7 @@ module.exports = {
       if (
         member.user.bot || 
         id === guild.ownerId || 
-        (userIds.length > 0 && !userIds.includes(id))
+        (userIds.length > 0 && !userIds.includes(id.toString())) // Ensure id is a string before checking
       ) {
         continue;
       }
