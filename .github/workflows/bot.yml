@@ -17,18 +17,21 @@ jobs:
       - name: Install GitHub CLI
         run: sudo apt-get install -y gh
 
+      - name: Get current workflow run ID
+        id: get_run_id
+        run: |
+          echo "Getting current run ID"
+          echo "::set-output name=run_id::$(gh run view --json databaseId -q '.databaseId')"
+
       - name: Cancel all previous runs
         run: |
           echo "Canceling previous runs"
-          
-          # Get the current run ID
-          current_run_id=$(gh run view --json databaseId -q '.databaseId')
+          current_run_id="${{ steps.get_run_id.outputs.run_id }}"
 
           # List all in-progress runs and cancel them, except the current run
           gh run list --status in_progress --json databaseId -q '.[].databaseId' | grep -v $current_run_id | xargs -I {} gh run cancel {}
         env:
           GH_TOKEN: ${{ secrets.CANCEL_TOKEN }}  # Use your PAT here
-
 
   restart-bot:
     needs: cancel-previous-runs
