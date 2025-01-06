@@ -15,14 +15,14 @@ module.exports = {
       // Get the channel to send the log to
       const channel = interaction.options.getChannel("channel");
 
+      // Send a reply to indicate the process has started
+      const replyMessage = await interaction.reply({
+        content: "Logging user information, please wait...",
+        fetchReply: true, // Fetch the reply message to later delete it
+      });
+
       // Load user data from JSON file
       const usersData = JSON.parse(fs.readFileSync("userData.json"));
-
-      // Send a reply to indicate the process has started
-      await interaction.reply({
-        content: "Logging user information, please wait...",
-        ephemeral: true,
-      });
 
       const logMessages = [];
 
@@ -62,6 +62,20 @@ module.exports = {
       await channel.send({
         content: logMessages.join("\n"), // Join all messages into a single string with newlines
       });
+
+      // Edit the initial message to indicate completion
+      await replyMessage.edit({
+        content: "User information logging complete! Check the specified channel for the logs.",
+      });
+
+      // Delete the message after 10 seconds
+      setTimeout(async () => {
+        try {
+          await replyMessage.delete();
+        } catch (error) {
+          console.error("Error deleting reply:", error);
+        }
+      }, 10000); // 10 seconds timer
 
     } catch (error) {
       console.error("Error logging user information:", error);
