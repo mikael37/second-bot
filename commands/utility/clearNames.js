@@ -1,58 +1,71 @@
 const { SlashCommandBuilder } = require("discord.js");
+const fs = require("fs");
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName("resetnames")
-    .setDescription("Resets the nickname of all members to their default username."),
+    .setName("clearname")
+    .setDescription("Clear nicknames for all members or specific members from a file.")
+    .addStringOption(option =>
+      option
+        .setName("file")
+        .setDescription("Specify 'file' to only clear nicknames for users listed in usernames.txt.")
+        .setRequired(false)
+    ),
+
   async execute(interaction) {
-    await interaction.deferReply({ ephemeral: true }); // Defer the interaction to allow time for processing
-
+    const useFile = interaction.options.getString("file");
     const guild = interaction.guild;
-    const members = await guild.members.fetch(); // Fetch all members in the guild
+    const members = await guild.members.fetch();
+    const statusMessages = [];
 
-    const serverOwnerId = guild.ownerId; // Get the server owner ID
-    let resetCount = 0;
-    let errorCount = 0;
-    const errors = [];
+    // If 'file' option is provided, read the file for user IDs
+    let userIds = [];
+    if (useFile === "file") {
+      try {
+        const fileContent = fs.readFileSync("usernames.txt", "utf-8");
+        userIds = fileContent.split(/\s+/).filter(Boolean); // Split by whitespace and filter out empty strings
+      } catch (error) {
+        console.error("Error reading usernames.txt:", error);
+        await interaction.reply({
+          content: "Failed to read usernames.txt. Ensure the file exists and is formatted correctly.",
+          ephemeral: true,
+        });
+        return;
+      }
+    }
 
-    // Inform the user that the reset process has started
-    await interaction.followUp({ content: "Starting to reset nicknames...", ephemeral: true });
+    await interaction.reply({
+      content: "Clearing nicknames... This may take some time for large servers.",
+      ephemeral: true,
+    });
 
-    for (const member of members.values()) {
-      // Skip bots and the server owner
-      if (member.user.bot || member.id === serverOwnerId) {
+    for (const [id, member] of members) {
+      // Skip members not in the file if 'file' option is used
+      if (userIds.length > 0 && !userIds.includes(id)) {
         continue;
       }
 
       try {
-        await member.setNickname(null); // Reset the nickname to the default username
-        resetCount++;
-      } catch (nicknameError) {
-        errorCount++;
-        errors.push(`Error resetting nickname for ${member.user.tag}: ${nicknameError.message}`);
-        console.error(`Error resetting nickname for ${member.user.tag}:`, nicknameError);
-      }
-    }
-
-    // Prepare the final message
-    let replyMessage = `Successfully reset nicknames for ${resetCount} members.`;
-
-    if (errorCount > 0) {
-      replyMessage += `\nEncountered ${errorCount} errors during nickname reset.`;
-      replyMessage += "\n\n **Errors:** \n";
-      replyMessage += errors.join("\n");
-    }
-
-    // Send the final message
-    const finalMessage = await interaction.editReply({ content: replyMessage, ephemeral: true });
-
-    // Delete the message after 10 seconds
-    setTimeout(async () => {
-      try {
-        await interaction.deleteReply();
+        if (member.nickname) {
+          await member.setNickname(null);
+          statusMessages.push(`Cleared nickname for <@${id}>.`);
+        } else {
+          statusMessages.push(`<@${id}> already has no nickname.`);
+        }
       } catch (error) {
-        console.error("Error deleting reply:", error);
+        console.error(`Failed to clear nickname for <@${id}>:`, error);
+        statusMessages.push(`Error clearing nickname for <@${id}>.`);
       }
-    }, 10000); // 10,000 milliseconds = 10 seconds
+    }
+
+    await interaction.editReply({
+      content: `Nickname clearing completed.\n\n${statusMessages.slice(0, 10).join("\n")}${
+        statusMessages.length > 10 ? "\n...and more." : ""
+      }`,
+      ephemeral: true,
+    });
+
+    // Log remaining status messages (optional)
+    console.log(statusMessages.join("\n"));
   },
 };

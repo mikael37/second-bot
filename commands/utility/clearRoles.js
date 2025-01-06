@@ -1,12 +1,21 @@
 const { SlashCommandBuilder } = require("discord.js");
+const fs = require("fs");
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("clearroles")
-    .setDescription("Removes specified roles from all members."),
+    .setDescription("Removes specified roles from all members or specific members from a file.")
+    .addStringOption(option =>
+      option
+        .setName("file")
+        .setDescription("Specify 'file' to only remove roles for users listed in usernames.txt.")
+        .setRequired(false)
+    ),
+
   async execute(interaction) {
     await interaction.deferReply({ ephemeral: true }); // Defer the interaction to allow time for processing
 
+    const useFile = interaction.options.getString("file");
     const removeRoleIds = [
       "1323850193312940104",
       "1323849912508481617",
@@ -15,30 +24,50 @@ module.exports = {
       "1323727567613595769",
       "1325568167480918207",
       "1325568136543473772",
-      "1325568167480918207",
-      "1325568167480918207",
       "1324055858786861077"
     ];
 
     const guild = interaction.guild;
     const members = await guild.members.fetch(); // Fetch all members in the guild
+    const statusMessages = [];
+
+    // If 'file' option is provided, read the file for user IDs
+    let userIds = [];
+    if (useFile === "file") {
+      try {
+        const fileContent = fs.readFileSync("usernames.txt", "utf-8");
+        userIds = fileContent.split(/\s+/).filter(Boolean); // Split by whitespace and filter out empty strings
+      } catch (error) {
+        console.error("Error reading usernames.txt:", error);
+        await interaction.editReply({
+          content: "Failed to read usernames.txt. Ensure the file exists and is formatted correctly.",
+          ephemeral: true,
+        });
+        return;
+      }
+    }
 
     let removedCount = 0;
     let errorCount = 0;
-    const errors = [];
 
     // Inform the user that the removal process has started
     await interaction.followUp({ content: "Starting to remove roles...", ephemeral: true });
 
     for (const member of members.values()) {
+      // Skip members not in the file if 'file' option is used
+      if (userIds.length > 0 && !userIds.includes(member.id)) {
+        continue;
+      }
+
       for (const roleId of removeRoleIds) {
         if (member.roles.cache.has(roleId)) { // Check if the user has the role
           try {
             await member.roles.remove(roleId); // Remove the role
             removedCount++;
+            statusMessages.push(`Removed role <@&${roleId}> from <@${member.id}>.`);
           } catch (roleError) {
             errorCount++;
-            errors.push(`Error removing role ${roleId} from ${member.user.tag}: ${roleError.message}`);
+            statusMessages.push(`Error removing role <@&${roleId}> from <@${member.id}>: ${roleError.message}`);
             console.error(`Error removing role ${roleId} from ${member.user.tag}:`, roleError);
           }
         }
@@ -46,24 +75,20 @@ module.exports = {
     }
 
     // Prepare the final message
-    let replyMessage = `Successfully removed roles from ${removedCount} roles across members.`;
-
+    let replyMessage = `Successfully removed ${removedCount} roles across members.`;
     if (errorCount > 0) {
       replyMessage += `\nEncountered ${errorCount} errors during role removal.`;
-      replyMessage += "\n\n **Errors:** \n";
-      replyMessage += errors.join("\n");
     }
 
-    // Send the final message
-    const finalMessage = await interaction.editReply({ content: replyMessage, ephemeral: true });
+    // Send the final status message (ephemeral)
+    await interaction.editReply({
+      content: `${replyMessage}\n\n**Status Messages:**\n${statusMessages.slice(0, 10).join("\n")}${
+        statusMessages.length > 10 ? "\n...and more." : ""
+      }`,
+      ephemeral: true,
+    });
 
-    // Delete the message after 10 seconds
-    setTimeout(async () => {
-      try {
-        await interaction.deleteReply();
-      } catch (error) {
-        console.error("Error deleting reply:", error);
-      }
-    }, 10000); // 10,000 milliseconds = 10 seconds
+    // Log all status messages (optional)
+    console.log(statusMessages.join("\n"));
   },
 };
