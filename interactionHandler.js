@@ -86,24 +86,27 @@ async function performSync(interaction, usersData) {
   const kingdomRoleId = "1310229163847974982"; // Kingdom role ID
   const syncExclusionRoleId = "1325565234894733414"; // Sync-Exclusion role ID
   const statusMessages = [];
+  const errorMessages = [];
   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
   async function sendChunks(interaction, messages) {
     const chunkSize = 2000;
-    let messageChunk = '';
+    let messageChunk = '```'; // Start code block
 
     for (let i = 0; i < messages.length; i++) {
       if (messageChunk.length + messages[i].length > chunkSize) {
-        // Send the current chunk
+        // Close the block and send the current chunk
+        messageChunk += '```';
         await interaction.followUp({ content: messageChunk, ephemeral: true });
         // Reset the chunk
-        messageChunk = '';
+        messageChunk = '```';
       }
 
       messageChunk += messages[i] + '\n';
 
       // If it's the last message, send it even if it exceeds the chunk limit
       if (i === messages.length - 1) {
+        messageChunk += '```'; // Close the block
         await interaction.followUp({ content: messageChunk, ephemeral: true });
       }
     }
@@ -137,7 +140,7 @@ async function performSync(interaction, usersData) {
     for (const user of batch) {
       const member = members.get(user.discordId);
       if (!member || member.user.bot || member.id === guild.ownerId || member.roles.cache.has(syncExclusionRoleId)) {
-        statusMessages.push(`The user with ID <@${user.discordId}> could not be located within the guild's members or is excluded.`);
+        errorMessages.push(`- <@${user.discordId}>: Could not locate or is excluded.`);
         continue;
       }
 
@@ -151,7 +154,7 @@ async function performSync(interaction, usersData) {
           // Assign only the Kingdom role if no role ID exists for the alliance
           if (!member.roles.cache.has(kingdomRoleId)) {
             await member.roles.add(kingdomRoleId);
-            statusMessages.push(`User: <@${member.user.id}> has been assigned the Kingdom role only.`);
+            statusMessages.push(`* <@${member.user.id}>: Assigned Kingdom role only.`);
           }
         } else {
           // Assign alliance role and Kingdom role
@@ -162,11 +165,11 @@ async function performSync(interaction, usersData) {
           if (!hasMigrantRole) {
             await member.roles.add(kingdomRoleId);
           }
-          statusMessages.push(`User: <@${member.user.id}> has been successfully renamed and assigned <@&${roleId}>`);
+          statusMessages.push(`* <@${member.user.id}>: Renamed and assigned <@&${roleId}>.`);
         }
       } catch (userError) {
         console.error(`Error updating ${user.discordId}:`, userError);
-        statusMessages.push(`An error occurred while updating the user with ID <@${user.discordId}>.`);
+        errorMessages.push(`- <@${user.discordId}>: Role assignment error.`);
       }
     }
 
@@ -179,6 +182,20 @@ async function performSync(interaction, usersData) {
   }
 
   console.log("Sync complete, sending final message...");
-  // Break status messages into smaller chunks to avoid exceeding Discord's limit
+  // Send status messages
   await sendChunks(interaction, statusMessages);
+
+  // Send error messages
+  if (errorMessages.length > 0) {
+    await interaction.followUp({
+      content: `**Error Report**\n\`\`\`\n${errorMessages.join("\n")}\n\`\`\``,
+      ephemeral: true,
+    });
+  }
+
+  // Final Summary Report
+  await interaction.followUp({
+    content: `**Synchronization Complete**\n\n**Summary:**\n- Total Users Processed: ${usersData.length}\n- Successful Updates: ${statusMessages.length}\n- Errors: ${errorMessages.length}\n`,
+    ephemeral: true,
+  });
 }
