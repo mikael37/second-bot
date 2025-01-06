@@ -55,6 +55,9 @@ if (!token || !clientId || !allowedGuildIds) {
 // Construct and prepare an instance of the REST module
 const rest = new REST({ version: "10" }).setToken(token);
 
+// Delay function to pause for a given time in milliseconds
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
 (async () => {
   try {
     console.log(`Deleting commands from all guilds...`);
@@ -82,12 +85,18 @@ const rest = new REST({ version: "10" }).setToken(token);
 
     console.log(`Deleted all commands from the bot.`);
 
-    // Deploy commands only to allowed guilds
+    // Deploy commands only to allowed guilds with delay to avoid rate limits
     for (const guildId of allowedGuildIds) {
       console.log(`Deploying commands to allowed guild: ${guildId}`);
+      
+      // Deploy commands to the guild
       await rest.put(Routes.applicationGuildCommands(clientId, guildId), {
         body: commands,
       });
+
+      // Add a delay between each deployment to prevent rate limit issues
+      console.log(`Waiting before deploying to the next guild...`);
+      await delay(1000); // 1000 ms delay (1 second)
     }
 
     console.log("Successfully deployed commands to allowed guilds.");
