@@ -1,5 +1,6 @@
 const fs = require("fs");
-const clearRoles = require('./commands/clearroles'); // Import clearRoles function
+const clearRoles = require('./commands/utility/clearRoles');
+
 
 module.exports = async (interaction) => {
   if (!interaction.isButton()) {
