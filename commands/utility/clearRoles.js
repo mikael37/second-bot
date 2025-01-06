@@ -47,8 +47,8 @@ module.exports = {
       }
     }
 
-    let removedCount = 0;
-    let errorCount = 0;
+    let removedRolesCount = 0;
+    let affectedMembersCount = 0;
 
     // Inform the user that the removal process has started
     await interaction.followUp({ content: "Starting to remove roles...", ephemeral: true });
@@ -59,36 +59,35 @@ module.exports = {
         continue;
       }
 
+      let memberRoleRemoved = false;
+
       for (const roleId of removeRoleIds) {
         if (member.roles.cache.has(roleId)) { // Check if the user has the role
           try {
             await member.roles.remove(roleId); // Remove the role
-            removedCount++;
-            statusMessages.push(`Removed role <@&${roleId}> from <@${member.id}>.`);
+            removedRolesCount++;
+            memberRoleRemoved = true;
           } catch (roleError) {
-            errorCount++;
-            statusMessages.push(`Error removing role <@&${roleId}> from <@${member.id}>: ${roleError.message}`);
             console.error(`Error removing role ${roleId} from ${member.user.tag}:`, roleError);
           }
         }
       }
+
+      if (memberRoleRemoved) {
+        affectedMembersCount++;
+      }
     }
 
     // Prepare the final message
-    let replyMessage = `Successfully removed ${removedCount} roles across members.`;
-    if (errorCount > 0) {
-      replyMessage += `\nEncountered ${errorCount} errors during role removal.`;
-    }
+    let replyMessage = `Successfully removed ${removedRolesCount} roles from ${affectedMembersCount} members.`;
 
     // Send the final status message (ephemeral)
     await interaction.editReply({
-      content: `${replyMessage}\n\n**Status Messages:**\n${statusMessages.slice(0, 10).join("\n")}${
-        statusMessages.length > 10 ? "\n...and more." : ""
-      }`,
+      content: replyMessage,
       ephemeral: true,
     });
 
-    // Log all status messages (optional)
-    console.log(statusMessages.join("\n"));
+    // Log the final status message (optional)
+    console.log(replyMessage);
   },
 };
