@@ -44,9 +44,12 @@ module.exports = {
           .map(role => role.name)
           .join(", "); // Join roles with a comma
 
+        // Place roles inside backticks
+        const formattedRoles = `\`${roles}\``;
+
         const logMessage = `User: <@${user.discordId}> \n` +
-          `Username: ${member.user.username} \n` +
-          `Roles: \`ROLES LISTED INSIDE HERE\` ${roles} \`ROLES LISTED INSIDE HERE\` \n` +
+          `Username: ${member.user.username} (${member.user.id}) \n` +
+          `Roles: ${formattedRoles} \n` +
           `Log time: ${new Date().toLocaleString()}`;
 
         logMessages.push(logMessage);
