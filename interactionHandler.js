@@ -217,9 +217,9 @@ async function performSync(interaction, usersData, initialMessage) {
   // Sending final report/summary
   const summary = `
   **Sync Summary:**
-    - Total users processed: ${usersData.length}
-    - Successfully renamed and assigned roles: ${statusMessages.filter(msg => msg.roleId).length}
-    - Failed or excluded users: ${excludedUsers.length}
+    Total users processed: ${usersData.length}
+  - Successfully renamed and assigned roles: ${statusMessages.filter(msg => msg.roleId).length}
+  - Failed or excluded users: ${excludedUsers.length}
 
   **Users not renamed or assigned roles:**
     - ${excludedUsers.join("\n- ") || "None"}
