@@ -40,8 +40,12 @@ module.exports = {
     });
 
     for (const [id, member] of members) {
-      // Skip members not in the file if 'file' option is used
-      if (userIds.length > 0 && !userIds.includes(id)) {
+      // Skip bots, the server owner, and members not in the file if 'file' option is used
+      if (
+        member.user.bot || 
+        id === guild.ownerId || 
+        (userIds.length > 0 && !userIds.includes(id))
+      ) {
         continue;
       }
 
