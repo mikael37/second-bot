@@ -1,21 +1,54 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { Client, Intents } = require('discord.js');
-const clearRoles = require('./commands/clearroles'); // Import the clearroles.js file
 
 module.exports = {
-    data: new SlashCommandBuilder()
-        .setName('clearroles')
-        .setDescription('Clears roles from specified members'),
+  data: new SlashCommandBuilder()
+    .setName('clearroles')
+    .setDescription('Clears roles from a specified user or all users.'),
+  async execute(interaction) {
+    // Check if the user has the correct permissions (optional)
+    if (!interaction.member.permissions.has('MANAGE_ROLES')) {
+      return interaction.reply({
+        content: 'You do not have permission to manage roles.',
+        ephemeral: true,
+      });
+    }
 
-    async execute(interaction) {
-        // Call the clear roles function
-        await interaction.reply('Starting to remove roles...');
-        try {
-            await clearRoles(); // This assumes clearroles.js is a function
-            await interaction.followUp('Roles removed successfully!');
-        } catch (error) {
-            console.error(error);
-            await interaction.followUp('An error occurred while removing roles.');
-        }
-    },
+    // Get the user to clear roles from (if provided)
+    const user = interaction.options.getUser('user');
+    const guildMember = interaction.guild.members.cache.get(user.id);
+
+    if (!guildMember) {
+      return interaction.reply({
+        content: 'User not found in this guild.',
+        ephemeral: true,
+      });
+    }
+
+    // Get the list of roles to clear (or clear all roles except @everyone)
+    const rolesToClear = guildMember.roles.cache.filter(
+      (role) => role.id !== interaction.guild.id // Keep @everyone role
+    );
+
+    if (rolesToClear.size === 0) {
+      return interaction.reply({
+        content: 'This user has no roles to clear.',
+        ephemeral: true,
+      });
+    }
+
+    // Remove roles from the user
+    try {
+      await guildMember.roles.remove(rolesToClear);
+      return interaction.reply({
+        content: `Successfully cleared roles from ${guildMember.user.tag}.`,
+        ephemeral: true,
+      });
+    } catch (error) {
+      console.error('Error clearing roles:', error);
+      return interaction.reply({
+        content: 'An error occurred while clearing roles.',
+        ephemeral: true,
+      });
+    }
+  },
 };
