@@ -75,7 +75,7 @@ async function performSync(interaction, usersData) {
     "Shadow Spartans": "1297514305972998204",
     "Shadow Lumina": "1301315222073507860",
     "Shadow Eclipse": "1306716369533800479",
-    "Shadow Monarchs": "1297514413263159346",
+    "Shadow Monarch": "1297514413263159346",
     "Shadow Vanguard": "1297514368287768606",
     "Unaffiliated": "1325568167480918207",
     "Migrant": "1325565433348227212",
