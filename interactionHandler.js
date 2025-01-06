@@ -56,20 +56,20 @@ async function performSync(interaction, usersData) {
   };
 
   const allianceRoleIds = {
-    "Shadow Spartans": "1323850193312940104",
-    "Shadow Lumina": "1323849912508481617",
-    "Shadow Eclipse": "1323849911900442715",
-    "Shadow Monarchs": "1323849904161951794",
-    "Shadow Vanguard": "1323727567613595769",
+    "Shadow Spartans": "1297514305972998204",
+    "Shadow Lumina": "1301315222073507860",
+    "Shadow Eclipse": "1306716369533800479",
+    "Shadow Monarchs": "1297514413263159346",
+    "Shadow Vanguard": "1297514368287768606",
     "Unaffiliated": "1325568167480918207",
-    "Migrant": "1325568136543473772",
+    "Migrant": "1325565433348227212",
     "Academy / Farm": "",
     "Shadow Death": "",
-    "None": ""
+    "None": "1325567866073911400"
   };
 
-  const kingdomRoleId = "1324055858786861077"; // Kingdom role ID
-  const syncExclusionRoleId = "1325568100845883543"; // Sync-Exclusion role ID
+  const kingdomRoleId = "1310229163847974982"; // Kingdom role ID
+  const syncExclusionRoleId = "1325565234894733414"; // Sync-Exclusion role ID
   const statusMessages = [];
 
   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
