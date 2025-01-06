@@ -21,12 +21,12 @@ jobs:
         id: get_run_id
         run: |
           echo "Getting current run ID"
-          echo "::set-output name=run_id::$(gh run view --json databaseId -q '.databaseId')"
+          echo "run_id=$(gh run view --json databaseId -q '.databaseId')" >> $GITHUB_ENV
 
       - name: Cancel all previous runs
         run: |
           echo "Canceling previous runs"
-          current_run_id="${{ steps.get_run_id.outputs.run_id }}"
+          current_run_id="${{ env.run_id }}"
 
           # List all in-progress runs and cancel them, except the current run
           gh run list --status in_progress --json databaseId -q '.[].databaseId' | grep -v $current_run_id | xargs -I {} gh run cancel {}
