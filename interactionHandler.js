@@ -196,8 +196,14 @@ async function performSync(interaction, usersData, initialMessage) {
       }
     }
 
+    // Update the initial message with the latest processed users' information
+    const updatedMessage = statusMessages
+      .filter(msg => msg.roleId) // Only include successful role assignments
+      .map(msg => `* <@${msg.userId}>: \`${msg.message}\` <@&${msg.roleId}>`)
+      .join("\n");
+
     await initialMessage.edit({
-      content: `Processed ${i + batchSize} of ${usersData.length} users so far...`,
+      content: `Processing users... Current updates:\n${updatedMessage}`,
       ephemeral: true,
     });
 
