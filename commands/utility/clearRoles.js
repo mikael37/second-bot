@@ -4,7 +4,7 @@ const fs = require('fs');
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('clearroles')
-    .setDescription('Clears roles for users listed in a specified file.')
+    .setDescription('Clears specific roles for users listed in a specified file.')
     .addStringOption(option =>
       option
         .setName('file')
@@ -18,6 +18,20 @@ module.exports = {
     const members = await guild.members.fetch();
     const statusMessages = [];
     const syncExclusionRoleId = '1325565234894733414'; // Sync-Exclusion role ID
+
+    // Define the roles to be removed
+    const rolesToRemove = [
+      "1297514305972998204", // Shadow Spartans
+      "1301315222073507860", // Shadow Lumina
+      "1306716369533800479", // Shadow Eclipse
+      "1297514413263159346", // Shadow Monarchs
+      "1297514368287768606", // Shadow Vanguard
+      "1325568167480918207", // Unaffiliated
+      "1325565433348227212", // Migrant
+      "1325567866073911400", // None
+      "1310229163847974982", // Shadow Death (if it has an ID)
+      "", // Academy / Farm (no ID provided)
+    ];
 
     // If 'file' option is provided, read the file for user IDs
     let userIds = [];
@@ -51,20 +65,20 @@ module.exports = {
         continue;
       }
 
-      // Get roles to remove (excluding @everyone)
-      const rolesToClear = member.roles.cache.filter(
-        (role) => role.id !== interaction.guild.id // Exclude @everyone role
+      // Get the roles of the member to be removed (matching the provided list)
+      const rolesToRemoveFromMember = member.roles.cache.filter(role =>
+        rolesToRemove.includes(role.id) || (role.name === 'Academy / Farm' && role.id === '') // Special check for Academy / Farm with no ID
       );
 
-      if (rolesToClear.size === 0) {
-        statusMessages.push(`<@${id}> has no roles to clear.`);
+      if (rolesToRemoveFromMember.size === 0) {
+        statusMessages.push(`<@${id}> has no matching roles to clear.`);
         continue;
       }
 
       try {
-        // Remove roles from the member
-        await member.roles.remove(rolesToClear);
-        statusMessages.push(`Cleared roles for <@${id}>.`);
+        // Remove the specified roles from the member
+        await member.roles.remove(rolesToRemoveFromMember);
+        statusMessages.push(`Removed specified roles from <@${id}>.`);
       } catch (error) {
         console.error(`Failed to clear roles for <@${id}>:`, error);
         statusMessages.push(`Error clearing roles for <@${id}>.`);
