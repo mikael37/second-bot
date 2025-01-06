@@ -1,3 +1,58 @@
+const fs = require("fs");
+const clearRoles = require('./commands/utility/clearRoles');
+
+module.exports = async (interaction) => {
+  if (!interaction.isButton()) {
+    return;
+  }
+
+  const { customId } = interaction;
+
+  try {
+    if (customId === "confirmSync") {
+      await interaction.update({
+        content: "The database synchronization process is currently in progress. Please be patient as updates are applied.",
+        components: [],
+        ephemeral: true,
+      });
+
+      const usersData = JSON.parse(fs.readFileSync("userData.json"));
+      console.log("Starting the synchronization process...");
+      await performSync(interaction, usersData);
+    } else if (customId === "cancelSync") {
+      await interaction.update({
+        content: `The synchronization operation has been canceled at the request of <@${interaction.user.id}>. No further changes have been made.`,
+        components: [],
+        ephemeral: true,
+      });
+
+      console.log(`Sync operation canceled by ${interaction.user.tag}.`);
+    } else if (customId === "clearRoles") {
+      // Handle the clearRoles button interaction
+      await interaction.update({
+        content: "The process of clearing roles is starting. Please wait...",
+        components: [],
+        ephemeral: true,
+      });
+
+      console.log("Starting the role removal process...");
+      await clearRoles(); // Trigger the clearRoles function
+      await interaction.followUp({
+        content: "Roles have been successfully cleared from the specified users.",
+        ephemeral: true,
+      });
+    }
+  } catch (error) {
+    console.error("Error processing interaction:", error);
+    if (!interaction.replied && !interaction.deferred) {
+      await interaction.reply({
+        content: "An error occurred while processing the interaction.",
+        ephemeral: true,
+      });
+    }
+  }
+};
+
 async function performSync(interaction, usersData) {
   const guild = interaction.guild;
   const members = await guild.members.fetch();
@@ -33,6 +88,41 @@ async function performSync(interaction, usersData) {
   const statusMessages = [];
   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+  async function sendChunks(interaction, messages) {
+    const chunkSize = 2000;
+    let messageChunk = '';
+
+    for (let i = 0; i < messages.length; i++) {
+      if (messageChunk.length + messages[i].length > chunkSize) {
+        // Send the current chunk
+        await interaction.followUp({ content: messageChunk, ephemeral: true });
+        // Reset the chunk
+        messageChunk = '';
+      }
+
+      messageChunk += messages[i] + '\n';
+
+      // If it's the last message, send it even if it exceeds the chunk limit
+      if (i === messages.length - 1) {
+        await interaction.followUp({ content: messageChunk, ephemeral: true });
+      }
+    }
+  }
+
+  async function safeCall(promiseFn, retries = 3) {
+    for (let i = 0; i < retries; i++) {
+      try {
+        return await promiseFn();
+      } catch (error) {
+        if (i === retries - 1) {
+          throw error;
+        }
+        console.error("Retrying due to error:", error);
+        await delay(100);
+      }
+    }
+  }
+
   await interaction.editReply({
     content: "Proceeding to rename users and assign new roles.",
     ephemeral: true,
@@ -56,28 +146,24 @@ async function performSync(interaction, usersData) {
         const newNickname = `[${prefix}] ${user.inGameUsername}`;
         await member.setNickname(newNickname);
 
-        const roleId = allianceRoleIds[user.alliance];
-        
-        // Check if the role ID is empty or not
-        if (roleId === "") {
-          // If no role ID for this alliance, only assign Kingdom role
+        const roleId = allianceRoleIds[user.alliance] || ""; // Fetch role ID for the alliance
+        if (!roleId) {
+          // Assign only the Kingdom role if no role ID exists for the alliance
           if (!member.roles.cache.has(kingdomRoleId)) {
             await member.roles.add(kingdomRoleId);
             statusMessages.push(`User: <@${member.user.id}> has been assigned the Kingdom role only.`);
           }
         } else {
-          // If role ID exists, assign the alliance role and possibly the Kingdom role
+          // Assign alliance role and Kingdom role
           await member.roles.add(roleId);
-          
-          // Only add kingdom role if the user does not have the "Migrant" or "Unaffiliated" role
+
+          // Check and add Kingdom role only if not excluded
           const hasMigrantRole = member.roles.cache.has(allianceRoleIds["Migrant"]);
           if (!hasMigrantRole) {
             await member.roles.add(kingdomRoleId);
           }
-
           statusMessages.push(`User: <@${member.user.id}> has been successfully renamed and assigned <@&${roleId}>`);
         }
-
       } catch (userError) {
         console.error(`Error updating ${user.discordId}:`, userError);
         statusMessages.push(`An error occurred while updating the user with ID <@${user.discordId}>.`);
