@@ -91,7 +91,7 @@ module.exports = {
         } catch (error) {
           console.error("Error deleting reply:", error);
         }
-      }, 10000); // 10 seconds timer
+      }, 100); // 10 seconds timer
 
     } catch (error) {
       console.error("An error occurred during user information logging:", error);
