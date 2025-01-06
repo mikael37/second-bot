@@ -86,33 +86,31 @@ async function performSync(interaction, usersData) {
   const kingdomRoleId = "1310229163847974982"; // Kingdom role ID
   const syncExclusionRoleId = "1325565234894733414"; // Sync-Exclusion role ID
   const statusMessages = [];
-  const errorMessages = [];
   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
   async function sendChunks(interaction, messages) {
     const chunkSize = 2000;
     let messageChunk = '';
-  
+
     for (let i = 0; i < messages.length; i++) {
-      // Format the message by ensuring we have correct userId and roleId
+      // Format the message properly with userId, message, and roleId
       const formattedMessage = `* <@${messages[i].userId}>: \`${messages[i].message}\` <@&${messages[i].roleId}>`;
-  
+
       if (messageChunk.length + formattedMessage.length > chunkSize) {
         // Send the current chunk
         await interaction.followUp({ content: messageChunk, ephemeral: true });
         // Reset the chunk
         messageChunk = '';
       }
-  
+
       messageChunk += `${formattedMessage}\n`;
-  
+
       // If it's the last message, send it even if it exceeds the chunk limit
       if (i === messages.length - 1 && messageChunk.trim() !== '') {
         await interaction.followUp({ content: messageChunk, ephemeral: true });
       }
     }
   }
-  
 
   async function safeCall(promiseFn, retries = 3) {
     for (let i = 0; i < retries; i++) {
@@ -142,7 +140,11 @@ async function performSync(interaction, usersData) {
     for (const user of batch) {
       const member = members.get(user.discordId);
       if (!member || member.user.bot || member.id === guild.ownerId || member.roles.cache.has(syncExclusionRoleId)) {
-        errorMessages.push(`- <@${user.discordId}>: Could not locate or is excluded.`);
+        statusMessages.push({
+          userId: user.discordId,
+          message: "Could not be located or excluded",
+          roleId: "", // No role assigned
+        });
         continue;
       }
 
@@ -151,27 +153,47 @@ async function performSync(interaction, usersData) {
         const newNickname = `[${prefix}] ${user.inGameUsername}`;
         await member.setNickname(newNickname);
 
-        const roleId = allianceRoleIds[user.alliance] || ""; // Fetch role ID for the alliance
-        if (!roleId) {
-          // Assign only the Kingdom role if no role ID exists for the alliance
+        const specialAlliances = ["Academy / Farm", "Shadow Death", "Unaffiliated", "Migrant", "None"];
+        if (specialAlliances.includes(user.alliance)) {
+          // Assign only the Kingdom role
           if (!member.roles.cache.has(kingdomRoleId)) {
             await member.roles.add(kingdomRoleId);
-            statusMessages.push(`* <@${member.user.id}>: Assigned Kingdom role only.`);
+            statusMessages.push({
+              userId: member.user.id,
+              message: "Renamed and assigned",
+              roleId: kingdomRoleId,
+            });
           }
         } else {
-          // Assign alliance role and Kingdom role
-          await member.roles.add(roleId);
+          const roleId = allianceRoleIds[user.alliance];
+          if (roleId) {
+            await member.roles.add(roleId);
 
-          // Check and add Kingdom role only if not excluded
-          const hasMigrantRole = member.roles.cache.has(allianceRoleIds["Migrant"]);
-          if (!hasMigrantRole) {
-            await member.roles.add(kingdomRoleId);
+            // Only add kingdom role if the user does not have the "Migrant" or "Unaffiliated" role
+            if (!member.roles.cache.has(allianceRoleIds["Migrant"]) && !member.roles.cache.has(allianceRoleIds["Unaffiliated"])) {
+              await member.roles.add(kingdomRoleId);
+            }
+
+            statusMessages.push({
+              userId: member.user.id,
+              message: "Renamed and assigned",
+              roleId: roleId,
+            });
+          } else {
+            statusMessages.push({
+              userId: member.user.id,
+              message: "Alliance role not found in database, assignment skipped",
+              roleId: "",
+            });
           }
-          statusMessages.push(`* <@${member.user.id}>: Renamed and assigned <@&${roleId}>.`);
         }
       } catch (userError) {
         console.error(`Error updating ${user.discordId}:`, userError);
-        errorMessages.push(`- <@${user.discordId}>: Role assignment error.`);
+        statusMessages.push({
+          userId: user.discordId,
+          message: "Error occurred during update",
+          roleId: "",
+        });
       }
     }
 
@@ -184,20 +206,6 @@ async function performSync(interaction, usersData) {
   }
 
   console.log("Sync complete, sending final message...");
-  // Send status messages
+  // Break status messages into smaller chunks to avoid exceeding Discord's limit
   await sendChunks(interaction, statusMessages);
-
-  // Send error messages
-  if (errorMessages.length > 0) {
-    await interaction.followUp({
-      content: `**Error Report**\n\`\`\`\n${errorMessages.join("\n")}\n\`\`\``,
-      ephemeral: true,
-    });
-  }
-
-  // Final Summary Report
-  await interaction.followUp({
-    content: `**Synchronization Complete**\n\n**Summary:**\n- Total Users Processed: ${usersData.length}\n- Successful Updates: ${statusMessages.length}\n- Errors: ${errorMessages.length}\n`,
-    ephemeral: true,
-  });
 }
