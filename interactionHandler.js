@@ -45,6 +45,7 @@ module.exports = async (interaction) => {
 };
 
 // Function to perform the sync operation
+// Function to perform the sync operation
 async function performSync(interaction, usersData) {
   const guild = interaction.guild;
   const members = await guild.members.fetch();
@@ -69,7 +70,7 @@ async function performSync(interaction, usersData) {
     "Shadow Death": "1325568167480918207",
   };
 
-  const kingdomRoleId = "1324055858786861077";
+  const kingdomRoleId = "1324055858786861077";  // Kingdom role ID
   const statusMessages = [];
 
   // Send initial progress update
@@ -95,8 +96,16 @@ async function performSync(interaction, usersData) {
       const roleId = allianceRoleIds[user.alliance];
       if (roleId) {
         await member.roles.add(roleId);
-        await member.roles.add(kingdomRoleId);
-        statusMessages.push(`User: <@${member.user.id}> has been successfully renamed and assigned <@&${allianceRoleIds[user.alliance]}>`);
+        
+        // Only add kingdom role if the user does not have the "Migrant" or "Unaffiliated" role
+        const hasMigrantRole = member.roles.cache.has(allianceRoleIds["Migrant"]);
+        const hasUnaffiliatedRole = member.roles.cache.has(allianceRoleIds["Unaffiliated"]);
+        
+        if (!hasMigrantRole && !hasUnaffiliatedRole) {
+          await member.roles.add(kingdomRoleId);
+        }
+
+        statusMessages.push(`User: <@${member.user.id}> has been successfully renamed and assigned <@&${roleId}>`);
       } else {
         statusMessages.push(`The alliance role '${user.alliance}' was not found in the database. The role assignment for this user has been skipped.`);
       }
