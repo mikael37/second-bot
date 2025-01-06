@@ -27,6 +27,8 @@ module.exports = {
       "1324055858786861077"
     ];
 
+    const syncExclusionRoleId = "1325565234894733414"; // Sync-Exclusion role ID
+
     const guild = interaction.guild;
     const members = await guild.members.fetch(); // Fetch all members in the guild
     const statusMessages = [];
@@ -54,8 +56,11 @@ module.exports = {
     await interaction.followUp({ content: "Starting to remove roles...", ephemeral: true });
 
     for (const member of members.values()) {
-      // Skip members not in the file if 'file' option is used
-      if (userIds.length > 0 && !userIds.includes(member.id)) {
+      // Skip members not in the file if 'file' option is used or those with the Sync-Exclusion role
+      if (
+        userIds.length > 0 && !userIds.includes(member.id) ||
+        member.roles.cache.has(syncExclusionRoleId) // Skip if member has the Sync-Exclusion role
+      ) {
         continue;
       }
 
