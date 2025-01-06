@@ -39,6 +39,7 @@ module.exports = {
       try {
         const fileContent = fs.readFileSync("usernames.txt", "utf-8");
         userIds = fileContent.split(/\s+/).filter(Boolean); // Split by whitespace and filter out empty strings
+        console.log("User IDs from file:", userIds); // Debug log for user IDs
       } catch (error) {
         console.error("Error reading usernames.txt:", error);
         await interaction.editReply({
@@ -58,7 +59,7 @@ module.exports = {
     for (const member of members.values()) {
       // Skip members not in the file if 'file' option is used or those with the Sync-Exclusion role
       if (
-        userIds.length > 0 && !userIds.includes(member.id) ||
+        userIds.length > 0 && !userIds.includes(member.id.toString()) || // Ensure both IDs are strings
         member.roles.cache.has(syncExclusionRoleId) // Skip if member has the Sync-Exclusion role
       ) {
         continue;
