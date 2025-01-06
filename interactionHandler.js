@@ -5,36 +5,30 @@ module.exports = async (interaction) => {
     return;
   }
 
-  const { customId } = interaction; // Extract customId from the interaction
+  const { customId } = interaction;
 
   try {
     if (customId === "confirmSync") {
-      // Proceed with syncing the database
       await interaction.update({
         content: "The database synchronization process is currently in progress. Please be patient as updates are applied.",
-        components: [], // Remove buttons after confirmation
+        components: [],
         ephemeral: true,
       });
 
-      // Get user data from JSON file
       const usersData = JSON.parse(fs.readFileSync("userData.json"));
-
-      // Perform the sync operation
-      console.log("Starting the synchronization process..."); // Added logging
+      console.log("Starting the synchronization process...");
       await performSync(interaction, usersData);
-
     } else if (customId === "cancelSync") {
-      // Cancel the sync operation
       await interaction.update({
-        content: "The synchronization operation has been canceled at the request of <@" + interaction.user.id + ">. No further changes have been made.",
-        components: [], // Remove buttons after cancellation
+        content: `The synchronization operation has been canceled at the request of <@${interaction.user.id}>. No further changes have been made.`,
+        components: [],
         ephemeral: true,
       });
 
       console.log(`Sync operation canceled by ${interaction.user.tag}.`);
     }
   } catch (error) {
-    console.error("Error processing interaction:", error); // More detailed logging
+    console.error("Error processing interaction:", error);
     if (!interaction.replied && !interaction.deferred) {
       await interaction.reply({
         content: "An error occurred while processing the interaction.",
@@ -74,72 +68,93 @@ async function performSync(interaction, usersData) {
     "None": ""
   };
 
-  const kingdomRoleId = "1324055858786861077";  // Kingdom role ID
+  const kingdomRoleId = "1324055858786861077"; // Kingdom role ID
   const syncExclusionRoleId = "1325568100845883543"; // Sync-Exclusion role ID
   const statusMessages = [];
 
-  // Send initial progress update
+  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  async function safeCall(promiseFn, retries = 3) {
+    for (let i = 0; i < retries; i++) {
+      try {
+        return await promiseFn();
+      } catch (error) {
+        if (i === retries - 1) {
+          throw error;
+        }
+        console.error("Retrying due to error:", error);
+        await delay(1000);
+      }
+    }
+  }
+
   await interaction.editReply({
     content: "Proceeding to rename users and assign new roles.",
     ephemeral: true,
   });
 
-  // Proceed with syncing (nickname changes and role assignments)
-  console.log("Assigning roles and renaming users..."); // Added logging
-  for (const user of usersData) {
-    const member = members.get(user.discordId);
-    if (!member) {
-      statusMessages.push(`The user with ID <@${user.discordId}> could not be located within the guild's members.`);
-      continue;
-    }
+  console.log("Assigning roles and renaming users...");
+  const batchSize = 10; // Process 10 users at a time
 
-    // Check if the user has the Sync-Exclusion role
-    if (member.roles.cache.has(syncExclusionRoleId)) {
-      statusMessages.push(`User <@${member.user.id}> has the Sync-Exclusion role and is excluded from the sync process.`);
-      continue;
-    }
+  for (let i = 0; i < usersData.length; i += batchSize) {
+    const batch = usersData.slice(i, i + batchSize);
 
-    try {
-      const prefix = alliancePrefixes[user.alliance] || "";
-      const newNickname = `[${prefix}] ${user.inGameUsername}`;
-      await member.setNickname(newNickname);
-
-      // Special case for users in "Migrant", "Academy / Farm", or "Shadow Death" alliances
-      const specialAlliances = ["Migrant", "Academy / Farm", "Shadow Death", "None"];
-      if (specialAlliances.includes(user.alliance)) {
-        // Assign only the Kingdom role
-        if (!member.roles.cache.has(kingdomRoleId)) {
-          await member.roles.add(kingdomRoleId);
-          statusMessages.push(`User: <@${member.user.id}> has been assigned the Kingdom role only.`);
-        }
-      } else {
-        const roleId = allianceRoleIds[user.alliance];
-        if (roleId) {
-          await member.roles.add(roleId);
-          
-          // Only add kingdom role if the user does not have the "Migrant" or "Unaffiliated" role
-          const hasMigrantRole = member.roles.cache.has(allianceRoleIds["Migrant"]);
-
-          if (!hasMigrantRole) {
-            await member.roles.add(kingdomRoleId);
-          }
-
-          statusMessages.push(`User: <@${member.user.id}> has been successfully renamed and assigned <@&${roleId}>`);
-        } else {
-          statusMessages.push(`The alliance role '${user.alliance}' was not found in the database. The role assignment for this user has been skipped.`);
-        }
+    for (const user of batch) {
+      const member = members.get(user.discordId);
+      if (!member) {
+        statusMessages.push(`The user with ID <@${user.discordId}> could not be located within the guild's members.`);
+        continue;
       }
-    } catch (userError) {
-      console.error(`Error updating ${user.discordId}:`, userError);
-      statusMessages.push(`An error occurred while updating the user with ID <@${user.discordId}>.`);
+
+      if (member.roles.cache.has(syncExclusionRoleId)) {
+        statusMessages.push(`User <@${member.user.id}> has the Sync-Exclusion role and is excluded from the sync process.`);
+        continue;
+      }
+
+      try {
+        const prefix = alliancePrefixes[user.alliance] || "";
+        const newNickname = `[${prefix}] ${user.inGameUsername}`;
+
+        await safeCall(() => member.setNickname(newNickname));
+
+        const specialAlliances = ["Migrant", "Academy / Farm", "Shadow Death", "None"];
+        if (specialAlliances.includes(user.alliance)) {
+          if (!member.roles.cache.has(kingdomRoleId)) {
+            await safeCall(() => member.roles.add(kingdomRoleId));
+            statusMessages.push(`User: <@${member.user.id}> has been assigned the Kingdom role only.`);
+          }
+        } else {
+          const roleId = allianceRoleIds[user.alliance];
+          if (roleId) {
+            await safeCall(() => member.roles.add(roleId));
+
+            const hasMigrantRole = member.roles.cache.has(allianceRoleIds["Migrant"]);
+            if (!hasMigrantRole) {
+              await safeCall(() => member.roles.add(kingdomRoleId));
+            }
+
+            statusMessages.push(`User: <@${member.user.id}> has been successfully renamed and assigned <@&${roleId}>.`);
+          } else {
+            statusMessages.push(`The alliance role '${user.alliance}' was not found in the database. Role assignment skipped.`);
+          }
+        }
+      } catch (userError) {
+        console.error(`Error updating ${user.discordId}:`, userError);
+        statusMessages.push(`An error occurred while updating the user with ID <@${user.discordId}>.`);
+      }
     }
+
+    await interaction.editReply({
+      content: `Processed ${i + batch.length} of ${usersData.length} users so far...`,
+      ephemeral: true,
+    });
+
+    await delay(1000); // Delay between batches to avoid hitting rate limits
   }
 
-  // Send the final status message (ephemeral)
-  console.log("Sync complete, sending final message..."); // Added logging
+  console.log("Sync complete, sending final message...");
   await interaction.editReply({
     content: statusMessages.join("\n"),
     ephemeral: true,
   });
 }
-
