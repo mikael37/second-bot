@@ -45,7 +45,6 @@ module.exports = async (interaction) => {
 };
 
 // Function to perform the sync operation
-// Function to perform the sync operation
 async function performSync(interaction, usersData) {
   const guild = interaction.guild;
   const members = await guild.members.fetch();
@@ -56,6 +55,11 @@ async function performSync(interaction, usersData) {
     "Shadow Eclipse": "SE",
     "Shadow Monarchs": "SC",
     "Shadow Vanguard": "SV",
+    "Unaffiliated": "",
+    "Migrant": "MGR",
+    "Academy / Farm": "",
+    "Shadow Death": "SD",
+    "None": ""
   };
 
   const allianceRoleIds = {
@@ -64,10 +68,12 @@ async function performSync(interaction, usersData) {
     "Shadow Eclipse": "1323849911900442715",
     "Shadow Monarchs": "1323849904161951794",
     "Shadow Vanguard": "1323727567613595769",
+
     "Unaffiliated": "1325568167480918207",
     "Migrant": "1325568136543473772",
-    "Academy": "1325568167480918207",
+    "Academy / Farm": "1325653633118896198",
     "Shadow Death": "1325568167480918207",
+    "None": ""
   };
 
   const kingdomRoleId = "1324055858786861077";  // Kingdom role ID
@@ -99,7 +105,6 @@ async function performSync(interaction, usersData) {
         
         // Only add kingdom role if the user does not have the "Migrant" or "Unaffiliated" role
         const hasMigrantRole = member.roles.cache.has(allianceRoleIds["Migrant"]);
-        const hasUnaffiliatedRole = member.roles.cache.has(allianceRoleIds["Unaffiliated"]);
         
         if (!hasMigrantRole && !hasUnaffiliatedRole) {
           await member.roles.add(kingdomRoleId);

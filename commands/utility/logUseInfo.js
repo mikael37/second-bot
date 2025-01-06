@@ -17,7 +17,7 @@ module.exports = {
 
       // Send a reply to indicate the process has started
       const replyMessage = await interaction.reply({
-        content: "Logging user information, please wait...",
+        content: "The process of logging user information has been initiated. Please stand by...",
         fetchReply: true, // Fetch the reply message to later delete it
       });
 
@@ -34,7 +34,7 @@ module.exports = {
         });
 
         if (!member) {
-          logMessages.push(`User with ID <@${user.discordId}> could not be found in the server.`);
+          logMessages.push(`The user with ID <@${user.discordId}> could not be located in the server.`);
           continue;
         }
 
@@ -65,7 +65,8 @@ module.exports = {
 
       // Edit the initial message to indicate completion
       await replyMessage.edit({
-        content: "User information logging complete! Check the specified channel for the logs.",
+        content: "User information logging has been completed. The logs have been successfully shared in the specified channel.",
+        ephemeral: true,
       });
 
       // Delete the message after 10 seconds
@@ -78,9 +79,9 @@ module.exports = {
       }, 10000); // 10 seconds timer
 
     } catch (error) {
-      console.error("Error logging user information:", error);
+      console.error("An error occurred during user information logging:", error);
       await interaction.editReply({
-        content: "An error occurred while processing the command.",
+        content: "An unexpected error occurred while processing the command. Please try again later.",
         ephemeral: true,
       });
     }
