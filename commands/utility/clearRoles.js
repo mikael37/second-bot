@@ -29,7 +29,7 @@ module.exports = {
       "1325568167480918207", // Unaffiliated
       "1325565433348227212", // Migrant
       "1325567866073911400", // None
-      "1310229163847974982", // Shadow Death (if it has an ID)
+      "", // Shadow Death (if it has an ID)
       "", // Academy / Farm (no ID provided)
     ];
 
