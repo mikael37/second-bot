@@ -1,82 +1,84 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { SlashCommandBuilder } = require('discord.js');
 const fs = require('fs');
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('clearroles')
-    .setDescription('Clears roles from users listed in the userData.json file.')
+    .setDescription('Clears roles for users listed in a specified file.')
     .addStringOption(option =>
-      option.setName('file')
-        .setDescription('The path to the JSON file with Discord IDs to clear roles from.')
-        .setRequired(true)), // File argument is required
+      option
+        .setName('file')
+        .setDescription("Specify 'file' to only clear roles for users listed in usernames.txt.")
+        .setRequired(false)
+    ),
+
   async execute(interaction) {
-    // Check if the user has the correct permissions
-    if (!interaction.member.permissions.has('MANAGE_ROLES')) {
-      return interaction.reply({
-        content: 'You do not have permission to manage roles.',
-        ephemeral: true,
-      });
-    }
+    const useFile = interaction.options.getString('file');
+    const guild = interaction.guild;
+    const members = await guild.members.fetch();
+    const statusMessages = [];
+    const syncExclusionRoleId = '1325565234894733414'; // Sync-Exclusion role ID
 
-    // Get the file path from the options
-    const filePath = interaction.options.getString('file');
-
-    // Check if the file exists and parse the data
-    let userData;
-    try {
-      userData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-    } catch (error) {
-      return interaction.reply({
-        content: 'There was an error reading the file or parsing its content.',
-        ephemeral: true,
-      });
-    }
-
-    // Get the guild members
-    const guildMembers = await interaction.guild.members.fetch();
-    const roleRemovalPromises = [];
-    const failedUsers = [];
-
-    // Iterate through the userData (which should contain Discord IDs)
-    userData.forEach((user) => {
-      const guildMember = guildMembers.get(user.discordId);
-      if (!guildMember) {
-        failedUsers.push(user.discordId); // Add failed users to the list
+    // If 'file' option is provided, read the file for user IDs
+    let userIds = [];
+    if (useFile === 'file') {
+      try {
+        const fileContent = fs.readFileSync('usernames.txt', 'utf-8');
+        userIds = fileContent.split(/\s+/).filter(Boolean); // Split by whitespace and filter out empty strings
+      } catch (error) {
+        console.error('Error reading usernames.txt:', error);
+        await interaction.reply({
+          content: 'Failed to read usernames.txt. Ensure the file exists and is formatted correctly.',
+          ephemeral: true,
+        });
         return;
       }
+    }
 
-      // Filter out @everyone role
-      const rolesToClear = guildMember.roles.cache.filter(
+    await interaction.reply({
+      content: "Clearing roles... This may take some time for large servers.",
+      ephemeral: true,
+    });
+
+    for (const [id, member] of members) {
+      // Skip bots, the server owner, members with the Sync-Exclusion role, and members not in the file if 'file' option is used
+      if (
+        member.user.bot ||
+        id === guild.ownerId ||
+        member.roles.cache.has(syncExclusionRoleId) || // Skip if member has the Sync-Exclusion role
+        (userIds.length > 0 && !userIds.includes(id.toString())) // Ensure id is a string before checking
+      ) {
+        continue;
+      }
+
+      // Get roles to remove (excluding @everyone)
+      const rolesToClear = member.roles.cache.filter(
         (role) => role.id !== interaction.guild.id // Exclude @everyone role
       );
 
       if (rolesToClear.size === 0) {
-        failedUsers.push(user.discordId); // Add to failed list if no roles found
-      } else {
-        // Add role removal promise to the list
-        roleRemovalPromises.push(
-          guildMember.roles.remove(rolesToClear).catch((error) => {
-            console.error('Error clearing roles for', guildMember.user.tag, error);
-            failedUsers.push(user.discordId);
-          })
-        );
+        statusMessages.push(`<@${id}> has no roles to clear.`);
+        continue;
       }
-    });
 
-    // Wait for all role removals to complete
-    await Promise.all(roleRemovalPromises);
-
-    // Send a success/failure message
-    if (failedUsers.length > 0) {
-      return interaction.reply({
-        content: `Roles could not be cleared for the following users: ${failedUsers.join(', ')}`,
-        ephemeral: true,
-      });
+      try {
+        // Remove roles from the member
+        await member.roles.remove(rolesToClear);
+        statusMessages.push(`Cleared roles for <@${id}>.`);
+      } catch (error) {
+        console.error(`Failed to clear roles for <@${id}>:`, error);
+        statusMessages.push(`Error clearing roles for <@${id}>.`);
+      }
     }
 
-    return interaction.reply({
-      content: 'Roles have been successfully cleared from the specified users.',
+    await interaction.editReply({
+      content: `Role clearing completed.\n\n${statusMessages.slice(0, 10).join("\n")}${
+        statusMessages.length > 10 ? "\n...and more." : ""
+      }`,
       ephemeral: true,
     });
+
+    // Log remaining status messages (optional)
+    console.log(statusMessages.join("\n"));
   },
 };
