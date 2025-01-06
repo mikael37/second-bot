@@ -100,7 +100,7 @@ async function performSync(interaction, usersData) {
     }
 
     try {
-      const prefix = alliancePrefixes[user.alliance] || "XX";
+      const prefix = alliancePrefixes[user.alliance] || "";
       const newNickname = `[${prefix}] ${user.inGameUsername}`;
       await member.setNickname(newNickname);
 
