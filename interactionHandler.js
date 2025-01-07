@@ -34,7 +34,6 @@ module.exports = async (interaction) => {
 
       console.log(`Sync operation canceled by ${interaction.user.tag}.`);
     } else if (customId === "clearRoles") {
-      // Handle the clearRoles button interaction
       await interaction.update({
         content: "The process of clearing roles is starting. Please wait...",
         components: [],
@@ -42,7 +41,7 @@ module.exports = async (interaction) => {
       });
 
       console.log("Starting the role removal process...");
-      await clearRoles(); // Trigger the clearRoles function
+      await clearRoles();
       await interaction.followUp({
         content: "Roles have been successfully cleared from the specified users.",
         ephemeral: true,
@@ -98,23 +97,21 @@ async function performSync(interaction, usersData, initialMessage) {
   async function sendChunks(interaction, messages) {
     const chunkSize = 2000; // Discord's character limit
     let currentChunk = [];
-  
+
     for (const message of messages) {
       const formattedMessage = `* <@${message.userId}>: \`${message.message}\` <@&${message.roleId}>`;
-  
+
       if (currentChunk.join("\n").length + formattedMessage.length > chunkSize) {
-        // Send the current chunk and reset it
         await interaction.followUp({
           content: currentChunk.join("\n"),
           ephemeral: true,
         });
         currentChunk = [];
       }
-  
+
       currentChunk.push(formattedMessage);
     }
-  
-    // Send any remaining messages in the final chunk
+
     if (currentChunk.length > 0) {
       await interaction.followUp({
         content: currentChunk.join("\n"),
@@ -137,11 +134,6 @@ async function performSync(interaction, usersData, initialMessage) {
     }
   }
 
-  await initialMessage.edit({
-    content: `Processed ${statusMessages.length} users so far...`,
-    ephemeral: true,
-  });
-
   console.log("Assigning roles and renaming users...");
   const batchSize = 10; // Process 10 users at a time
 
@@ -162,7 +154,6 @@ async function performSync(interaction, usersData, initialMessage) {
 
         const specialAlliances = ["Academy / Farm", "Shadow Death", "Unaffiliated", "Migrant", "None"];
         if (specialAlliances.includes(user.alliance)) {
-          // Assign only the Kingdom role
           if (!member.roles.cache.has(kingdomRoleId)) {
             await member.roles.add(kingdomRoleId);
             statusMessages.push({
@@ -176,7 +167,6 @@ async function performSync(interaction, usersData, initialMessage) {
           if (roleId) {
             await member.roles.add(roleId);
 
-            // Only add kingdom role if the user does not have the "Migrant" or "Unaffiliated" role
             if (!member.roles.cache.has(allianceRoleIds["Migrant"]) && !member.roles.cache.has(allianceRoleIds["Unaffiliated"])) {
               await member.roles.add(kingdomRoleId);
             }
@@ -200,21 +190,44 @@ async function performSync(interaction, usersData, initialMessage) {
       }
     }
 
-    // Update the initial message with the latest processed users' information
-    const updatedMessage = statusMessages
-      .filter(msg => msg.roleId) // Only include successful role assignments
-      .map(msg => `* <@${msg.userId}>: \`${msg.message}\` <@&${msg.roleId}>`)
-      .join("\n");
+    const updatedChunks = [];
+    let currentChunk = '';
 
-    await initialMessage.edit({
-      content: `Processing users... Current updates:\n${updatedMessage}`,
-      ephemeral: true,
+    statusMessages.forEach(msg => {
+      const formattedMessage = `* <@${msg.userId}>: \`${msg.message}\` <@&${msg.roleId}>\n`;
+      if (currentChunk.length + formattedMessage.length > 2000) {
+        updatedChunks.push(currentChunk.trim());
+        currentChunk = '';
+      }
+      currentChunk += formattedMessage;
     });
 
-    await delay(100); // Delay between batches to avoid hitting rate limits
+    if (currentChunk) {
+      updatedChunks.push(currentChunk.trim());
+    }
+
+    if (updatedChunks.length > 0) {
+      await initialMessage.edit({
+        content: `Processing users... Current updates:\n${updatedChunks[0]}`,
+        ephemeral: true,
+      });
+
+      for (let i = 1; i < updatedChunks.length; i++) {
+        await interaction.followUp({
+          content: updatedChunks[i],
+          ephemeral: true,
+        });
+      }
+    } else {
+      await initialMessage.edit({
+        content: `No updates to process.`,
+        ephemeral: true,
+      });
+    }
+
+    await delay(100);
   }
 
   console.log("Sync complete, sending final message...");
-  // Break status messages into smaller chunks to avoid exceeding Discord's limit
   await sendChunks(interaction, statusMessages);
 }
