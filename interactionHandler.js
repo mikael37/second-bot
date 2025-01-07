@@ -96,26 +96,30 @@ async function performSync(interaction, usersData, initialMessage) {
   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
   async function sendChunks(interaction, messages) {
-    const chunkSize = 2000;
-    let messageChunk = '';
-
-    for (let i = 0; i < messages.length; i++) {
-      // Format the message properly with userId, message, and roleId
-      const formattedMessage = `* <@${messages[i].userId}>: \`${messages[i].message}\` <@&${messages[i].roleId}>`;
-
-      if (messageChunk.length + formattedMessage.length > chunkSize) {
-        // Send the current chunk
-        await interaction.followUp({ content: messageChunk, ephemeral: true });
-        // Reset the chunk
-        messageChunk = '';
+    const chunkSize = 2000; // Discord's character limit
+    let currentChunk = [];
+  
+    for (const message of messages) {
+      const formattedMessage = `* <@${message.userId}>: \`${message.message}\` <@&${message.roleId}>`;
+  
+      if (currentChunk.join("\n").length + formattedMessage.length > chunkSize) {
+        // Send the current chunk and reset it
+        await interaction.followUp({
+          content: currentChunk.join("\n"),
+          ephemeral: true,
+        });
+        currentChunk = [];
       }
-
-      messageChunk += `${formattedMessage}\n`;
-
-      // If it's the last message, send it even if it exceeds the chunk limit
-      if (i === messages.length - 1 && messageChunk.trim() !== '') {
-        await interaction.followUp({ content: messageChunk, ephemeral: true });
-      }
+  
+      currentChunk.push(formattedMessage);
+    }
+  
+    // Send any remaining messages in the final chunk
+    if (currentChunk.length > 0) {
+      await interaction.followUp({
+        content: currentChunk.join("\n"),
+        ephemeral: true,
+      });
     }
   }
 
