@@ -135,7 +135,7 @@ async function performSync(interaction, usersData, initialMessage) {
   }
 
   console.log("Assigning roles and renaming users...");
-  const batchSize = 10; // Process 10 users at a time
+  const batchSize = 3; // Process 10 users at a time
 
   for (let i = 0; i < usersData.length; i += batchSize) {
     const batch = usersData.slice(i, i + batchSize);
