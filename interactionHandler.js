@@ -138,7 +138,7 @@ async function performSync(interaction, usersData, initialMessage) {
   }
 
   await initialMessage.edit({
-    content: "Proceeding to rename users and assign new roles. Updates will be sent here.",
+    content: `Processed ${statusMessages.length} users so far...`,
     ephemeral: true,
   });
 
