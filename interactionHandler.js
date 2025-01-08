@@ -68,11 +68,11 @@ async function performSync(interaction, usersData, initialMessage) {
     "Shadow Eclipse": "SE",
     "Shadow Monarchs": "SC",
     "Shadow Vanguard": "SV",
-    "Unaffiliated": "",
-    "Migrant": "MIGRANT",
+    "No Association": "",
+    "Registered Migrant": "MIGRANT",
     "Academy / Farm": "",
     "Shadow Death": "SD",
-    "None": ""
+    "No Association": ""
   };
 
   const allianceRoleIds = {
