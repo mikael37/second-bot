@@ -81,11 +81,11 @@ async function performSync(interaction, usersData, initialMessage) {
     "Shadow Eclipse": "1306716369533800479",
     "Shadow Monarchs": "1297514413263159346",
     "Shadow Vanguard": "1297514368287768606",
-    "Unaffiliated": "",
-    "Migrant": "1325565433348227212",
+    "Unrecognized Alliance": "",
+    "Registered Migrant": "1325565433348227212",
     "Academy / Farm": "",
     "Shadow Death": "",
-    "None": ""
+    "No Association": ""
   };
 
   const kingdomRoleId = "1310229163847974982"; // Kingdom role ID
