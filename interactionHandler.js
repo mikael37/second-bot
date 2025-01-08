@@ -120,22 +120,8 @@ async function performSync(interaction, usersData, initialMessage) {
     }
   }
 
-  async function safeCall(promiseFn, retries = 3) {
-    for (let i = 0; i < retries; i++) {
-      try {
-        return await promiseFn();
-      } catch (error) {
-        if (i === retries - 1) {
-          throw error;
-        }
-        console.error("Retrying due to error:", error);
-        await delay(100);
-      }
-    }
-  }
-
   console.log("Assigning roles and renaming users...");
-  const batchSize = 3; // Process 10 users at a time
+  const batchSize = 3; // Process 3 users at a time
 
   for (let i = 0; i < usersData.length; i += batchSize) {
     const batch = usersData.slice(i, i + batchSize);
@@ -152,13 +138,13 @@ async function performSync(interaction, usersData, initialMessage) {
         const newNickname = `[${prefix}] ${user.inGameUsername}`;
         await member.setNickname(newNickname);
 
-        const specialAlliances = ["Academy / Farm", "Shadow Death", "Unaffiliated", "Migrant", "None"];
-        if (specialAlliances.includes(user.alliance)) {
+        if (user.alliance === "None" || user.alliance === "Academy / Farm") {
+          // Assign only the Kingdom role
           if (!member.roles.cache.has(kingdomRoleId)) {
             await member.roles.add(kingdomRoleId);
             statusMessages.push({
               userId: member.user.id,
-              message: "Renamed and assigned",
+              message: "Renamed and assigned Kingdom role only",
               roleId: kingdomRoleId,
             });
           }
@@ -231,3 +217,4 @@ async function performSync(interaction, usersData, initialMessage) {
   console.log("Sync complete, sending final message...");
   await sendChunks(interaction, statusMessages);
 }
+
