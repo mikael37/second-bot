@@ -94,32 +94,6 @@ async function performSync(interaction, usersData, initialMessage) {
   const excludedUsers = [];
   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-  async function sendChunks(interaction, messages) {
-    const chunkSize = 2000; // Discord's character limit
-    let currentChunk = [];
-
-    for (const message of messages) {
-      const formattedMessage = `* <@${message.userId}>: \`${message.message}\` <@&${message.roleId}>`;
-
-      if (currentChunk.join("\n").length + formattedMessage.length > chunkSize) {
-        await interaction.followUp({
-          content: currentChunk.join("\n"),
-          ephemeral: true,
-        });
-        currentChunk = [];
-      }
-
-      currentChunk.push(formattedMessage);
-    }
-
-    if (currentChunk.length > 0) {
-      await interaction.followUp({
-        content: currentChunk.join("\n"),
-        ephemeral: true,
-      });
-    }
-  }
-
   console.log("Assigning roles and renaming users...");
   const batchSize = 3; // Process 3 users at a time
 
@@ -138,13 +112,13 @@ async function performSync(interaction, usersData, initialMessage) {
         const newNickname = `[${prefix}] ${user.inGameUsername}`;
         await member.setNickname(newNickname);
 
-        if (user.alliance === "None" || user.alliance === "Academy / Farm") {
+        if (["None", "Academy / Farm", "Migrant"].includes(user.alliance)) {
           // Assign only the Kingdom role
           if (!member.roles.cache.has(kingdomRoleId)) {
             await member.roles.add(kingdomRoleId);
             statusMessages.push({
               userId: member.user.id,
-              message: "Renamed and assigned Kingdom role only",
+              message: `Renamed and assigned Kingdom role only (${user.alliance})`,
               roleId: kingdomRoleId,
             });
           }
@@ -176,45 +150,13 @@ async function performSync(interaction, usersData, initialMessage) {
       }
     }
 
-    const updatedChunks = [];
-    let currentChunk = '';
-
-    statusMessages.forEach(msg => {
-      const formattedMessage = `* <@${msg.userId}>: \`${msg.message}\` <@&${msg.roleId}>\n`;
-      if (currentChunk.length + formattedMessage.length > 2000) {
-        updatedChunks.push(currentChunk.trim());
-        currentChunk = '';
-      }
-      currentChunk += formattedMessage;
-    });
-
-    if (currentChunk) {
-      updatedChunks.push(currentChunk.trim());
-    }
-
-    if (updatedChunks.length > 0) {
-      await initialMessage.edit({
-        content: `Processing users... Current updates:\n${updatedChunks[0]}`,
-        ephemeral: true,
-      });
-
-      for (let i = 1; i < updatedChunks.length; i++) {
-        await interaction.followUp({
-          content: updatedChunks[i],
-          ephemeral: true,
-        });
-      }
-    } else {
-      await initialMessage.edit({
-        content: `No updates to process.`,
-        ephemeral: true,
-      });
-    }
-
     await delay(100);
   }
 
   console.log("Sync complete, sending final message...");
-  await sendChunks(interaction, statusMessages);
+  for (const msg of statusMessages) {
+    console.log(`Processed: ${msg.userId}, ${msg.message}`);
+  }
 }
+
 
