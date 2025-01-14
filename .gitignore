@@ -142,6 +142,4 @@ dist
 .eslintrc.json
 
 # Configuration
-.config.json
-
-"config/google.json" 
+config/google.json 

@@ -1,22 +1,132 @@
 [
-  {
-      "discordId": "676964144846733343",
-      "inGameUsername": "Smoke",
-      "alliance": "Shadow Spartans"
-  },
-  {
-      "discordId": "1252880935263801475",
-      "inGameUsername": "ZAN the GREAT",
-      "alliance": "Shadow Lumina"
-  },
-  {
-      "discordId": "886949941233221642",
-      "inGameUsername": "Smiley",
-      "alliance": "Shadow Lumina"
-  },
-  {
-      "discordId": "702806412908036097",
-      "inGameUsername": "NASTY",
-      "alliance": "Shadow Vanguard"
-  }
+    {
+        "discordId": "388300275569393665",
+        "inGameUsername": "Ultraman",
+        "alliance": "Shadow Spartans"
+    },
+    {
+        "discordId": "1327188118209560618",
+        "inGameUsername": "dec0y",
+        "alliance": "Shadow Spartans"
+    },
+    {
+        "discordId": "409865887676497924",
+        "inGameUsername": "Grugert",
+        "alliance": "Shadow Vanguard"
+    },
+    {
+        "discordId": "265196815966666763",
+        "inGameUsername": "Brotherrx",
+        "alliance": "Shadow Monarchs"
+    },
+    {
+        "discordId": "405216415348686864",
+        "inGameUsername": "Mattye",
+        "alliance": "Shadow Vanguard"
+    },
+    {
+        "discordId": "826210419793985586",
+        "inGameUsername": "ExEcutioner",
+        "alliance": "Shadow Monarchs"
+    },
+    {
+        "discordId": "1326052033563983956",
+        "inGameUsername": "MIKEY JR",
+        "alliance": "Shadow Monarchs"
+    },
+    {
+        "discordId": "788715269618401300",
+        "inGameUsername": "Mozes",
+        "alliance": "Shadow Monarchs"
+    },
+    {
+        "discordId": "1165238290304204862",
+        "inGameUsername": "Dirak",
+        "alliance": "Shadow Spartans"
+    },
+    {
+        "discordId": "490166014022254612",
+        "inGameUsername": "All Might",
+        "alliance": "Shadow Vanguard"
+    },
+    {
+        "discordId": "1025035820815613982",
+        "inGameUsername": "iPhovos",
+        "alliance": "Shadow Spartans"
+    },
+    {
+        "discordId": "131261732063674368",
+        "inGameUsername": "Vincenzo12",
+        "alliance": "Shadow Death"
+    },
+    {
+        "discordId": "236214293362638848",
+        "inGameUsername": "DeadWeight",
+        "alliance": "Shadow Monarchs"
+    },
+    {
+        "discordId": "676964144846733343",
+        "inGameUsername": "Smoke",
+        "alliance": "Shadow Spartans"
+    },
+    {
+        "discordId": "1252880935263801475",
+        "inGameUsername": "ZAN the GREAT",
+        "alliance": "Shadow Lumina"
+    },
+    {
+        "discordId": "886949941233221642",
+        "inGameUsername": "Smiley",
+        "alliance": "Shadow Lumina"
+    },
+    {
+        "discordId": "702806412908036097",
+        "inGameUsername": "NASTY",
+        "alliance": "Shadow Vanguard"
+    },
+    {
+        "discordId": "761773795618455562",
+        "inGameUsername": "RibmanII",
+        "alliance": "Unrecognized Alliance"
+    },
+    {
+        "discordId": "1064231663665692742",
+        "inGameUsername": "Azura",
+        "alliance": "Shadow Vanguard"
+    },
+    {
+        "discordId": "677759545644285974",
+        "inGameUsername": "Sifrins",
+        "alliance": "Shadow Lumina"
+    },
+    {
+        "discordId": "1311094105559797860",
+        "inGameUsername": "Lunarz",
+        "alliance": "Shadow Eclipse"
+    },
+    {
+        "discordId": "1103743950138917026",
+        "inGameUsername": "Rapsodia",
+        "alliance": "Shadow Lumina"
+    },
+    {
+        "discordId": "1284836697200136193",
+        "inGameUsername": "Letho",
+        "alliance": "Shadow Eclipse"
+    },
+    {
+        "discordId": "640223445615116328",
+        "inGameUsername": "ArxiDemon",
+        "alliance": "Shadow Lumina"
+    },
+    {
+        "discordId": "505473789526671380",
+        "inGameUsername": "GerDanny",
+        "alliance": "No Association"
+    },
+    {
+        "discordId": "1310434840407048225",
+        "inGameUsername": "Obito",
+        "alliance": "Shadow Spartans"
+    }
 ]
