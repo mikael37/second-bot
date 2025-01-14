@@ -144,3 +144,4 @@ dist
 # Configuration
 .config.json
 
+"config/google.json" 
