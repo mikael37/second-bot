@@ -1,67 +1,27 @@
 [
     {
-        "discordId": "1064231663665692742",
-        "inGameUsername": "Azura",
-        "alliance": "Shadow Vanguard"
-    },
-    {
-        "discordId": "677759545644285974",
-        "inGameUsername": "Sifrins",
-        "alliance": "Shadow Lumina"
-    },
-    {
-        "discordId": "1311094105559797860",
-        "inGameUsername": "Lunarz",
-        "alliance": "Shadow Eclipse"
-    },
-    {
-        "discordId": "1103743950138917026",
-        "inGameUsername": "Rapsodia",
-        "alliance": "Shadow Lumina"
-    },
-    {
-        "discordId": "1284836697200136193",
-        "inGameUsername": "Letho",
-        "alliance": "Shadow Eclipse"
-    },
-    {
-        "discordId": "640223445615116328",
-        "inGameUsername": "ArxiDemon",
-        "alliance": "Shadow Lumina"
-    },
-    {
-        "discordId": "505473789526671380",
-        "inGameUsername": "GerDanny",
-        "alliance": "No Association"
-    },
-    {
-        "discordId": "1310434840407048225",
-        "inGameUsername": "Obito",
-        "alliance": "Shadow Spartans"
-    },
-    {
-        "discordId": "386588698612989964",
-        "inGameUsername": "Umzy",
-        "alliance": "Shadow Monarchs"
-    },
-    {
-        "discordId": "796065143347347496",
-        "inGameUsername": "Hori",
-        "alliance": "Shadow Death"
-    },
-    {
-        "discordId": "403559247952216064",
-        "inGameUsername": "CornTom",
-        "alliance": "Shadow Monarchs"
-    },
-    {
-        "discordId": "596235699552911370",
-        "inGameUsername": "Jucomicsssssss",
-        "alliance": "Shadow Spartans"
-    },
-    {
         "discordId": "759848170837639178",
         "inGameUsername": "KILLER13880",
         "alliance": "Shadow Lumina"
+    },
+    {
+        "discordId": "1094482234838356019",
+        "inGameUsername": "TENGEN",
+        "alliance": "Shadow Spartans"
+    },
+    {
+        "discordId": "858220404157448202",
+        "inGameUsername": "Chuotcon",
+        "alliance": "Unrecognized Alliance"
+    },
+    {
+        "discordId": "404011676166258720",
+        "inGameUsername": "KnightsTemplar",
+        "alliance": "Shadow Spartans"
+    },
+    {
+        "discordId": "1069799609817378967",
+        "inGameUsername": "SpideyBoy",
+        "alliance": "No Association"
     }
 ]
