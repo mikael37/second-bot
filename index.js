@@ -1,6 +1,12 @@
 const fs = require("node:fs");
 const path = require("node:path");
-const { Client, Collection, Events, GatewayIntentBits, ActivityType } = require("discord.js");
+const {
+  Client,
+  Collection,
+  Events,
+  GatewayIntentBits,
+  ActivityType,
+} = require("discord.js");
 const interactionHandler = require("./interactionHandler"); // Import the handler
 
 const { DISCORD_TOKEN: token } = process.env;
@@ -14,14 +20,17 @@ const client = new Client({
   ],
 });
 
-client.commands = new Collection();
+client.slashCommands = new Collection();
+client.nonSlashCommands = new Collection();
 
-// Load commands
-const foldersPath = path.join(__dirname, "commands", "slash");
-const commandFolders = fs.readdirSync(foldersPath);
+//
+// Load Slash Commands
+//
+const slashFoldersPath = path.join(__dirname, "commands", "slash");
+const slashCommandFolders = fs.readdirSync(slashFoldersPath);
 
-for (const folder of commandFolders) {
-  const commandsPath = path.join(foldersPath, folder);
+for (const folder of slashCommandFolders) {
+  const commandsPath = path.join(slashFoldersPath, folder);
   const commandFiles = fs
     .readdirSync(commandsPath)
     .filter((file) => file.endsWith(".js"));
@@ -29,7 +38,7 @@ for (const folder of commandFolders) {
     const filePath = path.join(commandsPath, file);
     const command = require(filePath);
     if ("data" in command && "execute" in command) {
-      client.commands.set(command.data.name, command);
+      client.slashCommands.set(command.data.name, command);
     } else {
       console.log(
         `[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`
@@ -38,10 +47,33 @@ for (const folder of commandFolders) {
   }
 }
 
+//
+// Load Non-Slash Commands
+//
+const nonSlashCommandsPath = path.join(__dirname, "commands", "non-slash");
+const nonSlashCommandFiles = fs
+  .readdirSync(nonSlashCommandsPath)
+  .filter((file) => file.endsWith(".js"));
+
+for (const file of nonSlashCommandFiles) {
+  const filePath = path.join(nonSlashCommandsPath, file);
+  const command = require(filePath);
+  if ("name" in command && "execute" in command) {
+    client.nonSlashCommands.set(command.name, command);
+  } else {
+    console.log(
+      `[WARNING] The command at ${filePath} is missing a required "name" or "execute" property.`
+    );
+  }
+}
+
+//
+// Bot Ready Event
+//
 client.once(Events.ClientReady, () => {
   console.log(`Logged in as ${client.user.tag}!`);
   client.user.setPresence({
-    status: 'online', // Explicitly sets the bot's status to online
+    status: "online", // Explicitly sets the bot's status to online
     activities: [
       {
         name: "for Titan movements",
@@ -51,20 +83,21 @@ client.once(Events.ClientReady, () => {
   });
 });
 
+//
+// Slash Command Handling
+//
 client.on(Events.InteractionCreate, async (interaction) => {
   if (interaction.isCommand()) {
-    // Check if the user has the specific ID (replace "001" with the actual ID)
     if (interaction.user.id !== "409123936748437516") {
       return interaction.reply({
         content: "You are not authorized to use this command.",
-        ephemeral: true, // Makes the message visible only to the user
+        ephemeral: true,
       });
     }
 
-    const command = client.commands.get(interaction.commandName);
+    const command = client.slashCommands.get(interaction.commandName);
     if (!command) return;
     try {
-      // Execute the command
       await command.execute(interaction);
     } catch (error) {
       console.error(error);
@@ -74,9 +107,34 @@ client.on(Events.InteractionCreate, async (interaction) => {
       });
     }
   } else {
-    // Handle interactions like button presses here
     await interactionHandler(interaction);
   }
 });
 
+//
+// Non-Slash Command Handling
+//
+client.on(Events.MessageCreate, async (message) => {
+  if (message.author.bot) return;
+
+  const prefix = "..";
+  if (!message.content.startsWith(prefix)) return;
+
+  const args = message.content.slice(prefix.length).trim().split(/ +/);
+  const commandName = args.shift().toLowerCase();
+
+  const command = client.nonSlashCommands.get(commandName);
+  if (!command) return;
+
+  try {
+    await command.execute(message, args);
+  } catch (error) {
+    console.error(error);
+    message.reply("There was an error executing that command.");
+  }
+});
+
+//
+// Log in to Discord
+//
 client.login(token);
