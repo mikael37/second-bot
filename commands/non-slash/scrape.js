@@ -35,7 +35,8 @@ module.exports = {
           const allianceMatch = msg.content.match(allianceRegex);
   
           const messageDate = msg.createdAt;
-          const formattedDate = `${messageDate.getDate().toString().padStart(2, '0')}/${(messageDate.getMonth() + 1).toString().padStart(2, '0')}/${messageDate.getFullYear().toString().slice(2)}`;
+          const formattedDate = `${messageDate.getMonth() + 1}/${messageDate.getDate()}/${messageDate.getFullYear()}`;
+
   
           if (idMatch && reasonMatch) {
             const id = idMatch[0].split("ID: ")[1];
