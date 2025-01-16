@@ -6,13 +6,15 @@ module.exports = {
         return message.reply("You need to specify a channel.");
       }
   
-      const channelName = args[0];
+      const channelName = args[0].toLowerCase().trim(); // Normalize input
       const targetChannel = message.guild.channels.cache.find(
-        (channel) => channel.name === channelName
+        (channel) => 
+          channel.name.toLowerCase() === channelName && 
+          channel.type === 'GUILD_TEXT'  // Ensure it's a text channel
       );
   
       if (!targetChannel) {
-        return message.reply(`Could not find the channel named "${channelName}".`);
+        return message.reply(`Could not find the text channel named "${channelName}".`);
       }
   
       try {
