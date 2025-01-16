@@ -1,6 +1,6 @@
 module.exports = {
     name: "scrape",
-    description: "Scrapes ID or Alliance and Reason from a specified channel.",
+    description: "Scrapes ID or Alliance, Reason, and Date from a specified channel.",
     async execute(message, args) {
       if (!args.length) {
         return message.reply("You need to specify a channel.");
@@ -34,14 +34,17 @@ module.exports = {
           const reasonMatch = msg.content.match(reasonRegex);
           const allianceMatch = msg.content.match(allianceRegex);
   
+          const messageDate = msg.createdAt;
+          const formattedDate = `${messageDate.getDate().toString().padStart(2, '0')}/${(messageDate.getMonth() + 1).toString().padStart(2, '0')}/${messageDate.getFullYear().toString().slice(2)}`;
+  
           if (idMatch && reasonMatch) {
             const id = idMatch[0].split("ID: ")[1];
             const reason = reasonMatch[0].split("Reason: ")[1];
-            results.push(`ID: ${id}, Reason: ${reason}`);
+            results.push(`Date: ${formattedDate}, ID: ${id}, Reason: ${reason}`);
           } else if (allianceMatch && reasonMatch) {
             const alliance = allianceMatch[0].split("Alliance: ")[1];
             const reason = reasonMatch[0].split("Reason: ")[1];
-            results.push(`Alliance: ${alliance}, Reason: ${reason}`);
+            results.push(`Date: ${formattedDate}, Alliance: ${alliance}, Reason: ${reason}`);
           }
         });
   
