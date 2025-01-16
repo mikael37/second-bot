@@ -2,19 +2,26 @@ module.exports = {
     name: "scrape",
     description: "Scrapes 9-digit numbers from a specified channel.",
     async execute(message, args) {
-      if (!args.length) {
-        return message.reply("You need to specify a channel.");
+      if (args.length < 2) {
+        return message.reply("You need to specify both the channel and the additional argument (e.g., 'channel 14').");
       }
   
-      const channelName = args[0].toLowerCase().trim(); // Normalize input
+      // Extract the channel mention (e.g., #blacklist)
+      const channelMention = args[0];
+      const additionalArg = args.slice(1).join(" ");  // Join the remaining args into a single string for the additional argument(s)
+  
+      // Make sure the channel mention starts with '#'
+      if (!channelMention.startsWith("#")) {
+        return message.reply("You must mention a channel (e.g., #blacklist).");
+      }
+  
+      // Find the channel based on the mention
       const targetChannel = message.guild.channels.cache.find(
-        (channel) => 
-          channel.name.toLowerCase() === channelName && 
-          channel.type === 'GUILD_TEXT'  // Ensure it's a text channel
+        (channel) => channel.name === channelMention.slice(1) // Remove the '#' symbol
       );
   
       if (!targetChannel) {
-        return message.reply(`Could not find the text channel named "${channelName}".`);
+        return message.reply(`Could not find the channel named "${channelMention}".`);
       }
   
       try {
@@ -41,6 +48,10 @@ module.exports = {
         // Send the found numbers back to the channel where the command was executed in a vertical list
         const formattedList = foundNumbers.join("\n");
         message.reply(`Found the following 9-digit numbers:\n${formattedList}`);
+  
+        // Optionally, send the additional argument back as well (e.g., 'channel 14')
+        message.reply(`Additional argument received: ${additionalArg}`);
+  
       } catch (error) {
         console.error("Error while fetching messages or processing numbers:", error);
         message.reply("There was an error while scraping the specified channel.");
