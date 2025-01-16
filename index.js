@@ -17,7 +17,7 @@ const client = new Client({
 client.commands = new Collection();
 
 // Load commands
-const foldersPath = path.join(__dirname, "commands");
+const foldersPath = path.join(__dirname, "commands", "slash");
 const commandFolders = fs.readdirSync(foldersPath);
 
 for (const folder of commandFolders) {
