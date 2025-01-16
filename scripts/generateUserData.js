@@ -109,7 +109,7 @@ function processData(data, headers) {
 
 (async () => {
     const range = 'Main Database!A1:H'; // Full range, including headers
-    const dataRange = range.replace(/!\w+\d*:\w+\d*$/, '!A400:H450'); // Data range excluding header row
+    const dataRange = range.replace(/!\w+\d*:\w+\d*$/, '!A2:H'); // Data range excluding header row
 
     // Get headers dynamically
     const headers = (await getHeaders(range)).map(header => header.trim());
