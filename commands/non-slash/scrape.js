@@ -1,6 +1,6 @@
 module.exports = {
     name: "scrape",
-    description: "Scrapes ID and Reason from a specified channel.",
+    description: "Scrapes ID or Alliance and Reason from a specified channel.",
     async execute(message, args) {
       if (!args.length) {
         return message.reply("You need to specify a channel.");
@@ -25,22 +25,28 @@ module.exports = {
         const messages = await targetChannel.messages.fetch({ limit: 100 });
         const idRegex = /ID: (\d{9})/g;
         const reasonRegex = /Reason: (.+)/g;
+        const allianceRegex = /Alliance: (.+)/g;
   
         let results = [];
   
         messages.forEach((msg) => {
           const idMatch = msg.content.match(idRegex);
           const reasonMatch = msg.content.match(reasonRegex);
+          const allianceMatch = msg.content.match(allianceRegex);
   
           if (idMatch && reasonMatch) {
             const id = idMatch[0].split("ID: ")[1];
             const reason = reasonMatch[0].split("Reason: ")[1];
             results.push(`ID: ${id}, Reason: ${reason}`);
+          } else if (allianceMatch && reasonMatch) {
+            const alliance = allianceMatch[0].split("Alliance: ")[1];
+            const reason = reasonMatch[0].split("Reason: ")[1];
+            results.push(`Alliance: ${alliance}, Reason: ${reason}`);
           }
         });
   
         if (results.length === 0) {
-          return message.reply("No ID and Reason pairs found in the specified channel.");
+          return message.reply("No ID/Alliance and Reason pairs found in the specified channel.");
         }
   
         const formattedList = results.join("\n");
